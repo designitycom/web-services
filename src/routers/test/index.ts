@@ -3,7 +3,9 @@ import UserController from "./controller";
 const router =express.Router();
 
 
-router.get('/',UserController.dashboard)//site.com/api/user
+
+
+router.post('/',UserController.check)//site.com/api/test
 
 
 export default router;
