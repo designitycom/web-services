@@ -5,14 +5,14 @@ dotenv.config()
 
 export async function airdrop(
   connection: web3.Connection,
-  sol : number
-){
+  sol: number
+) {
   const secret = JSON.parse(process.env.PRIVATE_KEY ?? "") as number[]
   const secretKey = Uint8Array.from(secret)
   const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
   const airdropSignature = await connection.requestAirdrop(
     keypairFromSecretKey.publicKey,
-    sol*web3.LAMPORTS_PER_SOL
+    sol * web3.LAMPORTS_PER_SOL
   )
   const latestBlockHash = await connection.getLatestBlockhash()
 
@@ -26,7 +26,7 @@ export async function airdrop(
 }
 export async function getBalance(
   connection: web3.Connection
-){
+) {
   const secret = JSON.parse(process.env.PRIVATE_KEY ?? "") as number[]
   const secretKey = Uint8Array.from(secret)
   const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
@@ -36,16 +36,16 @@ export async function getBalance(
 }
 export async function createKeypair(
   connection: web3.Connection,
-  secretKeyAddress:string
+  secretKeyAddress: string
 ): Promise<web3.Keypair> {
 
   const secret = JSON.parse(secretKeyAddress ?? "") as number[]
   const secretKey = Uint8Array.from(secret)
   const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
-  
+
   return keypairFromSecretKey
 }
-const fromHexString = (hexString:string) =>
+const fromHexString = (hexString: string) =>
   Uint8Array.from(hexString!.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)));
 export function initializeKeypair(
   connection: web3.Connection
@@ -62,14 +62,14 @@ export function initializeKeypair(
   const secret = JSON.parse(process.env.PRIVATE_KEY ?? "") as number[]
   const secretKey = Uint8Array.from(secret)
   const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
-  
+
   airdropSolIfNeeded(keypairFromSecretKey, connection)
   return keypairFromSecretKey
 }
 export function getKeyPair(
-  privateKey:string,
+  privateKey: string,
   connection: web3.Connection
-){
+) {
   const secretKey = Uint8Array.from(fromHexString(privateKey))
   const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
   airdropSolIfNeeded(keypairFromSecretKey, connection)
@@ -85,28 +85,28 @@ async function airdropSolIfNeeded(
 
   if (balance < web3.LAMPORTS_PER_SOL) {
     console.log("Airdropping 1 SOL...")
-    console.log(web3.LAMPORTS_PER_SOL+" sol")
-    console.log("public key"+signer.publicKey.toString())
-    try{
+    console.log(web3.LAMPORTS_PER_SOL + " sol")
+    console.log("public key" + signer.publicKey.toString())
+    try {
 
-    const airdropSignature = await connection.requestAirdrop(
-      signer.publicKey,
-      web3.LAMPORTS_PER_SOL
-    )
-    console.log("Airdropping sended")
+      const airdropSignature = await connection.requestAirdrop(
+        signer.publicKey,
+        web3.LAMPORTS_PER_SOL
+      )
+      console.log("Airdropping sended")
 
-    const latestBlockHash = await connection.getLatestBlockhash()
+      const latestBlockHash = await connection.getLatestBlockhash()
 
-    await connection.confirmTransaction({
-      blockhash: latestBlockHash.blockhash,
-      lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-      signature: airdropSignature,
-    })
+      await connection.confirmTransaction({
+        blockhash: latestBlockHash.blockhash,
+        lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+        signature: airdropSignature,
+      })
 
-    const newBalance = await connection.getBalance(signer.publicKey)
-    console.log("New balance is", newBalance / web3.LAMPORTS_PER_SOL)
-    }catch(er){
-        console.log('Error Here: '+er)
+      const newBalance = await connection.getBalance(signer.publicKey)
+      console.log("New balance is", newBalance / web3.LAMPORTS_PER_SOL)
+    } catch (er) {
+      console.log('Error Here: ' + er)
     }
   }
 }

@@ -5,6 +5,7 @@
 /config
 /dist
 /.pnp
+/uploads
 .pnp.js
 
 # testing
