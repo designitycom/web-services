@@ -45,6 +45,8 @@ export async function createKeypair(
   
   return keypairFromSecretKey
 }
+const fromHexString = (hexString:string) =>
+  Uint8Array.from(hexString!.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)));
 export function initializeKeypair(
   connection: web3.Connection
 ): web3.Keypair {
@@ -61,6 +63,15 @@ export function initializeKeypair(
   const secretKey = Uint8Array.from(secret)
   const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
   
+  airdropSolIfNeeded(keypairFromSecretKey, connection)
+  return keypairFromSecretKey
+}
+export function getKeyPair(
+  privateKey:string,
+  connection: web3.Connection
+){
+  const secretKey = Uint8Array.from(fromHexString(privateKey))
+  const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
   airdropSolIfNeeded(keypairFromSecretKey, connection)
   return keypairFromSecretKey
 }
