@@ -12,6 +12,9 @@
   "dependencies": {
     "@metaplex-foundation/js": "^0.19.3",
     "@solana/web3.js": "^1.76.0",
+    "@temporalio/client": "^1.7.4",
+    "@temporalio/worker": "^1.7.4",
+    "@temporalio/workflow": "^1.7.4",
     "@types/jsonwebtoken": "^9.0.2",
     "@web3auth/base": "^5.2.0",
     "@web3auth/no-modal": "^5.2.0",
@@ -29,6 +32,7 @@
     "jose": "^4.14.4",
     "jsonwebtoken": "^9.0.0",
     "multer": "^1.4.5-lts.1",
+    "nanoid": "^3.3.6",
     "node-jose": "^2.2.0",
     "winston": "^3.8.2"
   },
@@ -40,6 +44,7 @@
     "@types/multer": "^1.4.7",
     "@types/node": "^20.1.2",
     "@types/node-jose": "^1.1.10",
+    "@types/uuid": "^9.0.1",
     "concurrently": "^8.0.1",
     "nodemon": "^2.0.22",
     "ts-node": "^10.9.1",

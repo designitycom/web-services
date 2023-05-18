@@ -6,6 +6,13 @@ import { airdrop, createKeypair, getBalance, getKeyPair, initializeKeypair } fro
 import * as web3 from "@solana/web3.js"
 import * as jose from 'jose'
 import fs from "fs"
+import { Connection, Client } from '@temporalio/client';
+import { getStatus, mint } from "./workflow";
+import { Worker } from '@temporalio/worker';
+import * as activities from './workflow/activities';
+import { nanoid } from "nanoid";
+import { cli } from "winston/lib/winston/config";
+
 
 
 class TestController extends controller {
@@ -26,10 +33,12 @@ class TestController extends controller {
     // const jwtDecoded = await jose.jwtVerify(idToken, jwks, {
     //   algorithms: ["ES256"],
     // });
-    const name =req.body.name;
-    console.log("nftname >>>>>>"+name);
+    const name = req.body.name;
+    console.log("nftname >>>>>>" + name);
     const description = req.body.description;
-    console.log("nft description>>>>>"+ description);
+    console.log("nft description>>>>>" + description);
+    const fileName = req.body.fileName;
+    console.log("nft fileName>>>>>" + fileName);
     const privateKey = req.body.privateKey;
     // console.log((jwtDecoded.payload as any).wallets[0].public_key);
     // console.log((jwtDecoded.payload as any).wallets[0]);
@@ -47,7 +56,7 @@ class TestController extends controller {
         }),
       )
     console.log("make metaplex");
-    const buffer = fs.readFileSync("uploads/images/index.jpg");
+    const buffer = fs.readFileSync("uploads/images/" + fileName);
     console.log("make buffer");
     const file = toMetaplexFile(buffer, "image.png");
     console.log("to metaplex file");
@@ -62,14 +71,72 @@ class TestController extends controller {
     const { nft } = await metaplex.nfts().create(
       {
         uri: uri,
-        name: "My NFT",
+        name: name,
         sellerFeeBasisPoints: 0,
       },
       { commitment: "finalized" },
     );
     console.log("create nft");
     console.log(`Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`);
-    res.send("done");
+    const data = {
+      explorer_uri: `https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`,
+      nft: nft,
+      uri: uri
+    };
+    this.myResponse(res, 200, data, "");
+  }
+
+  workflow = async (req: Request, res: Response) => {
+
+    const connection = await Connection.connect();
+    const client = new Client({
+      connection,
+      // namespace: 'foo.bar', // connects to 'default' namespace if not specified
+    });
+
+    const workFlowId = 'mint-' + nanoid();
+    const handle = await client.workflow.start(mint, {
+      // type inference works! args: [name: string]
+      args: ['Temporal'],
+      taskQueue: 'mint',
+      // in practice, use a meaningful business ID, like customerId or transactionId
+      workflowId: workFlowId,
+    });
+    console.log(`Started workflow`);
+
+
+    res.send("worker run:" + workFlowId)
+  }
+
+
+
+  mintWorker = async (req: Request, res: Response) => {
+    const worker = await Worker.create({
+      workflowsPath: require.resolve('./workflow'),
+      activities,
+      taskQueue: 'mint',
+    });
+    worker.run();
+    res.send("worker run")
+  }
+
+  getInfoWorkFlow = async (req: Request, res: Response) => {
+
+    const connection = await Connection.connect();
+    const client = new Client({
+      connection,
+      // namespace: 'foo.bar', // connects to 'default' namespace if not specified
+    });
+    const workFlow = await client.workflow.getHandle(req.params.workFlowId).describe();
+    res.send(workFlow);
+    const handle = client.workflow.getHandle(req.params.workFlowId);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    const val = await handle.query(getStatus);
+    // Should print "10", may print another number depending on timing
+    console.log(val);
+
+    await handle.result();
+    console.log('complete');
   }
 
 

@@ -1,5 +1,5 @@
 import express from "express"
-import UserController from "./controller";
+import TestController from "./controller";
 import multer from 'multer';
 const router = express.Router(); 
 
@@ -17,8 +17,11 @@ const upload = multer({ storage: storage })
 
 
 
-router.post('/', UserController.check)//site.com/api/test
-router.post('/mint', upload.single('file'), UserController.mint)//site.com/api/test/mint
+router.post('/', TestController.check)//site.com/api/test
+router.post('/mint', upload.single('file'), TestController.mint)//site.com/api/test/mint
+router.get('/startWorker',TestController.mintWorker)
+router.get('/getStatus/:workFlowId',TestController.getInfoWorkFlow)
+router.get('/startWorkFlow',TestController.workflow)
 
 
 export default router;                   
