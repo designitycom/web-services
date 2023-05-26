@@ -39,6 +39,8 @@ class TestController extends controller {
     const fileName = req.body.fileName;
     console.log("nft fileName>>>>>" + fileName);
     const privateKey = req.body.privateKey;
+    const collectionMint = req.body.collectionMint;
+    console.log("collectionMint>>>>>" + collectionMint);
     // console.log((jwtDecoded.payload as any).wallets[0].public_key);
     // console.log((jwtDecoded.payload as any).wallets[0]);
     console.log(privateKey);
@@ -65,6 +67,71 @@ class TestController extends controller {
       name: name,
       description: description,
       image: imageUri,
+    });        
+    console.log("upload meta data====>uri:" + uri);
+    const { nft } = await metaplex.nfts().create(
+      {
+        uri: uri,
+        name: name,
+        sellerFeeBasisPoints: 0,
+        collection:new PublicKey(collectionMint)
+      },          
+      { commitment: "finalized" },
+    );  
+    console.log("create nft");
+    console.log(`Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`);
+    const data = {
+      explorer_uri: `https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`,
+      nft: nft,
+      uri: uri
+    };  
+    const result =await metaplex.nfts().verifyCollection({
+      //this is what verifies our collection as a Certified Collection
+      mintAddress: nft.address,
+      collectionMintAddress: collectionMint,
+      isSizedCollection: true,
+    })
+    this.myResponse(res, 200, result, "");
+  }
+  mintCollection = async (req: Request, res: Response) => {
+    // const idToken=req.body.idToken
+    // const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
+    // const jwtDecoded = await jose.jwtVerify(idToken, jwks, {
+    //   algorithms: ["ES256"],
+    // });
+    const name = req.body.name;
+    console.log("nftname >>>>>>" + name);
+    const description = req.body.description;
+    console.log("nft description>>>>>" + description);
+    const fileName = req.body.fileName;
+    console.log("nft fileName>>>>>" + fileName);
+    const privateKey = req.body.privateKey;
+    // console.log((jwtDecoded.payload as any).wallets[0].public_key);
+    // console.log((jwtDecoded.payload as any).wallets[0]);
+    console.log(privateKey);
+    const connection = new conn(clusterApiUrl("devnet"))
+    const user = await getKeyPair(privateKey, connection)
+    console.log("PublicKey:", user.publicKey.toBase58())
+    const metaplex = Metaplex.make(connection)
+      .use(keypairIdentity(user))
+      .use(
+        bundlrStorage({
+          address: "https://devnet.bundlr.network",
+          providerUrl: "https://api.devnet.solana.com",
+          timeout: 60000,
+        }),
+      )    
+    console.log("make metaplex");
+    const buffer = fs.readFileSync("uploads/images/" + fileName);
+    console.log("make buffer");
+    const file = toMetaplexFile(buffer, "image.png");
+    console.log("to metaplex file");
+    const imageUri = await metaplex.storage().upload(file);
+    console.log("storage upload file");
+    const { uri } = await metaplex.nfts().uploadMetadata({
+      name: name,
+      description: description,
+      image: imageUri,
     });
     console.log("upload meta data====>uri:" + uri);
     const { nft } = await metaplex.nfts().create(
@@ -72,6 +139,7 @@ class TestController extends controller {
         uri: uri,
         name: name,
         sellerFeeBasisPoints: 0,
+        isCollection:true
       },
       { commitment: "finalized" },
     );
