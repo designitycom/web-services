@@ -1,4 +1,4 @@
-FROM node:18.70.0
+FROM node:18.7.0
 WORKDIR /web-services 
 COPY package.json .
 RUN npm install
