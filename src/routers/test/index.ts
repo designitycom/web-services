@@ -25,4 +25,15 @@ router.get('/startWorker', TestController.mintWorker)
 router.get('/getStatus/:workFlowId', TestController.getInfoWorkFlow)
 router.post('/getAllNft',multer().none(), TestController.findAllMint)
 
+
+router.get('/callSignalWorkFlow',TestController.callSignalWorkFlow)
+router.get('/startWorkerSignal',TestController.startWorkerSignal)
+router.get('/getStatusSignal',TestController.getStatusSignal)
+router.get('/cancelSignal',TestController.cancelSignal)
+router.get('/callSignal',TestController.callSignal)
+
+
+
+router.get('/bigquery',TestController.bigQuery)
+
 export default router;                   

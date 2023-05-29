@@ -7,11 +7,12 @@ import * as web3 from "@solana/web3.js"
 import * as jose from 'jose'
 import fs from "fs"
 import { Connection, Client } from '@temporalio/client';
-import { getStatus, mint, updateMint } from "./workflow/workflows";
+import { getStatus, isBlockedQuery, mint, signals, unblockSignal, updateMint } from "./workflow/workflows";
 import { Worker } from '@temporalio/worker';
 import * as activities from './workflow/activities';
 import { nanoid } from "nanoid";
 import { cli } from "winston/lib/winston/config";
+import { BigQuery } from "@google-cloud/bigquery";
 
 
 
@@ -88,9 +89,9 @@ class TestController extends controller {
     const result =await metaplex.nfts().verifyCollection({
       //this is what verifies our collection as a Certified Collection
       mintAddress: nft.address,
-      collectionMintAddress: collectionMint,
+      collectionMintAddress: new PublicKey(collectionMint),
       isSizedCollection: true,
-    })
+    }) 
     this.myResponse(res, 200, result, "");
   }
   mintCollection = async (req: Request, res: Response) => {
@@ -295,6 +296,77 @@ class TestController extends controller {
     });
     res.json(result)
   }
-}
 
+  callSignalWorkFlow=async(req:Request,res:Response)=>{
+
+    const connection = await Connection.connect();
+    const client = new Client({
+      connection,
+    });
+
+    const workFlowId = 'signal-test';
+    const handle = await client.workflow.start(signals, {
+      args: [],
+      taskQueue: 'signal',
+      workflowId: workFlowId,
+    });
+    console.log(`Started workflow`);
+
+
+    res.send("worker run:" + workFlowId)
+  }
+  startWorkerSignal = async (req: Request, res: Response) => {
+    const worker = await Worker.create({
+      workflowsPath: require.resolve('./workflow/workflows'),
+      activities,
+      taskQueue: 'signal',
+    });
+    worker.run();
+    res.send("worker run")
+  }
+  getStatusSignal=async(req:Request,res:Response)=>{
+
+    const connection = await Connection.connect();
+    const client = new Client({
+      connection,
+    });
+    const handle = client.workflow.getHandle('signal-test');
+    const isBlocked=await handle.query(isBlockedQuery);
+    console.log('blocked?', isBlocked);
+    res.send("isBlocked?"+isBlocked)
+  }
+  cancelSignal=async(req:Request,res:Response)=>{
+    const connection = await Connection.connect();
+    const client = new Client({
+      connection,
+    });
+    const handle = client.workflow.getHandle('signal-test');
+
+    await handle.cancel();
+    console.log('workflow canceled');
+    res.send("canceled signal");
+  }
+  
+  callSignal=async(req:Request,res:Response)=>{
+    const connection = await Connection.connect();
+    const client = new Client({
+      connection,
+    });
+    const handle = client.workflow.getHandle('signal-test');
+    await handle.signal(unblockSignal);
+    console.log('unblockSignal sent');
+    res.send("unblockSignal sent");
+  }
+
+
+   
+  bigQuery=async(req:Request,res:Response)=>{
+    const bigquery = new BigQuery();
+    const dataset = await bigquery.dataset("designitybigquerysandbox.first");
+    console.log("data_set",dataset);
+    const [view] = await dataset.table("ftbl").get();
+    res.send(view.metadata.tableReference);
+  }
+}
+  
 export default new TestController
