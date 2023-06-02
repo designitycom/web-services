@@ -67,10 +67,10 @@ export async function signals():Promise<void>{
   wf.setHandler(isBlockedQuery, () => isBlocked);
   console.log('Blocked');
   try {
-    await wf.condition(() => !isBlocked);
+    await wf.condition(() => !isBlocked); 
     console.log('Unblocked');
   } catch (err) {
-    if (err instanceof wf.CancelledFailure) {
+    if (err instanceof wf.CancelledFailure) { 
       console.log('Cancelled');
     }
     throw err;

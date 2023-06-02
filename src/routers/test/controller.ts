@@ -359,14 +359,48 @@ class TestController extends controller {
   }
 
 
-   
-  bigQuery=async(req:Request,res:Response)=>{
-    const bigquery = new BigQuery();
-    const dataset = await bigquery.dataset("designitybigquerysandbox.first");
-    console.log("data_set",dataset);
-    const [view] = await dataset.table("ftbl").get();
-    res.send(view.metadata.tableReference);
+     
+  checkingEmail=async(req:Request,res:Response)=>{
+    // const bigquery = new BigQuery({
+    //   keyFilename:'bigquery-sa.json'
+    // });
+    // const dataset = await bigquery.dataset("first");
+    // console.log("data_set:",dataset);
+    // const [view] = await dataset.table("ftbl").get();
+    // res.send(view);
+    // res.send("bigquery");     
+
+    
+    const bigquery = new BigQuery({
+      keyFilename:'bigquery-sa.json',
+      projectId:'designitybigquerysandbox',
+      scopes:[
+        "https://www.googleapis.com/auth/cloud-platform",
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/bigquery"
+      ]
+      
+    });
+    const query = `SELECT string_field_0 as name ,string_field_1 as email
+    FROM \`designitybigquerysandbox.designityemails.designityemailstable\`
+     LIMIT 100`;
+    console.log(query);
+  const options = {
+    query: query,
+    // Location must match that of the dataset(s) referenced in the query.
+    location: 'US',
+  };
+
+  //   // Run the query
+    const [rows] = await bigquery.query(options);
+
+    console.log('Rows:',rows);
+   const result= rows.find(row => row.email==req.body.email);
+  //   res.send(rows);
+console.log(result);
+
+this.myResponse(res, 200, result, "");
   }
-}
+}       
   
 export default new TestController
