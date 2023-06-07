@@ -30,10 +30,10 @@ router.get('/callSignalWorkFlow',TestController.callSignalWorkFlow)
 router.get('/startWorkerSignal',TestController.startWorkerSignal)
 router.get('/getStatusSignal',TestController.getStatusSignal)
 router.get('/cancelSignal',TestController.cancelSignal)
-router.get('/callSignal',TestController.callSignal)
+router.get('/callSignal',TestController.callSignal) 
 
 
 
-router.get('/bigquery',TestController.bigQuery)
+router.post('/checkingEmail',multer().none(),TestController.checkingEmail)
 
 export default router;                   

@@ -3,7 +3,7 @@ import * as wf from '@temporalio/workflow';
 // Only import the activity types
 import type * as activities from './activities';
 import { waitForDebugger } from 'inspector';
-import { Nft } from '@metaplex-foundation/js';
+import { Nft, mintNftBuilder } from '@metaplex-foundation/js';
 
 const { mintActivity, updateMintActivity } = proxyActivities<typeof activities>({
   startToCloseTimeout: '1 minute',
@@ -67,10 +67,10 @@ export async function signals():Promise<void>{
   wf.setHandler(isBlockedQuery, () => isBlocked);
   console.log('Blocked');
   try {
-    await wf.condition(() => !isBlocked);
+    await wf.condition(() => !isBlocked); 
     console.log('Unblocked');
   } catch (err) {
-    if (err instanceof wf.CancelledFailure) {
+    if (err instanceof wf.CancelledFailure) { 
       console.log('Cancelled');
     }
     throw err;
