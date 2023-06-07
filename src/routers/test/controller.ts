@@ -68,30 +68,30 @@ class TestController extends controller {
       name: name,
       description: description,
       image: imageUri,
-    });        
+    });
     console.log("upload meta data====>uri:" + uri);
     const { nft } = await metaplex.nfts().create(
       {
         uri: uri,
         name: name,
         sellerFeeBasisPoints: 0,
-        collection:new PublicKey(collectionMint)
-      },          
+        collection: new PublicKey(collectionMint)
+      },
       { commitment: "finalized" },
-    );  
+    );
     console.log("create nft");
     console.log(`Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`);
     const data = {
       explorer_uri: `https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`,
       nft: nft,
       uri: uri
-    };  
-    const result =await metaplex.nfts().verifyCollection({
+    };
+    const result = await metaplex.nfts().verifyCollection({
       //this is what verifies our collection as a Certified Collection
       mintAddress: nft.address,
       collectionMintAddress: new PublicKey(collectionMint),
       isSizedCollection: true,
-    }) 
+    })
     this.myResponse(res, 200, result, "");
   }
   mintCollection = async (req: Request, res: Response) => {
@@ -121,7 +121,7 @@ class TestController extends controller {
           providerUrl: "https://api.devnet.solana.com",
           timeout: 60000,
         }),
-      )    
+      )
     console.log("make metaplex");
     const buffer = fs.readFileSync("uploads/images/" + fileName);
     console.log("make buffer");
@@ -140,7 +140,7 @@ class TestController extends controller {
         uri: uri,
         name: name,
         sellerFeeBasisPoints: 0,
-        isCollection:true
+        isCollection: true
       },
       { commitment: "finalized" },
     );
@@ -296,8 +296,7 @@ class TestController extends controller {
     });
     res.json(result)
   }
-
-  callSignalWorkFlow=async(req:Request,res:Response)=>{
+  callSignalWorkFlow = async (req: Request, res: Response) => {
 
     const connection = await Connection.connect();
     const client = new Client({
@@ -324,18 +323,18 @@ class TestController extends controller {
     worker.run();
     res.send("worker run")
   }
-  getStatusSignal=async(req:Request,res:Response)=>{
+  getStatusSignal = async (req: Request, res: Response) => {
 
     const connection = await Connection.connect();
     const client = new Client({
       connection,
     });
     const handle = client.workflow.getHandle('signal-test');
-    const isBlocked=await handle.query(isBlockedQuery);
+    const isBlocked = await handle.query(isBlockedQuery);
     console.log('blocked?', isBlocked);
-    res.send("isBlocked?"+isBlocked)
+    res.send("isBlocked?" + isBlocked)
   }
-  cancelSignal=async(req:Request,res:Response)=>{
+  cancelSignal = async (req: Request, res: Response) => {
     const connection = await Connection.connect();
     const client = new Client({
       connection,
@@ -346,8 +345,8 @@ class TestController extends controller {
     console.log('workflow canceled');
     res.send("canceled signal");
   }
-  
-  callSignal=async(req:Request,res:Response)=>{
+
+  callSignal = async (req: Request, res: Response) => {
     const connection = await Connection.connect();
     const client = new Client({
       connection,
@@ -358,9 +357,7 @@ class TestController extends controller {
     res.send("unblockSignal sent");
   }
 
-
-     
-  checkingEmail=async(req:Request,res:Response)=>{
+  checkingEmail = async (req: Request, res: Response) => {
     // const bigquery = new BigQuery({
     //   keyFilename:'bigquery-sa.json'
     // });
@@ -370,37 +367,37 @@ class TestController extends controller {
     // res.send(view);
     // res.send("bigquery");     
 
-    
+
     const bigquery = new BigQuery({
-      keyFilename:'bigquery-sa.json',
-      projectId:'designitybigquerysandbox',
-      scopes:[
+      keyFilename: 'bigquery-sa.json',
+      projectId: 'designitybigquerysandbox',
+      scopes: [
         "https://www.googleapis.com/auth/cloud-platform",
         "https://www.googleapis.com/auth/drive",
         "https://www.googleapis.com/auth/bigquery"
       ]
-      
+
     });
     const query = `SELECT string_field_0 as name ,string_field_1 as email
     FROM \`designitybigquerysandbox.designityemails.designityemailstable\`
      LIMIT 100`;
     console.log(query);
-  const options = {
-    query: query,
-    // Location must match that of the dataset(s) referenced in the query.
-    location: 'US',
-  };
+    const options = {
+      query: query,
+      // Location must match that of the dataset(s) referenced in the query.
+      location: 'US',
+    };
 
-  //   // Run the query
+    //   // Run the query
     const [rows] = await bigquery.query(options);
 
-    console.log('Rows:',rows);
-   const result= rows.find(row => row.email==req.body.email);
-  //   res.send(rows);
-console.log(result);
+    console.log('Rows:', rows);
+    const result = rows.find(row => row.email == req.body.email);
+    //   res.send(rows);
+    console.log(result);
 
-this.myResponse(res, 200, result, "");
+    this.myResponse(res, 200, result, "");
   }
-}       
-  
+}
+
 export default new TestController

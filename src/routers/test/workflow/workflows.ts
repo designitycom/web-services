@@ -3,7 +3,7 @@ import * as wf from '@temporalio/workflow';
 // Only import the activity types
 import type * as activities from './activities';
 import { waitForDebugger } from 'inspector';
-import { Nft } from '@metaplex-foundation/js';
+import { Nft, mintNftBuilder } from '@metaplex-foundation/js';
 
 const { mintActivity, updateMintActivity } = proxyActivities<typeof activities>({
   startToCloseTimeout: '1 minute',
