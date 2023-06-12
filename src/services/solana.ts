@@ -2,7 +2,7 @@ import * as web3 from "@solana/web3.js"
 import * as fs from "fs"
 import dotenv from "dotenv"
 dotenv.config()
-
+//test git
 export async function airdrop(
   connection: web3.Connection,
   sol: number
