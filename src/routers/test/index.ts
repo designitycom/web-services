@@ -24,6 +24,7 @@ router.get('/startWorkFlow', TestController.workflow)
 router.get('/startWorker', TestController.mintWorker)
 router.get('/getStatus/:workFlowId', TestController.getInfoWorkFlow)
 router.post('/getAllNft',multer().none(), TestController.findAllMint)
+router.post('/findAllMintWithCollection',multer().none(), TestController.findAllMintWithCollection)
 
 
 router.get('/callSignalWorkFlow',TestController.callSignalWorkFlow)
