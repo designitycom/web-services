@@ -1,6 +1,6 @@
 import controller from "../controller"
 import { Request, Response } from "express";
-import { Metaplex, keypairIdentity, bundlrStorage, toMetaplexFile } from "@metaplex-foundation/js";
+import { Metaplex, keypairIdentity, bundlrStorage, toMetaplexFile, Metadata } from "@metaplex-foundation/js";
 import { Connection as conn, clusterApiUrl, Keypair, PublicKey } from "@solana/web3.js";
 import { airdrop, createKeypair, getBalance, getKeyPair, initializeKeypair } from "../../services/solana";
 import * as web3 from "@solana/web3.js"
@@ -75,7 +75,7 @@ class TestController extends controller {
         uri: uri,
         name: name,
         sellerFeeBasisPoints: 0,
-        collection: new PublicKey(collectionMint)
+        collection: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!)
       },
       { commitment: "finalized" },
     );
@@ -89,7 +89,7 @@ class TestController extends controller {
     const result = await metaplex.nfts().verifyCollection({
       //this is what verifies our collection as a Certified Collection
       mintAddress: nft.address,
-      collectionMintAddress: new PublicKey(collectionMint),
+      collectionMintAddress: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!),
       isSizedCollection: true,
     })
     this.myResponse(res, 200, result, "");
@@ -296,6 +296,46 @@ class TestController extends controller {
     });
     res.json(result)
   }
+  findAllMintWithCollection = async (req: Request, res: Response) => {
+
+    const idToken = req.body.idToken;
+    console.log(idToken);
+    const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
+    const jwtDecoded = await jose.jwtVerify(idToken, jwks, {
+      algorithms: ["ES256"],
+    });
+    const public_key = (jwtDecoded.payload as any).wallets[0].public_key;
+    const privateKey = req.body.privateKey;
+    const connection = new conn(clusterApiUrl("devnet"))
+    const user = await getKeyPair(privateKey, connection)
+    const metaplex = Metaplex.make(connection)
+    .use(keypairIdentity(user))
+      .use(
+        bundlrStorage({
+          address: "https://devnet.bundlr.network",
+          providerUrl: "https://api.devnet.solana.com",
+          timeout: 60000,
+        }),
+      )
+    const result = await metaplex.nfts().findAllByOwner({
+      owner: metaplex.identity().publicKey
+    });
+    const dc=new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!).toBase58();
+    const ourCollectionNfts = result.filter(
+      metadata =>{
+        return metadata.collection !== null &&
+        metadata.collection.verified &&
+        metadata.collection.address.toBase58() === dc
+    
+      }
+      )
+      const loadedNfts = await Promise.all(ourCollectionNfts
+        .map(metadata => {
+          return metaplex.nfts().load({ metadata: metadata as Metadata })
+        })
+      )
+    res.json(loadedNfts)
+  }
   callSignalWorkFlow = async (req: Request, res: Response) => {
 
     const connection = await Connection.connect();
@@ -378,8 +418,8 @@ class TestController extends controller {
       ]
 
     });
-    const query = `SELECT string_field_0 as name ,string_field_1 as email
-    FROM \`designitybigquerysandbox.designityemails.designityemailstable\`
+    const query = `SELECT *
+    FROM \`designitybigquerysandbox.designityemails.designityuser\`
      LIMIT 100`;
     console.log(query);
     const options = {
@@ -387,12 +427,12 @@ class TestController extends controller {
       // Location must match that of the dataset(s) referenced in the query.
       location: 'US',
     };
-
+    
     //   // Run the query
     const [rows] = await bigquery.query(options);
 
     console.log('Rows:', rows);
-    const result = rows.find(row => row.email == req.body.email);
+    const result = rows.find(row => row.Email == req.body.email);
     //   res.send(rows);
     console.log(result);
 
