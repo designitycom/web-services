@@ -9,6 +9,7 @@ import { Request, Response } from "express";
         res.status(status).send({"data":data,"message":message});
     }
 
-}
+}  
+
 
 export default controller
