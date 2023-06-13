@@ -15,7 +15,7 @@ import { cli } from "winston/lib/winston/config";
 import { BigQuery } from "@google-cloud/bigquery";
 import { DESIGNITY_COLLECTION_ADDRESS, NETWORK } from "../../utils/globals";
 
-export let temporalConnConfig: ConnectionOptions;
+let temporalConnConfig: ConnectionOptions;
 if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'sandbox') {
   temporalConnConfig = {
     address: process.env.TEMPORAL_ADDRESS!,
