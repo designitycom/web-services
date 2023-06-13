@@ -13,6 +13,7 @@ import * as activities from './workflow/activities';
 import { nanoid } from "nanoid";
 import { cli } from "winston/lib/winston/config";
 import { BigQuery } from "@google-cloud/bigquery";
+import { DESIGNITY_COLLECTION_ADDRESS, NETWORK } from "../../utils/globals";
 
 
 
@@ -45,7 +46,8 @@ class TestController extends controller {
     // console.log((jwtDecoded.payload as any).wallets[0].public_key);
     // console.log((jwtDecoded.payload as any).wallets[0]);
     console.log(privateKey);
-    const connection = new conn(clusterApiUrl("devnet"))
+
+    const connection = new conn(NETWORK)
     const user = await getKeyPair(privateKey, connection)
     console.log("PublicKey:", user.publicKey.toBase58())
     const metaplex = Metaplex.make(connection)
@@ -75,7 +77,7 @@ class TestController extends controller {
         uri: uri,
         name: name,
         sellerFeeBasisPoints: 0,
-        collection: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!)
+        collection: new PublicKey(DESIGNITY_COLLECTION_ADDRESS)
       },
       { commitment: "finalized" },
     );
@@ -86,10 +88,100 @@ class TestController extends controller {
       nft: nft,
       uri: uri
     };
-    const result = await metaplex.nfts().verifyCollection({
+    const userDesignity = await getKeyPair(process.env.DESIGNITY_PRIVATE_KEY!, connection)
+    console.log("PublicKey designity:", userDesignity.publicKey.toBase58())
+    const metaplexDesignitty = Metaplex.make(connection)
+      .use(keypairIdentity(userDesignity))
+      .use(
+        bundlrStorage({
+          address: "https://devnet.bundlr.network",
+          providerUrl: "https://api.devnet.solana.com",
+          timeout: 60000,
+        }),
+      )
+    const result = await metaplexDesignitty.nfts().verifyCollection({
       //this is what verifies our collection as a Certified Collection
       mintAddress: nft.address,
-      collectionMintAddress: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!),
+      collectionMintAddress: new PublicKey(DESIGNITY_COLLECTION_ADDRESS),
+      isSizedCollection: true,
+    })
+    this.myResponse(res, 200, result, "");
+  }
+  defaultMint = async (req: Request, res: Response) => {
+    // const idToken=req.body.idToken
+    // const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
+    // const jwtDecoded = await jose.jwtVerify(idToken, jwks, {
+    //   algorithms: ["ES256"],
+    // });
+    const name = req.body.name;
+    console.log("nftname >>>>>>" + name);
+    const description = req.body.description;
+    console.log("nft description>>>>>" + description);
+    const role = req.body.role;
+    console.log("nftrole >>>>>>" + role);
+    const privateKey = req.body.privateKey;
+    // console.log((jwtDecoded.payload as any).wallets[0].public_key);
+    // console.log((jwtDecoded.payload as any).wallets[0]);
+    console.log(privateKey);
+
+    const connection = new conn(NETWORK)
+    const user = await getKeyPair(privateKey, connection)
+    console.log("PublicKey:", user.publicKey.toBase58())
+    const metaplex = Metaplex.make(connection)
+      .use(keypairIdentity(user))
+      .use(
+        bundlrStorage({
+          address: "https://devnet.bundlr.network",
+          providerUrl: "https://api.devnet.solana.com",
+          timeout: 60000,
+        }),
+      )
+    console.log("make metaplex");
+    const buffer = fs.readFileSync("uploads/images/designity.png");
+    console.log("make buffer");
+    const file = toMetaplexFile(buffer, "image.png");
+    console.log("to metaplex file");
+    const imageUri = await metaplex.storage().upload(file);
+    console.log("storage upload file");
+    const { uri } = await metaplex.nfts().uploadMetadata({
+      name: name,
+      description: description,
+      role:role,
+      image: imageUri,
+    });
+    console.log("upload meta data====>uri:" + uri);
+    const { nft } = await metaplex.nfts().create(
+      {
+        uri: uri,
+        name: name,
+        sellerFeeBasisPoints: 0,
+        collection: new PublicKey(DESIGNITY_COLLECTION_ADDRESS)
+      },
+      { commitment: "finalized" },
+    );
+    console.log("create nft");
+    console.log(`Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`);
+    const data = {
+      explorer_uri: `https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`,
+      nft: nft,
+      uri: uri
+    };
+    
+    const userDesignity = await getKeyPair(process.env.DESIGNITY_PRIVATE_KEY!, connection)
+    console.log("PublicKey designity:", userDesignity.publicKey.toBase58())
+    const metaplexDesignitty = Metaplex.make(connection)
+      .use(keypairIdentity(userDesignity))
+      .use(
+        bundlrStorage({
+          address: "https://devnet.bundlr.network",
+          providerUrl: "https://api.devnet.solana.com",
+          timeout: 60000,
+        }),
+      )
+    const result = await metaplexDesignitty.nfts().verifyCollection({
+      //this is what verifies our collection as a Certified Collection
+      mintAddress: nft.address,
+      collectionMintAddress: new PublicKey(DESIGNITY_COLLECTION_ADDRESS),
       isSizedCollection: true,
     })
     this.myResponse(res, 200, result, "");
@@ -110,7 +202,10 @@ class TestController extends controller {
     // console.log((jwtDecoded.payload as any).wallets[0].public_key);
     // console.log((jwtDecoded.payload as any).wallets[0]);
     console.log(privateKey);
-    const connection = new conn(clusterApiUrl("devnet"))
+    // const connection = new conn(clusterApiUrl("devnet"))
+    
+
+    const connection = new conn(NETWORK)
     const user = await getKeyPair(privateKey, connection)
     console.log("PublicKey:", user.publicKey.toBase58())
     const metaplex = Metaplex.make(connection)
@@ -280,7 +375,8 @@ class TestController extends controller {
     const privateKey = req.body.privateKey;
     console.log("public_key>>>>" + public_key);
     console.log("private_key>>>>" + privateKey);
-    const connection = new conn(clusterApiUrl("devnet"))
+
+    const connection = new conn(NETWORK)
     const user = await getKeyPair(privateKey, connection)
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
@@ -291,10 +387,10 @@ class TestController extends controller {
           timeout: 60000,
         }),
       )
-    const result = await metaplex.nfts().findAllByOwner({
-      owner: metaplex.identity().publicKey
-    });
-    res.json(result)
+    // const result = await metaplex.nfts().findAllByOwner({
+    //   owner: metaplex.identity().publicKey
+    // });
+    res.json("")
   }
   findAllMintWithCollection = async (req: Request, res: Response) => {
 
@@ -306,7 +402,8 @@ class TestController extends controller {
     });
     const public_key = (jwtDecoded.payload as any).wallets[0].public_key;
     const privateKey = req.body.privateKey;
-    const connection = new conn(clusterApiUrl("devnet"))
+
+    const connection = new conn(NETWORK)
     const user = await getKeyPair(privateKey, connection)
     const metaplex = Metaplex.make(connection)
     .use(keypairIdentity(user))
@@ -320,7 +417,7 @@ class TestController extends controller {
     const result = await metaplex.nfts().findAllByOwner({
       owner: metaplex.identity().publicKey
     });
-    const dc=new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!).toBase58();
+    const dc=new PublicKey(DESIGNITY_COLLECTION_ADDRESS).toBase58();
     const ourCollectionNfts = result.filter(
       metadata =>{
         return metadata.collection !== null &&

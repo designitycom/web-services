@@ -63,7 +63,7 @@ export function initializeKeypair(
   const secretKey = Uint8Array.from(secret)
   const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
 
-  airdropSolIfNeeded(keypairFromSecretKey, connection)
+  // airdropSolIfNeeded(keypairFromSecretKey, connection)
   return keypairFromSecretKey
 }
 export function getKeyPair(
@@ -72,7 +72,7 @@ export function getKeyPair(
 ) {
   const secretKey = Uint8Array.from(fromHexString(privateKey))
   const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
-  // airdropSolIfNeeded(keypairFromSecretKey, connection)
+  airdropSolIfNeeded(keypairFromSecretKey, connection)
   return keypairFromSecretKey
 }
 

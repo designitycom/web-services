@@ -18,6 +18,7 @@ const upload = multer({ storage: storage })
 router.post('/', TestController.check)//site.com/api/test
 // router.post('/mint', upload.single('file'), TestController.mintWorkflow)//site.com/api/test/mint
 router.post('/mint', upload.single('file'), TestController.mint)//site.com/api/test/mint
+router.post('/defaultMint', multer().none(), TestController.defaultMint)//site.com/api/test/defaultMint
 router.post('/mintCollection', upload.single('file'), TestController.mintCollection)//site.com/api/test/mint
 router.post('/updateMint', upload.single('file'), TestController.updateMintWorkflow)//site.com/api/test/mint
 router.get('/startWorkFlow', TestController.workflow)
