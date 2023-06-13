@@ -6,7 +6,7 @@ import { airdrop, createKeypair, getBalance, getKeyPair, initializeKeypair } fro
 import * as web3 from "@solana/web3.js"
 import * as jose from 'jose'
 import fs from "fs"
-import { Connection, Client } from '@temporalio/client';
+import { Connection, Client, ConnectionOptions } from '@temporalio/client';
 import { getStatus, isBlockedQuery, mint, signals, unblockSignal, updateMint } from "./workflow/workflows";
 import { Worker } from '@temporalio/worker';
 import * as activities from './workflow/activities';
@@ -15,6 +15,18 @@ import { cli } from "winston/lib/winston/config";
 import { BigQuery } from "@google-cloud/bigquery";
 import { DESIGNITY_COLLECTION_ADDRESS, NETWORK } from "../../utils/globals";
 
+export let temporalConnConfig: ConnectionOptions;
+if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'sandbox') {
+  temporalConnConfig = {
+    address: process.env.TEMPORAL_ADDRESS!,
+    tls: {
+      clientCertPair: {
+        crt: Buffer.from(fs.readFileSync(process.env.TEMPORAL_TLS_CRT!, 'utf8')),
+        key: Buffer.from(fs.readFileSync(process.env.TEMPORAL_TLS_KEY!, 'utf8')),
+      }
+    }
+  }
+}
 
 
 class TestController extends controller {
@@ -146,7 +158,7 @@ class TestController extends controller {
     const { uri } = await metaplex.nfts().uploadMetadata({
       name: name,
       description: description,
-      role:role,
+      role: role,
       image: imageUri,
     });
     console.log("upload meta data====>uri:" + uri);
@@ -166,7 +178,7 @@ class TestController extends controller {
       nft: nft,
       uri: uri
     };
-    
+
     const userDesignity = await getKeyPair(process.env.DESIGNITY_PRIVATE_KEY!, connection)
     console.log("PublicKey designity:", userDesignity.publicKey.toBase58())
     const metaplexDesignitty = Metaplex.make(connection)
@@ -203,7 +215,7 @@ class TestController extends controller {
     // console.log((jwtDecoded.payload as any).wallets[0]);
     console.log(privateKey);
     // const connection = new conn(clusterApiUrl("devnet"))
-    
+
 
     const connection = new conn(NETWORK)
     const user = await getKeyPair(privateKey, connection)
@@ -250,9 +262,10 @@ class TestController extends controller {
   }
   mintWorkflow = async (req: Request, res: Response) => {
 
-    const connection = await Connection.connect();
+    const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
+      namespace: process.env.TEMPORAL_NAMESPACE || 'default'
       // namespace: 'foo.bar', // connects to 'default' namespace if not specified
     });
 
@@ -283,10 +296,10 @@ class TestController extends controller {
   }
   updateMintWorkflow = async (req: Request, res: Response) => {
 
-    const connection = await Connection.connect();
+    const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
-      // namespace: 'foo.bar', // connects to 'default' namespace if not specified
+      namespace: process.env.TEMPORAL_NAMESPACE || 'default'
     });
 
     const name = req.body.name;
@@ -316,7 +329,7 @@ class TestController extends controller {
   }
   workflow = async (req: Request, res: Response) => {
 
-    const connection = await Connection.connect();
+    const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
       // namespace: 'foo.bar', // connects to 'default' namespace if not specified
@@ -346,10 +359,10 @@ class TestController extends controller {
   }
   getInfoWorkFlow = async (req: Request, res: Response) => {
 
-    const connection = await Connection.connect();
+    const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
-      // namespace: 'foo.bar', // connects to 'default' namespace if not specified
+      namespace: process.env.TEMPORAL_NAMESPACE || 'default'
     });
     // const workFlow = await client.workflow.getHandle(req.params.workFlowId).describe();
     // res.send(workFlow);
@@ -406,7 +419,7 @@ class TestController extends controller {
     const connection = new conn(NETWORK)
     const user = await getKeyPair(privateKey, connection)
     const metaplex = Metaplex.make(connection)
-    .use(keypairIdentity(user))
+      .use(keypairIdentity(user))
       .use(
         bundlrStorage({
           address: "https://devnet.bundlr.network",
@@ -417,27 +430,28 @@ class TestController extends controller {
     const result = await metaplex.nfts().findAllByOwner({
       owner: metaplex.identity().publicKey
     });
-    const dc=new PublicKey(DESIGNITY_COLLECTION_ADDRESS).toBase58();
+    const dc = new PublicKey(DESIGNITY_COLLECTION_ADDRESS).toBase58();
     const ourCollectionNfts = result.filter(
-      metadata =>{
+      metadata => {
         return metadata.collection !== null &&
-        metadata.collection.verified &&
-        metadata.collection.address.toBase58() === dc
-    
+          metadata.collection.verified &&
+          metadata.collection.address.toBase58() === dc
+
       }
-      )
-      const loadedNfts = await Promise.all(ourCollectionNfts
-        .map(metadata => {
-          return metaplex.nfts().load({ metadata: metadata as Metadata })
-        })
-      )
+    )
+    const loadedNfts = await Promise.all(ourCollectionNfts
+      .map(metadata => {
+        return metaplex.nfts().load({ metadata: metadata as Metadata })
+      })
+    )
     res.json(loadedNfts)
   }
   callSignalWorkFlow = async (req: Request, res: Response) => {
 
-    const connection = await Connection.connect();
+    const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
+      namespace: process.env.TEMPORAL_NAMESPACE || 'default',
     });
 
     const workFlowId = 'signal-test';
@@ -462,9 +476,10 @@ class TestController extends controller {
   }
   getStatusSignal = async (req: Request, res: Response) => {
 
-    const connection = await Connection.connect();
+    const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
+      namespace: process.env.TEMPORAL_NAMESPACE || 'default'
     });
     const handle = client.workflow.getHandle('signal-test');
     const isBlocked = await handle.query(isBlockedQuery);
@@ -472,7 +487,7 @@ class TestController extends controller {
     res.send("isBlocked?" + isBlocked)
   }
   cancelSignal = async (req: Request, res: Response) => {
-    const connection = await Connection.connect();
+    const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
     });
@@ -484,9 +499,10 @@ class TestController extends controller {
   }
 
   callSignal = async (req: Request, res: Response) => {
-    const connection = await Connection.connect();
+    const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
+      namespace: process.env.TEMPORAL_NAMESPACE || 'default'
     });
     const handle = client.workflow.getHandle('signal-test');
     await handle.signal(unblockSignal);
@@ -506,7 +522,7 @@ class TestController extends controller {
 
 
     const bigquery = new BigQuery({
-      keyFilename: 'bigquery-sa.json',
+      keyFilename: process.env.BIGQUERY_SERVICEACCOUNT || 'bigquery-sa.json',
       projectId: 'designitybigquerysandbox',
       scopes: [
         "https://www.googleapis.com/auth/cloud-platform",
@@ -516,7 +532,7 @@ class TestController extends controller {
 
     });
     const query = `SELECT *
-    FROM \`designitybigquerysandbox.designityemails.designityuser\`
+    FROM \`${process.env.GCP_PROJECT_ID}.${process.env.BIGQUERY_EMAILS_DATASET}.${process.env.BIGQUERY_EMAILS_TABLE}\`
      LIMIT 100`;
     console.log(query);
     const options = {
@@ -524,7 +540,7 @@ class TestController extends controller {
       // Location must match that of the dataset(s) referenced in the query.
       location: 'US',
     };
-    
+
     //   // Run the query
     const [rows] = await bigquery.query(options);
 
