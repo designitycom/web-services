@@ -1,8 +1,11 @@
 import express from "express"
 import router from "./routers"
 import cors from "cors"
+import dotenv from "dotenv"
 const app=express();
-require('dotenv').config();
+dotenv.config({
+    path: process.env.ENV_FILE || ".env",
+});
 
 app.use(cors())
 // app.use(express.json());
