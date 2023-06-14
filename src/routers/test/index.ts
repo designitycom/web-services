@@ -21,21 +21,23 @@ router.post('/mint', upload.single('file'), TestController.mint)//site.com/api/t
 router.post('/defaultMint', multer().none(), TestController.defaultMint)//site.com/api/test/defaultMint
 router.post('/mintCollection', upload.single('file'), TestController.mintCollection)//site.com/api/test/mint
 router.post('/updateMint', upload.single('file'), TestController.updateMintWorkflow)//site.com/api/test/mint
+router.post('/updateDefaultMint', multer().none(), TestController.updateDefaultMintWorkflow)
+router.post('/getBalance', multer().none(), TestController.getBalance)
 router.get('/startWorkFlow', TestController.workflow)
 router.get('/startWorker', TestController.mintWorker)
 router.get('/getStatus/:workFlowId', TestController.getInfoWorkFlow)
-router.post('/getAllNft',multer().none(), TestController.findAllMint)
-router.post('/findAllMintWithCollection',multer().none(), TestController.findAllMintWithCollection)
+router.post('/getAllNft', multer().none(), TestController.findAllMint)
+router.post('/findAllMintWithCollection', multer().none(), TestController.findAllMintWithCollection)
 
 
-router.get('/callSignalWorkFlow',TestController.callSignalWorkFlow)
-router.get('/startWorkerSignal',TestController.startWorkerSignal)
-router.get('/getStatusSignal',TestController.getStatusSignal)
-router.get('/cancelSignal',TestController.cancelSignal)
-router.get('/callSignal',TestController.callSignal) 
+router.get('/callSignalWorkFlow', TestController.callSignalWorkFlow)
+router.get('/startWorkerSignal', TestController.startWorkerSignal)
+router.get('/getStatusSignal', TestController.getStatusSignal)
+router.get('/cancelSignal', TestController.cancelSignal)
+router.get('/callSignal', TestController.callSignal)
 
 
 
-router.post('/checkingEmail',multer().none(),TestController.checkingEmail)
+router.post('/checkingEmail', multer().none(), TestController.checkingEmail)
 
 export default router;                   
