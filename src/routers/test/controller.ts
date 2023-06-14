@@ -149,7 +149,7 @@ class TestController extends controller {
         }),
       )
     console.log("make metaplex");
-    const buffer = fs.readFileSync("uploads/images/designity.png");
+    const buffer = fs.readFileSync("/web-services/uploads/images/designity.png");
     console.log("make buffer");
     const file = toMetaplexFile(buffer, "image.png");
     console.log("to metaplex file");
