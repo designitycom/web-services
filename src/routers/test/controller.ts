@@ -40,6 +40,14 @@ class TestController extends controller {
     res.send((jwtDecoded.payload as any).wallets[0].public_key)
 
   }
+
+  getBalance = async (req: Request, res: Response) => {
+    const privateKey = req.body.privateKey;
+    const connection = new conn(NETWORK);
+    const user = await getKeyPair(privateKey, connection)
+    const balance = await connection.getBalance(new PublicKey(user.publicKey));
+    res.send((balance / web3.LAMPORTS_PER_SOL) + "")
+  }
   mint = async (req: Request, res: Response) => {
     // const idToken=req.body.idToken
     // const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
@@ -326,6 +334,67 @@ class TestController extends controller {
 
 
     res.send("worker run:" + workFlowId)
+  }
+
+  updateDefaultMintWorkflow = async (req: Request, res: Response) => {
+
+    const name = req.body.name;
+    console.log("nftname >>>>>>" + name);
+    const description = req.body.description;
+    console.log("nft description>>>>>" + description);
+    const role = req.body.role;
+    console.log("nft role>>>>>" + role);
+    const privateKey = req.body.privateKey;
+    const address = req.body.mintAddress;
+    console.log("nft mintAddress>>>>>" + address);
+    const connection = new conn(NETWORK)
+    const user = await getKeyPair(privateKey, connection)
+    const metaplex = Metaplex.make(connection)
+      .use(keypairIdentity(user))
+      .use(
+        bundlrStorage({
+          address: "https://devnet.bundlr.network",
+          providerUrl: "https://api.devnet.solana.com",
+          timeout: 60000,
+        }),
+      )
+    const buffer = fs.readFileSync("uploads/images/designity.png");
+    console.log("make buffer");
+    const file = toMetaplexFile(buffer, "image.png");
+    console.log("to metaplex file");
+    const imageUri = await metaplex.storage().upload(file);
+    const { uri } = await metaplex.nfts().uploadMetadata({
+      name: name,
+      description: description,
+      role: role,
+      image: imageUri,
+    });
+    console.log("upload meta data====>uri:" + uri);
+    const mintAddress = new PublicKey(address);
+    // fetch NFT data using mint address
+    const nft = await metaplex.nfts().findByMint({ mintAddress })
+
+    // update the NFT metadata
+    const { response } = await metaplex.nfts().update(
+      {
+        nftOrSft: nft,
+        uri: uri,
+      },
+      { commitment: "finalized" }
+    )
+
+    console.log(
+      `Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`
+    )
+
+    console.log(
+      `Transaction: https://explorer.solana.com/tx/${response.signature}?cluster=devnet`
+    )
+
+
+    res.send(nft)
+
+
   }
   workflow = async (req: Request, res: Response) => {
 
