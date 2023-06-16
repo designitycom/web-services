@@ -8,14 +8,15 @@ import * as jose from 'jose'
 import fs from "fs"
 import { Connection, Client, ConnectionOptions } from '@temporalio/client';
 import { getStatus, isBlockedQuery, mint, signals, unblockSignal, updateMint } from "./workflow/workflows";
-import { Worker } from '@temporalio/worker';
+import { NativeConnection, Worker } from '@temporalio/worker';
 import * as activities from './workflow/activities';
 import { nanoid } from "nanoid";
 import { cli } from "winston/lib/winston/config";
 import { BigQuery } from "@google-cloud/bigquery";
-import { DESIGNITY_COLLECTION_ADDRESS, NETWORK } from "../../utils/globals";
+import { NETWORK } from "../../utils/globals";
 
 let temporalConnConfig: ConnectionOptions;
+
 if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'sandbox') {
   temporalConnConfig = {
     address: process.env.TEMPORAL_ADDRESS!,
@@ -97,7 +98,7 @@ class TestController extends controller {
         uri: uri,
         name: name,
         sellerFeeBasisPoints: 0,
-        collection: new PublicKey(DESIGNITY_COLLECTION_ADDRESS)
+        collection: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!)
       },
       { commitment: "finalized" },
     );
@@ -122,8 +123,9 @@ class TestController extends controller {
     const result = await metaplexDesignitty.nfts().verifyCollection({
       //this is what verifies our collection as a Certified Collection
       mintAddress: nft.address,
-      collectionMintAddress: new PublicKey(DESIGNITY_COLLECTION_ADDRESS),
+      collectionMintAddress: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!),
       isSizedCollection: true,
+    
     })
     this.myResponse(res, 200, result, "");
   }
@@ -175,7 +177,7 @@ class TestController extends controller {
         uri: uri,
         name: name,
         sellerFeeBasisPoints: 0,
-        collection: new PublicKey(DESIGNITY_COLLECTION_ADDRESS)
+        collection: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!)
       },
       { commitment: "finalized" },
     );
@@ -201,7 +203,7 @@ class TestController extends controller {
     const result = await metaplexDesignitty.nfts().verifyCollection({
       //this is what verifies our collection as a Certified Collection
       mintAddress: nft.address,
-      collectionMintAddress: new PublicKey(DESIGNITY_COLLECTION_ADDRESS),
+      collectionMintAddress: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!),
       isSizedCollection: true,
     })
     this.myResponse(res, 200, result, "");
@@ -499,7 +501,7 @@ class TestController extends controller {
     const result = await metaplex.nfts().findAllByOwner({
       owner: metaplex.identity().publicKey
     });
-    const dc = new PublicKey(DESIGNITY_COLLECTION_ADDRESS).toBase58();
+    const dc = new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!).toBase58();
     const ourCollectionNfts = result.filter(
       metadata => {
         return metadata.collection !== null &&
@@ -535,7 +537,18 @@ class TestController extends controller {
     res.send("worker run:" + workFlowId)
   }
   startWorkerSignal = async (req: Request, res: Response) => {
+    const connection = await NativeConnection.connect({
+      address: process.env.TEMPORAL_ADDRESS!,
+      tls: {
+        clientCertPair: {
+          crt: Buffer.from(fs.readFileSync(process.env.TEMPORAL_TLS_CRT!, 'utf8')),
+          key: Buffer.from(fs.readFileSync(process.env.TEMPORAL_TLS_KEY!, 'utf8')),
+        }
+      }
+    });
     const worker = await Worker.create({
+      connection,
+      namespace: process.env.TEMPORAL_NAMESPACE || 'default',
       workflowsPath: require.resolve('./workflow/workflows'),
       activities,
       taskQueue: 'signal',
