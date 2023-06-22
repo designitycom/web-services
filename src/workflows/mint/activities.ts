@@ -15,11 +15,8 @@ import {
 } from "@metaplex-foundation/js";
 import { MintDTO } from "../../models/mintDto";
 
-
-
-
-export async function imageUri(mintDto:MintDTO):Promise<string> {
-  const metaplex=makeMetaplex(mintDto.privateKey);
+export async function imageUri(mintDto: MintDTO): Promise<string> {
+  const metaplex = makeMetaplex(mintDto.privateKey);
   console.log("make metaplex");
   const buffer = fs.readFileSync("uploads/images/" + mintDto.fileName);
   console.log("make buffer");
@@ -33,8 +30,8 @@ export async function imageUri(mintDto:MintDTO):Promise<string> {
 export async function createNft(
   mintDto: MintDTO,
   imageUri: string
-):Promise<string> {
-  const metaplex=makeMetaplex(mintDto.privateKey);
+): Promise<string> {
+  const metaplex = makeMetaplex(mintDto.privateKey);
   const { uri } = await metaplex.nfts().uploadMetadata({
     name: mintDto.name,
     description: mintDto.description,
@@ -53,15 +50,12 @@ export async function createNft(
   );
   console.log(
     `Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`
-  )
+  );
   return nft.address.toString();
 }
 
-export async function updateNft(
-  mintDto: MintDTO,
-  imageUri: string
-) {
-  const metaplex=makeMetaplex(mintDto.privateKey);
+export async function updateNft(mintDto: MintDTO, imageUri: string) {
+  const metaplex = makeMetaplex(mintDto.privateKey);
   const { uri } = await metaplex.nfts().uploadMetadata({
     name: mintDto.name,
     description: mintDto.description,
@@ -83,10 +77,8 @@ export async function updateNft(
 
   return nft.address.toString();
 }
-export async function verifyNft(
-  nftAddress: string
-) {
-  const connection=getConnection();
+export async function verifyNft(nftAddress: string) {
+  const connection = getConnection();
   const userDesignity = await getKeyPair(
     process.env.DESIGNITY_PRIVATE_KEY!,
     connection
