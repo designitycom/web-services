@@ -1,0 +1,12 @@
+POST http://34.123.25.77:5000/api/mint/updateMintt
+content-type: application/json
+
+{
+    "wfId": "36",
+    "name": "mehdi2 test new",
+    "description":"des test2 new",
+    "privateKey":"",
+    "fileName":"designity.png",
+    "role":"admin",
+    "mintAddress":"DK5y7cCsEQ417gSH3Fpir2F8ifzntbBfwP8dPxChE32Q"
+}
