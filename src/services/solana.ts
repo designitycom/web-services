@@ -1,6 +1,9 @@
 import * as web3 from "@solana/web3.js"
 import * as fs from "fs"
 import dotenv from "dotenv"
+import { MintDTO } from "../models/mintDto"
+import { Connection as conn } from "@solana/web3.js";
+import { Metaplex, bundlrStorage, keypairIdentity } from "@metaplex-foundation/js";
 dotenv.config()
 //test git
 export async function airdrop(
@@ -72,10 +75,29 @@ export function getKeyPair(
 ) {
   const secretKey = Uint8Array.from(fromHexString(privateKey))
   const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
-  airdropSolIfNeeded(keypairFromSecretKey, connection)
+  // airdropSolIfNeeded(keypairFromSecretKey, connection)
   return keypairFromSecretKey
 }
+export function getConnection(){
+  const connection = new conn(web3.clusterApiUrl("devnet"));
+  return connection;
+}
+export function makeMetaplex(privateKey:string) {
+  const connection = getConnection();
+  const user = getKeyPair(privateKey, connection);
+  console.log("PublicKey:", user.publicKey.toBase58());
+  const metaplex = Metaplex.make(connection)
+    .use(keypairIdentity(user))
+    .use(
+      bundlrStorage({
+        address: "https://devnet.bundlr.network",
+        providerUrl: "https://api.devnet.solana.com",
+        timeout: 60000,
+      })
+    );
 
+  return metaplex;
+}
 async function airdropSolIfNeeded(
   signer: web3.Keypair,
   connection: web3.Connection

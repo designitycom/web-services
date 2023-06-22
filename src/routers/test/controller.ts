@@ -551,7 +551,7 @@ class TestController extends controller {
       namespace: process.env.TEMPORAL_NAMESPACE || 'default',
       workflowsPath: require.resolve('./workflow/workflows'),
       activities,
-      taskQueue: 'signal',
+      taskQueue: 'mint',
     });
     worker.run();
     res.send("worker run")

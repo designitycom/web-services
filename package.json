@@ -26,6 +26,8 @@
     "auto-bind": "^5.0.1",
     "bcrypt": "^5.1.0",
     "bigint-buffer": "^1.1.5",
+    "bs58": "^5.0.0",
+    "class-transformer": "^0.5.1",
     "config": "^3.3.9",
     "cors": "^2.8.5",
     "debug": "^4.3.4",
@@ -38,6 +40,7 @@
     "multer": "^1.4.5-lts.1",
     "nanoid": "^3.3.6",
     "node-jose": "^2.2.0",
+    "reflect-metadata": "^0.1.13",
     "winston": "^3.8.2"
   },
   "devDependencies": {
