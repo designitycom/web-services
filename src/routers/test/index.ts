@@ -22,7 +22,7 @@ const upload = multer({ storage: storage })
 // router.post('/mintCollection', upload.single('file'), TestController.mintCollection)//site.com/api/test/mint
 // router.post('/updateMint', upload.single('file'), TestController.updateMintWorkflow)//site.com/api/test/mint
 // router.post('/updateDefaultMint', multer().none(), TestController.updateDefaultMintWorkflow)
-// router.post('/getBalance', multer().none(), TestController.getBalance)
+router.post('/getBalance', multer().none(), TestController.getBalance)
 // router.get('/startWorkFlow', TestController.workflow)
 // router.get('/startWorker', TestController.mintWorker)
 // router.get('/getStatus/:workFlowId', TestController.getInfoWorkFlow)
@@ -38,6 +38,6 @@ const upload = multer({ storage: storage })
 
 
 
-// router.post('/checkingEmail', multer().none(), TestController.checkingEmail)
+router.post('/checkingEmail', multer().none(), TestController.checkingEmail)
 
 export default router;                   

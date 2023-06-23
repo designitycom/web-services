@@ -15,7 +15,7 @@ import {
 } from "@metaplex-foundation/js";
 import { MintDTO } from "../../models/mintDto";
 
-export async function imageUri(mintDto: MintDTO): Promise<string> {
+export async function uploadImage(mintDto: MintDTO): Promise<string> {
   const metaplex = makeMetaplex(mintDto.privateKey);
   console.log("make metaplex");
   const buffer = fs.readFileSync("uploads/images/" + mintDto.fileName);
@@ -27,18 +27,25 @@ export async function imageUri(mintDto: MintDTO): Promise<string> {
   return imageUri;
 }
 
+export async function uploadMetaData(
+  mintDto: MintDTO,
+  imageUri: string) {
+    const metaplex = makeMetaplex(mintDto.privateKey);
+    const { uri } = await metaplex.nfts().uploadMetadata({
+      name: mintDto.name,
+      description: mintDto.description,
+      image: imageUri,
+      role: mintDto.role,
+    });
+    console.log("upload meta data====>uri:" + uri);
+    return uri;
+}
+
 export async function createNft(
   mintDto: MintDTO,
-  imageUri: string
+  uri: string
 ): Promise<string> {
   const metaplex = makeMetaplex(mintDto.privateKey);
-  const { uri } = await metaplex.nfts().uploadMetadata({
-    name: mintDto.name,
-    description: mintDto.description,
-    image: imageUri,
-    role: mintDto.role,
-  });
-  console.log("upload meta data====>uri:" + uri);
   const { nft } = await metaplex.nfts().create(
     {
       uri: uri,
@@ -78,21 +85,8 @@ export async function updateNft(mintDto: MintDTO, imageUri: string) {
   return nft.address.toString();
 }
 export async function verifyNft(nftAddress: string) {
-  const connection = getConnection();
-  const userDesignity = await getKeyPair(
-    process.env.DESIGNITY_PRIVATE_KEY!,
-    connection
-  );
-  console.log("PublicKey designity:", userDesignity.publicKey.toBase58());
-  const metaplexDesignitty = Metaplex.make(connection)
-    .use(keypairIdentity(userDesignity))
-    .use(
-      bundlrStorage({
-        address: "https://devnet.bundlr.network",
-        providerUrl: "https://api.devnet.solana.com",
-        timeout: 60000,
-      })
-    );
+
+  const metaplexDesignitty=makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!)
   const result = await metaplexDesignitty.nfts().verifyCollection({
     //this is what verifies our collection as a Certified Collection
     mintAddress: new PublicKey(nftAddress),
@@ -101,5 +95,6 @@ export async function verifyNft(nftAddress: string) {
     ),
     isSizedCollection: true,
   });
+  console.log("verify result:",result);
   return result;
 }
