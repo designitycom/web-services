@@ -61,14 +61,8 @@ export async function createNft(
   return nft.address.toString();
 }
 
-export async function updateNft(mintDto: MintDTO, imageUri: string) {
+export async function updateNft(mintDto: MintDTO, uri: string) {
   const metaplex = makeMetaplex(mintDto.privateKey);
-  const { uri } = await metaplex.nfts().uploadMetadata({
-    name: mintDto.name,
-    description: mintDto.description,
-    image: imageUri,
-    role: mintDto.role,
-  });
   const mintAddress = new PublicKey(mintDto.mintAddress);
   // fetch NFT data using mint address
   const nft = await metaplex.nfts().findByMint({ mintAddress });
