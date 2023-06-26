@@ -1,15 +1,39 @@
-import controller from "../controller"
+import controller from "../controller";
 import { Request, Response } from "express";
-import { Metaplex, keypairIdentity, bundlrStorage, toMetaplexFile, Metadata } from "@metaplex-foundation/js";
-import { Connection as conn, clusterApiUrl, Keypair, PublicKey } from "@solana/web3.js";
-import { airdrop, createKeypair, getBalance, getKeyPair, initializeKeypair } from "../../services/solana";
-import * as web3 from "@solana/web3.js"
-import * as jose from 'jose'
-import fs from "fs"
-import { Connection, Client, ConnectionOptions } from '@temporalio/client';
-import { getStatus, isBlockedQuery, mint, signals, unblockSignal, updateMint } from "./workflow/workflows";
-import { NativeConnection, Worker } from '@temporalio/worker';
-import * as activities from './workflow/activities';
+import {
+  Metaplex,
+  keypairIdentity,
+  bundlrStorage,
+  toMetaplexFile,
+  Metadata,
+} from "@metaplex-foundation/js";
+import {
+  Connection as conn,
+  clusterApiUrl,
+  Keypair,
+  PublicKey,
+} from "@solana/web3.js";
+import {
+  airdrop,
+  createKeypair,
+  getBalance,
+  getKeyPair,
+  initializeKeypair,
+} from "../../services/solana";
+import * as web3 from "@solana/web3.js";
+import * as jose from "jose";
+import fs from "fs";
+import { Connection, Client, ConnectionOptions } from "@temporalio/client";
+import {
+  getStatus,
+  isBlockedQuery,
+  mint,
+  signals,
+  unblockSignal,
+  updateMint,
+} from "./workflow/workflows";
+import { NativeConnection, Worker } from "@temporalio/worker";
+import * as activities from "./workflow/activities";
 import { nanoid } from "nanoid";
 import { cli } from "winston/lib/winston/config";
 import { BigQuery } from "@google-cloud/bigquery";
@@ -17,38 +41,44 @@ import { NETWORK } from "../../utils/globals";
 
 let temporalConnConfig: ConnectionOptions;
 
-if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'sandbox') {
+if (
+  process.env.NODE_ENV === "production" ||
+  process.env.NODE_ENV === "sandbox"
+) {
   temporalConnConfig = {
     address: process.env.TEMPORAL_ADDRESS!,
     tls: {
       clientCertPair: {
-        crt: Buffer.from(fs.readFileSync(process.env.TEMPORAL_TLS_CRT!, 'utf8')),
-        key: Buffer.from(fs.readFileSync(process.env.TEMPORAL_TLS_KEY!, 'utf8')),
-      }
-    }
-  }
+        crt: Buffer.from(
+          fs.readFileSync(process.env.TEMPORAL_TLS_CRT!, "utf8")
+        ),
+        key: Buffer.from(
+          fs.readFileSync(process.env.TEMPORAL_TLS_KEY!, "utf8")
+        ),
+      },
+    },
+  };
 }
-
 
 class TestController extends controller {
   check = async (req: Request, res: Response) => {
-
-    const idToken = req.body.idToken
-    const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
+    const idToken = req.body.idToken;
+    const jwks = jose.createRemoteJWKSet(
+      new URL("https://api.openlogin.com/jwks")
+    );
     const jwtDecoded = await jose.jwtVerify(idToken, jwks, {
       algorithms: ["ES256"],
     });
-    res.send((jwtDecoded.payload as any).wallets[0].public_key)
-
-  }
+    res.send((jwtDecoded.payload as any).wallets[0].public_key);
+  };
 
   getBalance = async (req: Request, res: Response) => {
     const privateKey = req.body.privateKey;
     const connection = new conn(NETWORK);
-    const user = await getKeyPair(privateKey, connection)
+    const user = await getKeyPair(privateKey, connection);
     const balance = await connection.getBalance(new PublicKey(user.publicKey));
-    res.send((balance / web3.LAMPORTS_PER_SOL) + "")
-  }
+    res.send(balance / web3.LAMPORTS_PER_SOL + "");
+  };
   mint = async (req: Request, res: Response) => {
     // const idToken=req.body.idToken
     // const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
@@ -68,9 +98,9 @@ class TestController extends controller {
     // console.log((jwtDecoded.payload as any).wallets[0]);
     console.log(privateKey);
 
-    const connection = new conn(NETWORK)
-    const user = await getKeyPair(privateKey, connection)
-    console.log("PublicKey:", user.publicKey.toBase58())
+    const connection = new conn(NETWORK);
+    const user = await getKeyPair(privateKey, connection);
+    console.log("PublicKey:", user.publicKey.toBase58());
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
       .use(
@@ -78,8 +108,8 @@ class TestController extends controller {
           address: "https://devnet.bundlr.network",
           providerUrl: "https://api.devnet.solana.com",
           timeout: 60000,
-        }),
-      )
+        })
+      );
     console.log("make metaplex");
     const buffer = fs.readFileSync("uploads/images/" + fileName);
     console.log("make buffer");
@@ -98,19 +128,24 @@ class TestController extends controller {
         uri: uri,
         name: name,
         sellerFeeBasisPoints: 0,
-        collection: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!)
+        collection: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!),
       },
-      { commitment: "finalized" },
+      { commitment: "finalized" }
     );
     console.log("create nft");
-    console.log(`Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`);
+    console.log(
+      `Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`
+    );
     const data = {
       explorer_uri: `https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`,
       nft: nft,
-      uri: uri
+      uri: uri,
     };
-    const userDesignity = await getKeyPair(process.env.DESIGNITY_PRIVATE_KEY!, connection)
-    console.log("PublicKey designity:", userDesignity.publicKey.toBase58())
+    const userDesignity = await getKeyPair(
+      process.env.DESIGNITY_PRIVATE_KEY!,
+      connection
+    );
+    console.log("PublicKey designity:", userDesignity.publicKey.toBase58());
     const metaplexDesignitty = Metaplex.make(connection)
       .use(keypairIdentity(userDesignity))
       .use(
@@ -118,17 +153,18 @@ class TestController extends controller {
           address: "https://devnet.bundlr.network",
           providerUrl: "https://api.devnet.solana.com",
           timeout: 60000,
-        }),
-      )
+        })
+      );
     const result = await metaplexDesignitty.nfts().verifyCollection({
       //this is what verifies our collection as a Certified Collection
       mintAddress: nft.address,
-      collectionMintAddress: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!),
+      collectionMintAddress: new PublicKey(
+        process.env.DESIGNITY_COLLECTION_ADDRESS!
+      ),
       isSizedCollection: true,
-    
-    })
+    });
     this.myResponse(res, 200, result, "");
-  }
+  };
   defaultMint = async (req: Request, res: Response) => {
     // const idToken=req.body.idToken
     // const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
@@ -146,9 +182,9 @@ class TestController extends controller {
     // console.log((jwtDecoded.payload as any).wallets[0]);
     console.log(privateKey);
 
-    const connection = new conn(NETWORK)
-    const user = await getKeyPair(privateKey, connection)
-    console.log("PublicKey:", user.publicKey.toBase58())
+    const connection = new conn(NETWORK);
+    const user = await getKeyPair(privateKey, connection);
+    console.log("PublicKey:", user.publicKey.toBase58());
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
       .use(
@@ -156,8 +192,8 @@ class TestController extends controller {
           address: "https://devnet.bundlr.network",
           providerUrl: "https://api.devnet.solana.com",
           timeout: 60000,
-        }),
-      )
+        })
+      );
     console.log("make metaplex");
     const buffer = fs.readFileSync("/web-services/uploads/images/index.jpg");
     console.log("make buffer");
@@ -177,20 +213,25 @@ class TestController extends controller {
         uri: uri,
         name: name,
         sellerFeeBasisPoints: 0,
-        collection: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!)
+        collection: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!),
       },
-      { commitment: "finalized" },
+      { commitment: "finalized" }
     );
     console.log("create nft");
-    console.log(`Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`);
+    console.log(
+      `Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`
+    );
     const data = {
       explorer_uri: `https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`,
       nft: nft,
-      uri: uri
+      uri: uri,
     };
 
-    const userDesignity = await getKeyPair(process.env.DESIGNITY_PRIVATE_KEY!, connection)
-    console.log("PublicKey designity:", userDesignity.publicKey.toBase58())
+    const userDesignity = await getKeyPair(
+      process.env.DESIGNITY_PRIVATE_KEY!,
+      connection
+    );
+    console.log("PublicKey designity:", userDesignity.publicKey.toBase58());
     const metaplexDesignitty = Metaplex.make(connection)
       .use(keypairIdentity(userDesignity))
       .use(
@@ -198,16 +239,18 @@ class TestController extends controller {
           address: "https://devnet.bundlr.network",
           providerUrl: "https://api.devnet.solana.com",
           timeout: 60000,
-        }),
-      )
+        })
+      );
     const result = await metaplexDesignitty.nfts().verifyCollection({
       //this is what verifies our collection as a Certified Collection
       mintAddress: nft.address,
-      collectionMintAddress: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!),
+      collectionMintAddress: new PublicKey(
+        process.env.DESIGNITY_COLLECTION_ADDRESS!
+      ),
       isSizedCollection: true,
-    })
+    });
     this.myResponse(res, 200, result, "");
-  }
+  };
   mintCollection = async (req: Request, res: Response) => {
     // const idToken=req.body.idToken
     // const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
@@ -226,10 +269,9 @@ class TestController extends controller {
     console.log(privateKey);
     // const connection = new conn(clusterApiUrl("devnet"))
 
-
-    const connection = new conn(NETWORK)
-    const user = await getKeyPair(privateKey, connection)
-    console.log("PublicKey:", user.publicKey.toBase58())
+    const connection = new conn(NETWORK);
+    const user = await getKeyPair(privateKey, connection);
+    console.log("PublicKey:", user.publicKey.toBase58());
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
       .use(
@@ -237,8 +279,8 @@ class TestController extends controller {
           address: "https://devnet.bundlr.network",
           providerUrl: "https://api.devnet.solana.com",
           timeout: 60000,
-        }),
-      )
+        })
+      );
     console.log("make metaplex");
     const buffer = fs.readFileSync("uploads/images/" + fileName);
     console.log("make buffer");
@@ -257,25 +299,26 @@ class TestController extends controller {
         uri: uri,
         name: name,
         sellerFeeBasisPoints: 0,
-        isCollection: true
+        isCollection: true,
       },
-      { commitment: "finalized" },
+      { commitment: "finalized" }
     );
     console.log("create nft");
-    console.log(`Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`);
+    console.log(
+      `Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`
+    );
     const data = {
       explorer_uri: `https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`,
       nft: nft,
-      uri: uri
+      uri: uri,
     };
     this.myResponse(res, 200, data, "");
-  }
+  };
   mintWorkflow = async (req: Request, res: Response) => {
-
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || 'default'
+      namespace: process.env.TEMPORAL_NAMESPACE || "default",
       // namespace: 'foo.bar', // connects to 'default' namespace if not specified
     });
 
@@ -291,25 +334,23 @@ class TestController extends controller {
     // console.log((jwtDecoded.payload as any).wallets[0].public_key);
     // console.log((jwtDecoded.payload as any).wallets[0]);
     console.log(privateKey);
-    const workFlowId = 'mint-' + workId;
+    const workFlowId = "mint-" + workId;
     const handle = await client.workflow.start(mint, {
       // type inference works! args: [name: string]
       args: [privateKey, fileName, description, name],
-      taskQueue: 'mint',
+      taskQueue: "mint",
       // in practice, use a meaningful business ID, like customerId or transactionId
       workflowId: workFlowId,
     });
     console.log(`Started workflow`);
 
-
-    res.send("worker run:" + workFlowId)
-  }
+    res.send("worker run:" + workFlowId);
+  };
   updateMintWorkflow = async (req: Request, res: Response) => {
-
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || 'default'
+      namespace: process.env.TEMPORAL_NAMESPACE || "default",
     });
 
     const name = req.body.name;
@@ -324,22 +365,20 @@ class TestController extends controller {
     // console.log((jwtDecoded.payload as any).wallets[0].public_key);
     // console.log((jwtDecoded.payload as any).wallets[0]);
     console.log(privateKey);
-    const workFlowId = 'mint-' + nanoid();
+    const workFlowId = "mint-" + nanoid();
     const handle = await client.workflow.start(updateMint, {
       // type inference works! args: [name: string]
       args: [privateKey, fileName, description, name, mintAddress],
-      taskQueue: 'mint',
+      taskQueue: "mint",
       // in practice, use a meaningful business ID, like customerId or transactionId
       workflowId: workFlowId,
     });
     console.log(`Started workflow`);
 
-
-    res.send("worker run:" + workFlowId)
-  }
+    res.send("worker run:" + workFlowId);
+  };
 
   updateDefaultMintWorkflow = async (req: Request, res: Response) => {
-
     const name = req.body.name;
     console.log("nftname >>>>>>" + name);
     const description = req.body.description;
@@ -349,8 +388,8 @@ class TestController extends controller {
     const privateKey = req.body.privateKey;
     const address = req.body.mintAddress;
     console.log("nft mintAddress>>>>>" + address);
-    const connection = new conn(NETWORK)
-    const user = await getKeyPair(privateKey, connection)
+    const connection = new conn(NETWORK);
+    const user = await getKeyPair(privateKey, connection);
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
       .use(
@@ -358,8 +397,8 @@ class TestController extends controller {
           address: "https://devnet.bundlr.network",
           providerUrl: "https://api.devnet.solana.com",
           timeout: 60000,
-        }),
-      )
+        })
+      );
     const buffer = fs.readFileSync("uploads/images/designity.png");
     console.log("make buffer");
     const file = toMetaplexFile(buffer, "image.png");
@@ -374,7 +413,7 @@ class TestController extends controller {
     console.log("upload meta data====>uri:" + uri);
     const mintAddress = new PublicKey(address);
     // fetch NFT data using mint address
-    const nft = await metaplex.nfts().findByMint({ mintAddress })
+    const nft = await metaplex.nfts().findByMint({ mintAddress });
 
     // update the NFT metadata
     const { response } = await metaplex.nfts().update(
@@ -383,57 +422,51 @@ class TestController extends controller {
         uri: uri,
       },
       { commitment: "finalized" }
-    )
+    );
 
     console.log(
       `Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`
-    )
+    );
 
     console.log(
       `Transaction: https://explorer.solana.com/tx/${response.signature}?cluster=devnet`
-    )
+    );
 
-
-    res.send(nft)
-
-
-  }
+    res.send(nft);
+  };
   workflow = async (req: Request, res: Response) => {
-
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
       // namespace: 'foo.bar', // connects to 'default' namespace if not specified
     });
 
-    const workFlowId = 'mint-' + nanoid();
+    const workFlowId = "mint-" + nanoid();
     const handle = await client.workflow.start(mint, {
       // type inference works! args: [name: string]
-      args: ['Temporal', 'Temporal', 'Temporal', 'Temporal'],
-      taskQueue: 'mint',
+      args: ["Temporal", "Temporal", "Temporal", "Temporal"],
+      taskQueue: "mint",
       // in practice, use a meaningful business ID, like customerId or transactionId
       workflowId: workFlowId,
     });
     console.log(`Started workflow`);
 
-
-    res.send("worker run:" + workFlowId)
-  }
+    res.send("worker run:" + workFlowId);
+  };
   mintWorker = async (req: Request, res: Response) => {
     const worker = await Worker.create({
-      workflowsPath: require.resolve('./workflow/workflows'),
+      workflowsPath: require.resolve("./workflow/workflows"),
       activities,
-      taskQueue: 'mint',
+      taskQueue: "mint",
     });
     worker.run();
-    res.send("worker run")
-  }
+    res.send("worker run");
+  };
   getInfoWorkFlow = async (req: Request, res: Response) => {
-
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || 'default'
+      namespace: process.env.TEMPORAL_NAMESPACE || "default",
     });
     // const workFlow = await client.workflow.getHandle(req.params.workFlowId).describe();
     // res.send(workFlow);
@@ -444,14 +477,15 @@ class TestController extends controller {
     console.log(val);
 
     await handle.result();
-    console.log('complete');
+    console.log("complete");
     res.send(val);
-  }
+  };
   findAllMint = async (req: Request, res: Response) => {
-
     const idToken = req.body.idToken;
     console.log(idToken);
-    const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
+    const jwks = jose.createRemoteJWKSet(
+      new URL("https://api.openlogin.com/jwks")
+    );
     const jwtDecoded = await jose.jwtVerify(idToken, jwks, {
       algorithms: ["ES256"],
     });
@@ -460,8 +494,8 @@ class TestController extends controller {
     console.log("public_key>>>>" + public_key);
     console.log("private_key>>>>" + privateKey);
 
-    const connection = new conn(NETWORK)
-    const user = await getKeyPair(privateKey, connection)
+    const connection = new conn(NETWORK);
+    const user = getKeyPair(privateKey, connection);
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
       .use(
@@ -469,26 +503,27 @@ class TestController extends controller {
           address: "https://devnet.bundlr.network",
           providerUrl: "https://api.devnet.solana.com",
           timeout: 60000,
-        }),
-      )
+        })
+      );
     // const result = await metaplex.nfts().findAllByOwner({
     //   owner: metaplex.identity().publicKey
     // });
-    res.json("")
-  }
+    res.json("");
+  };
   findAllMintWithCollection = async (req: Request, res: Response) => {
-
     const idToken = req.body.idToken;
     console.log(idToken);
-    const jwks = jose.createRemoteJWKSet(new URL("https://api.openlogin.com/jwks"));
+    const jwks = jose.createRemoteJWKSet(
+      new URL("https://api.openlogin.com/jwks")
+    );
     const jwtDecoded = await jose.jwtVerify(idToken, jwks, {
       algorithms: ["ES256"],
     });
     const public_key = (jwtDecoded.payload as any).wallets[0].public_key;
     const privateKey = req.body.privateKey;
 
-    const connection = new conn(NETWORK)
-    const user = await getKeyPair(privateKey, connection)
+    const connection = new conn(NETWORK);
+    const user = getKeyPair(privateKey, connection);
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
       .use(
@@ -496,101 +531,103 @@ class TestController extends controller {
           address: "https://devnet.bundlr.network",
           providerUrl: "https://api.devnet.solana.com",
           timeout: 60000,
-        }),
-      )
+        })
+      );
     const result = await metaplex.nfts().findAllByOwner({
-      owner: metaplex.identity().publicKey
+      owner: metaplex.identity().publicKey,
     });
-    const dc = new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!).toBase58();
-    const ourCollectionNfts = result.filter(
-      metadata => {
-        return metadata.collection !== null &&
-          metadata.collection.verified &&
-          metadata.collection.address.toBase58() === dc
-
-      }
-    )
-    const loadedNfts = await Promise.all(ourCollectionNfts
-      .map(metadata => {
-        return metaplex.nfts().load({ metadata: metadata as Metadata })
+    const dc = new PublicKey(
+      process.env.DESIGNITY_COLLECTION_ADDRESS!
+    ).toBase58();
+    const ourCollectionNfts = result.filter((metadata) => {
+      return (
+        metadata.collection !== null &&
+        metadata.collection.verified &&
+        metadata.collection.address.toBase58() === dc
+      );
+    });
+    const loadedNfts = await Promise.all(
+      ourCollectionNfts.map((metadata) => {
+        return metaplex.nfts().load({ metadata: metadata as Metadata });
       })
-    )
-    res.json(loadedNfts)
-  }
+    );
+    res.json(loadedNfts);
+  };
   callSignalWorkFlow = async (req: Request, res: Response) => {
-
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || 'default',
+      namespace: process.env.TEMPORAL_NAMESPACE || "default",
     });
 
-    const workFlowId = 'signal-test';
+    const workFlowId = "signal-test";
     const handle = await client.workflow.start(signals, {
       args: [],
-      taskQueue: 'signal',
+      taskQueue: "signal",
       workflowId: workFlowId,
     });
     console.log(`Started workflow`);
 
-
-    res.send("worker run:" + workFlowId)
-  }
+    res.send("worker run:" + workFlowId);
+  };
   startWorkerSignal = async (req: Request, res: Response) => {
     const connection = await NativeConnection.connect({
       address: process.env.TEMPORAL_ADDRESS!,
       tls: {
         clientCertPair: {
-          crt: Buffer.from(fs.readFileSync(process.env.TEMPORAL_TLS_CRT!, 'utf8')),
-          key: Buffer.from(fs.readFileSync(process.env.TEMPORAL_TLS_KEY!, 'utf8')),
-        }
-      }
+          crt: Buffer.from(
+            fs.readFileSync(process.env.TEMPORAL_TLS_CRT!, "utf8")
+          ),
+          key: Buffer.from(
+            fs.readFileSync(process.env.TEMPORAL_TLS_KEY!, "utf8")
+          ),
+        },
+      },
     });
     const worker = await Worker.create({
       connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || 'default',
-      workflowsPath: require.resolve('./workflow/workflows'),
+      namespace: process.env.TEMPORAL_NAMESPACE || "default",
+      workflowsPath: require.resolve("./workflow/workflows"),
       activities,
-      taskQueue: 'mint',
+      taskQueue: "mint",
     });
     worker.run();
-    res.send("worker run")
-  }
+    res.send("worker run");
+  };
   getStatusSignal = async (req: Request, res: Response) => {
-
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || 'default'
+      namespace: process.env.TEMPORAL_NAMESPACE || "default",
     });
-    const handle = client.workflow.getHandle('signal-test');
+    const handle = client.workflow.getHandle("signal-test");
     const isBlocked = await handle.query(isBlockedQuery);
-    console.log('blocked?', isBlocked);
-    res.send("isBlocked?" + isBlocked)
-  }
+    console.log("blocked?", isBlocked);
+    res.send("isBlocked?" + isBlocked);
+  };
   cancelSignal = async (req: Request, res: Response) => {
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
     });
-    const handle = client.workflow.getHandle('signal-test');
+    const handle = client.workflow.getHandle("signal-test");
 
     await handle.cancel();
-    console.log('workflow canceled');
+    console.log("workflow canceled");
     res.send("canceled signal");
-  }
+  };
 
   callSignal = async (req: Request, res: Response) => {
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || 'default'
+      namespace: process.env.TEMPORAL_NAMESPACE || "default",
     });
-    const handle = client.workflow.getHandle('signal-test');
+    const handle = client.workflow.getHandle("signal-test");
     await handle.signal(unblockSignal);
-    console.log('unblockSignal sent');
+    console.log("unblockSignal sent");
     res.send("unblockSignal sent");
-  }
+  };
 
   checkingEmail = async (req: Request, res: Response) => {
     // const bigquery = new BigQuery({
@@ -600,39 +637,40 @@ class TestController extends controller {
     // console.log("data_set:",dataset);
     // const [view] = await dataset.table("ftbl").get();
     // res.send(view);
-    // res.send("bigquery");     
+    // res.send("bigquery");
 
-
+    // ASH-> Conncet to big query
     const bigquery = new BigQuery({
-      keyFilename: process.env.BIGQUERY_SERVICEACCOUNT || 'bigquery-sa.json',
-      projectId: 'designitybigquerysandbox',
+      keyFilename: process.env.BIGQUERY_SERVICEACCOUNT || "bigquery-sa.json",
+      projectId: "designitybigquerysandbox",
       scopes: [
         "https://www.googleapis.com/auth/cloud-platform",
         "https://www.googleapis.com/auth/drive",
-        "https://www.googleapis.com/auth/bigquery"
-      ]
-
+        "https://www.googleapis.com/auth/bigquery",
+      ],
     });
+    // ASH-> deine the query
     const query = `SELECT *
     FROM \`${process.env.GCP_PROJECT_ID}.${process.env.BIGQUERY_EMAILS_DATASET}.${process.env.BIGQUERY_EMAILS_TABLE}\`
-     LIMIT 100`;
+    LIMIT 100`;
+
     console.log(query);
     const options = {
       query: query,
       // Location must match that of the dataset(s) referenced in the query.
-      location: 'US',
+      location: "US",
     };
 
-    //   // Run the query
+    //Run the query
     const [rows] = await bigquery.query(options);
 
-    console.log('Rows:', rows);
-    const result = rows.find(row => row.Email == req.body.email);
+    console.log("Rows:", rows);
+    const result = rows.find((row) => row.Email == req.body.email);
     //   res.send(rows);
     console.log(result);
 
     this.myResponse(res, 200, result, "");
-  }
+  };
 }
 
-export default new TestController
+export default new TestController();

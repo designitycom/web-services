@@ -17,6 +17,7 @@ import { MintDTO } from "../../models/mintDto";
 
 export async function uploadImage(mintDto: MintDTO): Promise<string> {
   const metaplex = makeMetaplex(mintDto.privateKey);
+  console.log("private Key>>>>>>>>>>>>",metaplex)
   console.log("make metaplex");
   const buffer = fs.readFileSync("uploads/images/" + mintDto.fileName);
   console.log("make buffer");

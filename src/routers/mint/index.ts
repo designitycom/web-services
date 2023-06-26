@@ -4,6 +4,7 @@ import { mintParamValidator } from "./../../middlewares/validator";
 const mintRouter = express.Router();
 import multer from "multer";
 
+mintRouter.post("/createMint", MintController.createMint);
 mintRouter.post("/updateMint", MintController.updateMint);
 mintRouter.get("/startWorkerMint", MintController.startWorkerMint);
 
