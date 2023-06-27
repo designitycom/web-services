@@ -3,10 +3,10 @@ import { Request, Response } from "express";
 import fs from "fs";
 import { Connection, Client, ConnectionOptions } from "@temporalio/client";
 import { createMintWF, updateMintWF } from "../../workflows/mint/workflows";
+import * as activities from "./../../workflows/mint/activities";
 import { plainToClass, plainToClassFromExist } from "class-transformer";
 import { MintDTO } from "../../models/mintDto";
 import { NativeConnection, Worker } from "@temporalio/worker";
-import * as activities from "./../../workflows/mint/activities";
 
 let temporalConnConfig: ConnectionOptions;
 
