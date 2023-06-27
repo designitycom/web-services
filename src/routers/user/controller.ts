@@ -3,7 +3,7 @@ import controller from "../controller";
 import { Request, Response } from "express";
 import fs from "fs";
 import { plainToClass, plainToClassFromExist } from "class-transformer";
-import { checkEmailWF,getAllNFTWF } from "../../workflows/user/workflows";
+import { checkEmailWF,getAllNFTWF, getNFTDetailsWF } from "../../workflows/user/workflows";
 import { UserDTO } from "../../models/userDto";
 import 'dotenv/config';
 import { NativeConnection, Worker } from "@temporalio/worker";
@@ -94,6 +94,28 @@ class UserController extends controller {
     worker.run();
     res.send("worker run");
   };
-}
+
+  //-------------------ASH
+  // 2 different workflowId
+  getNFTDetails=async(req:Request, res: Response)=>{
+    const userDTO = await plainToClass(UserDTO, req.body);
+    const workFlowId1=userDTO.wfId
+    const workFlowId2 = req.params.workFlowId
+    const connection = await Connection.connect(temporalConnConfig);
+    const client = new Client({
+      connection,
+      namespace: process.env.TEMPORAL_NAMESPACE || "default",
+    });
+    const handle = await client.workflow.start(getNFTDetailsWF, {
+      args: [workFlowId2],
+      taskQueue: "user",
+      workflowId: workFlowId1,
+    });
+    console.log(`Workflow Started `);
+    this.myResponse(res, 200, workFlowId1, "set workflow");
+
+  }
+
+}//end UserController 
 
 export default new UserController();

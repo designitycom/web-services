@@ -4,7 +4,7 @@ import type * as activities from "./activities";
 import { UserDTO } from "../../models/userDto";
 
 
-const { getUserDto, getAllNFT } = proxyActivities<typeof activities>({
+const { getUserDto, getAllNFT,  } = proxyActivities<typeof activities>({
   startToCloseTimeout: "1 minute",
 });
 
@@ -22,6 +22,9 @@ export async function checkEmailWF(userDTO: UserDTO): Promise<string> {
   return "ok";
 }
 
+//ASH????
+export const allNFT = wf.defineQuery<string>('allNFT');
+//ASH
 export async function getAllNFTWF(userDTO: UserDTO): Promise<string> {
 const allNFT = await getAllNFT(userDTO)
 console.log("in workflow>>>>>>>>>", allNFT)
@@ -29,5 +32,10 @@ console.log("in workflow>>>>>>>>>", allNFT)
   return "ok";
 }
 
-//ASH=> @Mehdi, Do we need status for eaach WF?
+export async function getNFTDetailsWF(workFlowId2:string): Promise <String>{
+
+
+  return allNFT 
+}
+
 
