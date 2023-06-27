@@ -3,8 +3,7 @@ import controller from "../controller";
 import { Request, Response } from "express";
 import fs from "fs";
 import { plainToClass, plainToClassFromExist } from "class-transformer";
-import { MintDTO } from "../../models/mintDto";
-import { checkEmailWF,getAllNFT } from "../../workflows/user/workflows";
+import { checkEmailWF,getAllNFTWF } from "../../workflows/user/workflows";
 import { UserDTO } from "../../models/userDto";
 import 'dotenv/config';
 import { NativeConnection, Worker } from "@temporalio/worker";
@@ -38,7 +37,7 @@ class UserController extends controller {
     const userDTO = await plainToClass(UserDTO, req.body);
     console.log ("user email", userDTO.email)
     const connection = await Connection.connect(temporalConnConfig);
-    console.log("after connection ")
+    console.log("connection confirmed  ")
     const client = new Client({
       connection,
       namespace: process.env.TEMPORAL_NAMESPACE || "default",
@@ -54,22 +53,22 @@ class UserController extends controller {
     this.myResponse(res, 200, workFlowId, "set workflow");
   };
 
-  // getAllNFT= async(req:Request, res:Response)=>{
-  //   const userDTO = await plainToClass(MintDTO, req.body);
-  //   const connection = await Connection.connect(temporalConnConfig);
-  //   const client = new Client({
-  //     connection,
-  //     namespace: process.env.TEMPORAL_NAMESPACE || "default",
-  //   });
-  //   const workFlowId = "getAllNFT-" + userDTO.wfId;
-  //   const handle = await client.workflow.start(getAllNFT, {
-  //     args: [userDTO],
-  //     taskQueue: "getAllNFT",
-  //     workflowId: workFlowId,
-  //   });
-  //   console.log(`Workflow Started `);
-  //   this.myResponse(res, 200, workFlowId, "set workflow");
-  // }
+  getAllNFT= async(req:Request, res:Response)=>{
+    const userDTO = await plainToClass(UserDTO, req.body);
+    const connection = await Connection.connect(temporalConnConfig);
+    const client = new Client({
+      connection,
+      namespace: process.env.TEMPORAL_NAMESPACE || "default",
+    });
+    const workFlowId = "user-" + userDTO.wfId;
+    const handle = await client.workflow.start(getAllNFTWF, {
+      args: [userDTO],
+      taskQueue: "user",
+      workflowId: workFlowId,
+    });
+    console.log(`Workflow Started `);
+    this.myResponse(res, 200, workFlowId, "set workflow");
+  }
 
   startWorkerUser = async (req: Request, res: Response) => {
     const connection = await NativeConnection.connect({

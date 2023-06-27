@@ -1,8 +1,24 @@
 import { BigQuery } from "@google-cloud/bigquery";
 import { Request, Response } from "express";
 import { UserDTO } from "../../models/userDto";
+import * as jose from "jose";
+import { Connection as solanaCon,PublicKey } from "@solana/web3.js";
+import { NETWORK } from "../../utils/globals";
+import {getKeyPair, makeMetaplex} from "../../services/solana";
+import {
+  Metaplex,
+  keypairIdentity,
+  bundlrStorage,
+  toMetaplexFile,
+  Metadata,
+  Nft,
+  Sft,
+  SftWithToken,
+  NftWithToken,
+} from "@metaplex-foundation/js";
+
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>BigQuery
-export async function getUserDto(userDto: UserDTO): Promise<UserDTO> {
+export async function getUserDto(userDTO: UserDTO): Promise<UserDTO> {
   const bigquery = new BigQuery({
     keyFilename: process.env.BIGQUERY_SERVICEACCOUNT || "bigquery-sa.json",
     projectId: "designitybigquerysandbox",
@@ -12,7 +28,7 @@ export async function getUserDto(userDto: UserDTO): Promise<UserDTO> {
       "https://www.googleapis.com/auth/bigquery",
     ],
   });
-  // ASH-> deine the query
+  // ASH-> define the query
   const query = `SELECT *
   FROM \`${process.env.GCP_PROJECT_ID}.${process.env.BIGQUERY_EMAILS_DATASET}.${process.env.BIGQUERY_EMAILS_TABLE}\`
   LIMIT 100`;
@@ -26,15 +42,46 @@ export async function getUserDto(userDto: UserDTO): Promise<UserDTO> {
   //Run the query
   const [rows] = await bigquery.query(options);
 
-  const result = rows.find((row) => row.Email == userDto.email);
-  console.log(result)
-  if(result != undefined){
-
-    userDto.role=result.role;
-    userDto.name=result.name;
-    userDto.level=result.level;
+  const result = rows.find((row) => row.Email == userDTO.email);
+  console.log(result);
+  if (result != undefined) {
+    userDTO.role = result.role;
+    userDTO.level = result.level;
+    userDTO.name = result.name;
   }
 
-  return userDto;
+  return userDTO;
 }
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Get All NFT
+
+export async function getAllNFT(userDTO: UserDTO):Promise<Nft | Sft | SftWithToken | NftWithToken> {
+
+  const metaplex = makeMetaplex(userDTO.privateKey);
+
+  const result = await metaplex.nfts().findAllByOwner({
+    owner: metaplex.identity().publicKey,
+  });
+  const designityCollection = new PublicKey(
+    process.env.DESIGNITY_COLLECTION_ADDRESS!
+  ).toBase58();
+  const ourCollectionNfts = result.filter((metadata) => {
+    return (
+      metadata.collection !== null &&
+      metadata.collection.verified &&
+      metadata.collection.address.toBase58() === designityCollection
+    );
+  });
+
+  const loadedNfts = await Promise.all(
+    ourCollectionNfts.map((metadata) => {
+      return metaplex.nfts().load({ metadata: metadata as Metadata });
+    })
+  );
+console.log(loadedNfts[0])
+
+return loadedNfts[0]
+
+
+
+
+}//end of getAllNFT

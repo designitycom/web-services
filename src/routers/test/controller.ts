@@ -510,6 +510,7 @@ class TestController extends controller {
     // });
     res.json("");
   };
+  //ASH=> to add into temporal 
   findAllMintWithCollection = async (req: Request, res: Response) => {
     const idToken = req.body.idToken;
     console.log(idToken);
