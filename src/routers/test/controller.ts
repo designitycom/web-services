@@ -603,6 +603,7 @@ class TestController extends controller {
     // res.send("bigquery");     
 
 
+    console.log(req.body.email)
     const bigquery = new BigQuery({
       keyFilename: process.env.BIGQUERY_SERVICEACCOUNT || 'bigquery-sa.json',
       projectId: 'designitybigquerysandbox',
