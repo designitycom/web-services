@@ -43,12 +43,13 @@ export async function getUserDto(userDTO: UserDTO): Promise<UserDTO> {
   const [rows] = await bigquery.query(options);
 
   const result = rows.find((row) => row.Email == userDTO.email);
-  console.log(result);
+  console.log("result in activity==>>>", result);
   if (result != undefined) {
-    userDTO.role = result.role;
-    userDTO.level = result.level;
-    userDTO.name = result.name;
+    userDTO.role = result.Role;
+    userDTO.level = result.Level;
+    userDTO.name = result.Name;
   }
+  console.log("userDTO in activity", userDTO)
 
   return userDTO;
 }
