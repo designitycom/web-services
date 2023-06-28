@@ -3,7 +3,7 @@ import controller from "../controller";
 import { Request, Response } from "express";
 import fs from "fs";
 import { plainToClass, plainToClassFromExist } from "class-transformer";
-import { checkEmailWF,getAllNFTWF, getNFTDetailsWF } from "../../workflows/user/workflows";
+import { getMintAddress, checkEmailWF, getAllNFTWF} from "../../workflows/user/workflows";
 import { UserDTO } from "../../models/userDto";
 import 'dotenv/config';
 import { NativeConnection, Worker } from "@temporalio/worker";
@@ -31,11 +31,11 @@ if (
 }
 
 class UserController extends controller {
- 
+
   //ASH>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   checkEmail = async (req: Request, res: Response) => {
     const userDTO = await plainToClass(UserDTO, req.body);
-    console.log ("user email", userDTO.email)
+    console.log("user email", userDTO.email)
     const connection = await Connection.connect(temporalConnConfig);
     console.log("connection confirmed  ")
     const client = new Client({
@@ -53,7 +53,7 @@ class UserController extends controller {
     this.myResponse(res, 200, workFlowId, "set workflow");
   };
 
-  getAllNFT= async(req:Request, res:Response)=>{
+  getAllNFT = async (req: Request, res: Response) => {
     const userDTO = await plainToClass(UserDTO, req.body);
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
@@ -95,24 +95,28 @@ class UserController extends controller {
     res.send("worker run");
   };
 
-  //-------------------ASH
-  // 2 different workflowId
-  getNFTDetails=async(req:Request, res: Response)=>{
-    const userDTO = await plainToClass(UserDTO, req.body);
-    const workFlowId1=userDTO.wfId
-    const workFlowId2 = req.params.workFlowId
+
+  getNFTDetails = async (req: Request, res: Response) => {
+    const workFlowId = req.params.workFlowId
+
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
       namespace: process.env.TEMPORAL_NAMESPACE || "default",
     });
-    const handle = await client.workflow.start(getNFTDetailsWF, {
-      args: [workFlowId2],
-      taskQueue: "user",
-      workflowId: workFlowId1,
-    });
+    console.log(workFlowId);
+    const handle = client.workflow.getHandle(workFlowId);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const val = await handle.query(getMintAddress);
+    console.log(val);
+
+    await handle.result();
+    console.log("complete");
+
+
     console.log(`Workflow Started `);
-    this.myResponse(res, 200, workFlowId1, "set workflow");
+    this.myResponse(res, 200, val, "set workflow");
 
   }
 
