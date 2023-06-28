@@ -1,0 +1,11 @@
+POST http://34.123.25.77:5001/api/mint/createMint
+content-type: application/json
+
+{
+    "wfId": "37",
+    "name": "mehdi2 test new",
+    "description":"des test2 new",
+    "privateKey":"2b6fa08e6a9c3c076997b22dd52f26fe447aa0a11347b4f0c642087513683ceba7df9a10703fa170b08d4d1877ac433fb25132cebcc93678318be1b31b989a56",
+    "fileName":"designity.png",
+    "role":"admin"
+}
