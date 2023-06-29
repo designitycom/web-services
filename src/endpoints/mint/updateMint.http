@@ -1,12 +1,12 @@
-POST http://34.123.25.77:5000/api/mint/updateMintt
+POST http://34.123.25.77:5001/api/mint/updateMint
 content-type: application/json
 
 {
-    "wfId": "36",
+    "wfId": "a-15",
     "name": "mehdi2 test new",
     "description":"des test2 new",
-    "privateKey":"",
+    "privateKey":"2b6fa08e6a9c3c076997b22dd52f26fe447aa0a11347b4f0c642087513683ceba7df9a10703fa170b08d4d1877ac433fb25132cebcc93678318be1b31b989a56",
     "fileName":"designity.png",
     "role":"admin",
-    "mintAddress":"DK5y7cCsEQ417gSH3Fpir2F8ifzntbBfwP8dPxChE32Q"
+    "mintAddress":"3R8AN5mukRwKS6JfXJgcEHeCMp39T2rupibcGdifjWbA"
 }

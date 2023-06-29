@@ -41,13 +41,13 @@ export async function createMintWF(mintDto: MintDTO): Promise<string> {
 
   return "ok";
 }
-
+export const getUpdatedMintAddress = wf.defineQuery<string>("getMintAddress");
 export async function updateMintWF(mintDto: MintDTO): Promise<string> {
-  let status = "start";
+  let status = "start";  
   let mintAddress = mintDto.mintAddress;
 
   wf.setHandler(getStatus, () => status);
-  wf.setHandler(getMintAddress, () => mintAddress);
+  wf.setHandler(getUpdatedMintAddress, () => mintAddress);
 
   console.log("update start step 1");
   const imageUri = await uploadImage(mintDto);
@@ -62,9 +62,7 @@ export async function updateMintWF(mintDto: MintDTO): Promise<string> {
   console.log("start step 3", nftAddress);
   status = "create nft";
   
-  const result = await verifyNft(nftAddress);
-  console.log("start step 4");
-  status = "nft verified";
+
 
   // console.log("address:" + nft.address);
 

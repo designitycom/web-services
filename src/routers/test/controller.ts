@@ -470,8 +470,8 @@ class TestController extends controller {
     // res.send(workFlow);
     const handle = client.workflow.getHandle(req.params.workFlowId);
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    const val = await handle.query(getStatus);
     // Should print "10", may print another number depending on timing
+    const val = await handle.query(getStatus);
     console.log(val);
 
     await handle.result();
