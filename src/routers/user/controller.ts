@@ -3,7 +3,7 @@ import controller from "../controller";
 import { Request, Response } from "express";
 import fs from "fs";
 import { plainToClass, plainToClassFromExist } from "class-transformer";
-import { checkEmailWF,getAllNFTWF } from "../../workflows/user/workflows";
+import { getMintAddress, checkEmailWF, getAllNFTWF, handleUserDTO} from "../../workflows/user/workflows";
 import { UserDTO } from "../../models/userDto";
 import 'dotenv/config';
 import { NativeConnection, Worker } from "@temporalio/worker";
@@ -31,11 +31,11 @@ if (
 }
 
 class UserController extends controller {
- 
+
   //ASH>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   checkEmail = async (req: Request, res: Response) => {
     const userDTO = await plainToClass(UserDTO, req.body);
-    console.log ("user email", userDTO.email)
+    console.log("user email", userDTO.email)
     const connection = await Connection.connect(temporalConnConfig);
     console.log("connection confirmed  ")
     const client = new Client({
@@ -53,7 +53,27 @@ class UserController extends controller {
     this.myResponse(res, 200, workFlowId, "set workflow");
   };
 
-  getAllNFT= async(req:Request, res:Response)=>{
+  getAllUserDTO= async (req: Request, res: Response)=>{
+    const workFlowId = req.params.workFlowId
+    const connection = await Connection.connect(temporalConnConfig);
+    const client = new Client({
+      connection,
+      namespace: process.env.TEMPORAL_NAMESPACE || "default",
+    });
+    console.log(workFlowId);
+    const handle = client.workflow.getHandle(workFlowId);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    const val = await handle.query(handleUserDTO);
+    console.log(val);
+    await handle.result();
+    console.log("complete");
+
+
+    console.log(`Workflow Started `);
+    this.myResponse(res, 200, val, "set workflow");
+  }
+//----------------------------
+  getAllNFT = async (req: Request, res: Response) => {
     const userDTO = await plainToClass(UserDTO, req.body);
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
@@ -68,6 +88,29 @@ class UserController extends controller {
     });
     console.log(`Workflow Started `);
     this.myResponse(res, 200, workFlowId, "set workflow");
+  }
+
+  getNFTDetails = async (req: Request, res: Response) => {
+    const workFlowId = req.params.workFlowId
+    const connection = await Connection.connect(temporalConnConfig);
+    const client = new Client({
+      connection,
+      namespace: process.env.TEMPORAL_NAMESPACE || "default",
+    });
+    console.log(workFlowId);
+    const handle = client.workflow.getHandle(workFlowId);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const val = await handle.query(getMintAddress);
+    console.log(val);
+
+    await handle.result();
+    console.log("complete");
+
+
+    console.log(`Workflow Started `);
+    this.myResponse(res, 200, val, "set workflow");
+
   }
 
   startWorkerUser = async (req: Request, res: Response) => {
@@ -94,6 +137,8 @@ class UserController extends controller {
     worker.run();
     res.send("worker run");
   };
-}
+
+
+}//end UserController 
 
 export default new UserController();

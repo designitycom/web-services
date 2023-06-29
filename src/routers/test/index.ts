@@ -25,7 +25,7 @@ const upload = multer({ storage: storage })
 router.post('/getBalance', multer().none(), TestController.getBalance)
 // router.get('/startWorkFlow', TestController.workflow)
 // router.get('/startWorker', TestController.mintWorker)
-// router.get('/getStatus/:workFlowId', TestController.getInfoWorkFlow)
+router.get('/getStatus/:workFlowId', TestController.getInfoWorkFlow)
 // router.post('/getAllNft', multer().none(), TestController.findAllMint)
 // router.post('/findAllMintWithCollection', multer().none(), TestController.findAllMintWithCollection)
 
