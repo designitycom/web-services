@@ -35,8 +35,8 @@ if (
 class MintController extends controller {
   createMint = async (req: Request, res: Response) => {
     const mintDTO = await plainToClass(MintDTO, req.body);
-    const idToken=req.headers["id-token"]![0];
-    mintDTO.publicKey=await getPKIDToken(idToken);
+    const idToken=req.headers["id-token"]!;
+    mintDTO.publicKey=await getPKIDToken(idToken.toString());
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
