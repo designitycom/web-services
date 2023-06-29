@@ -7,6 +7,9 @@ import * as activities from "./../../workflows/mint/activities";
 import { plainToClass, plainToClassFromExist } from "class-transformer";
 import { MintDTO } from "../../models/mintDto";
 import { NativeConnection, Worker } from "@temporalio/worker";
+import { getKeyPair, getPKIDToken, publicKeyFromBn } from "../../services/solana";
+import { PublicKey } from "@metaplex-foundation/js";
+import bs58 from "bs58";
 
 let temporalConnConfig: ConnectionOptions;
 
@@ -31,15 +34,17 @@ if (
 
 class MintController extends controller {
   createMint = async (req: Request, res: Response) => {
-    const userDTO = await plainToClass(MintDTO, req.body);
+    const mintDTO = await plainToClass(MintDTO, req.body);
+    const idToken=req.headers["id-token"]!;
+    mintDTO.publicKey=await getPKIDToken(idToken.toString());
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,
       namespace: process.env.TEMPORAL_NAMESPACE || "default",
     });
-    const workFlowId = "mint-" + userDTO.wfId;
+    const workFlowId = "mint-" + mintDTO.wfId;
     const handle = await client.workflow.start(createMintWF, {
-      args: [userDTO],
+      args: [mintDTO],
       taskQueue: "mint",
       workflowId: workFlowId,
     });
@@ -49,6 +54,7 @@ class MintController extends controller {
 
   updateMint = async (req: Request, res: Response) => {
     const mintDTO = await plainToClass(MintDTO, req.body);
+    mintDTO.publicKey=await getPKIDToken(mintDTO.idToken);
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,

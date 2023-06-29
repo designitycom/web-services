@@ -3,7 +3,9 @@ import * as fs from "fs"
 import dotenv from "dotenv"
 import { MintDTO } from "../models/mintDto"
 import { Connection as conn } from "@solana/web3.js";
-import { Metaplex, bundlrStorage, keypairIdentity } from "@metaplex-foundation/js";
+import * as jose from "jose";
+import { Metaplex, PublicKey, bundlrStorage, keypairIdentity } from "@metaplex-foundation/js";
+import { BN } from "bn.js";
 dotenv.config()
 //test git
 export async function airdrop(
@@ -70,8 +72,7 @@ export function initializeKeypair(
   return keypairFromSecretKey
 }
 export function getKeyPair(
-  privateKey: string,
-  connection: web3.Connection
+  privateKey: string
 ) {
   const secretKey = Uint8Array.from(fromHexString(privateKey))
   const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
@@ -84,7 +85,7 @@ export function getConnection(){
 }
 export function makeMetaplex(privateKey:string) {
   const connection = getConnection();
-  const user = getKeyPair(privateKey, connection);
+  const user = getKeyPair(privateKey);
   console.log("PublicKey:", user.publicKey.toBase58());
   const metaplex = Metaplex.make(connection)
     .use(keypairIdentity(user))
@@ -98,6 +99,23 @@ export function makeMetaplex(privateKey:string) {
 
   return metaplex;
 }
+export function publicKeyFromBn(bn:string) {
+  const bigNumber = new BN(bn, 16)
+  const decoded = { _bn: bigNumber };
+  return new PublicKey(decoded);
+};
+export async function getPKIDToken(idToken:string){
+  const jwks = jose.createRemoteJWKSet(
+    new URL("https://api.openlogin.com/jwks")
+  );
+  const jwtDecoded = await jose.jwtVerify(idToken, jwks, {
+    algorithms: ["ES256"],
+  });
+  console.log(jwtDecoded.payload)
+  return publicKeyFromBn((jwtDecoded.payload as any).wallets[0].public_key).toBase58();
+}
+
+
 async function airdropSolIfNeeded(
   signer: web3.Keypair,
   connection: web3.Connection

@@ -75,7 +75,7 @@ class TestController extends controller {
   getBalance = async (req: Request, res: Response) => {
     const privateKey = req.body.privateKey;
     const connection = new conn(NETWORK);
-    const user = await getKeyPair(privateKey, connection);
+    const user = await getKeyPair(privateKey);
     const balance = await connection.getBalance(new PublicKey(user.publicKey));
     res.send(balance / web3.LAMPORTS_PER_SOL + "");
   };
@@ -99,7 +99,7 @@ class TestController extends controller {
     console.log(privateKey);
 
     const connection = new conn(NETWORK);
-    const user = await getKeyPair(privateKey, connection);
+    const user = await getKeyPair(privateKey);
     console.log("PublicKey:", user.publicKey.toBase58());
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
@@ -142,8 +142,7 @@ class TestController extends controller {
       uri: uri,
     };
     const userDesignity = await getKeyPair(
-      process.env.DESIGNITY_PRIVATE_KEY!,
-      connection
+      process.env.DESIGNITY_PRIVATE_KEY!
     );
     console.log("PublicKey designity:", userDesignity.publicKey.toBase58());
     const metaplexDesignitty = Metaplex.make(connection)
@@ -183,7 +182,7 @@ class TestController extends controller {
     console.log(privateKey);
 
     const connection = new conn(NETWORK);
-    const user = await getKeyPair(privateKey, connection);
+    const user = await getKeyPair(privateKey);
     console.log("PublicKey:", user.publicKey.toBase58());
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
@@ -228,8 +227,7 @@ class TestController extends controller {
     };
 
     const userDesignity = await getKeyPair(
-      process.env.DESIGNITY_PRIVATE_KEY!,
-      connection
+      process.env.DESIGNITY_PRIVATE_KEY!
     );
     console.log("PublicKey designity:", userDesignity.publicKey.toBase58());
     const metaplexDesignitty = Metaplex.make(connection)
@@ -270,7 +268,7 @@ class TestController extends controller {
     // const connection = new conn(clusterApiUrl("devnet"))
 
     const connection = new conn(NETWORK);
-    const user = await getKeyPair(privateKey, connection);
+    const user = await getKeyPair(privateKey);
     console.log("PublicKey:", user.publicKey.toBase58());
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
@@ -389,7 +387,7 @@ class TestController extends controller {
     const address = req.body.mintAddress;
     console.log("nft mintAddress>>>>>" + address);
     const connection = new conn(NETWORK);
-    const user = await getKeyPair(privateKey, connection);
+    const user = await getKeyPair(privateKey);
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
       .use(
@@ -495,7 +493,7 @@ class TestController extends controller {
     console.log("private_key>>>>" + privateKey);
 
     const connection = new conn(NETWORK);
-    const user = getKeyPair(privateKey, connection);
+    const user = getKeyPair(privateKey);
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
       .use(
@@ -524,7 +522,7 @@ class TestController extends controller {
     const privateKey = req.body.privateKey;
 
     const connection = new conn(NETWORK);
-    const user = getKeyPair(privateKey, connection);
+    const user = getKeyPair(privateKey);
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
       .use(
@@ -640,7 +638,7 @@ class TestController extends controller {
     // res.send(view);
     // res.send("bigquery");
 
-    // ASH-> Conncet to big query
+    console.log(req.body.email)
     const bigquery = new BigQuery({
       keyFilename: process.env.BIGQUERY_SERVICEACCOUNT || "bigquery-sa.json",
       projectId: "designitybigquerysandbox",

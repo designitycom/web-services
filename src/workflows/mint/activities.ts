@@ -1,6 +1,6 @@
 import { Keypair, clusterApiUrl } from "@solana/web3.js";
 import { Connection as conn } from "@solana/web3.js";
-import { getConnection, getKeyPair, makeMetaplex } from "../../services/solana";
+import { getConnection, getKeyPair, makeMetaplex, publicKeyFromBn } from "../../services/solana";
 import fs from "fs";
 import {
   Metaplex,
@@ -16,7 +16,7 @@ import {
 import { MintDTO } from "../../models/mintDto";
 
 export async function uploadImage(mintDto: MintDTO): Promise<string> {
-  const metaplex = makeMetaplex(mintDto.privateKey);
+  const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
   console.log("private Key>>>>>>>>>>>>",metaplex)
   console.log("make metaplex");
   const buffer = fs.readFileSync("uploads/images/" + mintDto.fileName);
@@ -31,7 +31,7 @@ export async function uploadImage(mintDto: MintDTO): Promise<string> {
 export async function uploadMetaData(
   mintDto: MintDTO,
   imageUri: string) {
-    const metaplex = makeMetaplex(mintDto.privateKey);
+    const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
     const { uri } = await metaplex.nfts().uploadMetadata({
       name: mintDto.name,
       description: mintDto.description,
@@ -46,13 +46,20 @@ export async function createNft(
   mintDto: MintDTO,
   uri: string
 ): Promise<string> {
-  const metaplex = makeMetaplex(mintDto.privateKey);
+  const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
+  const keyPairDesignity=getKeyPair(process.env.DESIGNITY_PRIVATE_KEY!);
+  const designityPK=new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!);
+  const userPK=new PublicKey(mintDto.publicKey);
+  console.log("create mint activity PK:",mintDto.publicKey);
   const { nft } = await metaplex.nfts().create(
     {
       uri: uri,
       name: mintDto.name,
       sellerFeeBasisPoints: 0,
-      collection: new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!),
+      mintAuthority:keyPairDesignity,
+      updateAuthority:keyPairDesignity,
+      tokenOwner:userPK,
+      collection: designityPK,
     },
     { commitment: "finalized" }
   );
@@ -63,7 +70,7 @@ export async function createNft(
 }
 
 export async function updateNft(mintDto: MintDTO, uri: string) {
-  const metaplex = makeMetaplex(mintDto.privateKey);
+  const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
   const mintAddress = new PublicKey(mintDto.mintAddress);
   // fetch NFT data using mint address
   const nft = await metaplex.nfts().findByMint({ mintAddress });
