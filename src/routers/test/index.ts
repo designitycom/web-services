@@ -32,7 +32,7 @@ router.post('/getBalance', multer().none(), TestController.getBalance)
 
 // router.get('/callSignalWorkFlow', TestController.callSignalWorkFlow)
 // router.get('/startWorkerSignal', TestController.startWorkerSignal)
-// router.get('/getStatusSignal', TestController.getStatusSignal)
+router.get('/getStatusSignal', TestController.getStatusSignal)
 // router.get('/cancelSignal', TestController.cancelSignal)
 // router.get('/callSignal', TestController.callSignal)  
 
