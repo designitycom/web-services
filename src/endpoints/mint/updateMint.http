@@ -1,12 +1,12 @@
 POST http://34.123.25.77:5001/api/mint/updateMint
 content-type: application/json
+id-token: eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlRZT2dnXy01RU9FYmxhWS1WVlJZcVZhREFncHRuZktWNDUzNU1aUEMwdzAifQ.eyJpYXQiOjE2ODgwNDg1MTcsImF1ZCI6IkJFc3NHT0ZaRFVTT1BwelhadmRTUTAyblhCUVVDQTEzRVE3cElJZFBmbmljaEc1NUpSOGtVMHBVNXpSR28teEp1emEwU1VsNUd4OWUyUFhPdXZNejFvZyIsIm5vbmNlIjoiMDI5YWIxNmQyY2E4YjY0MWE1ZGIwYzU4ZWE1MzYxOThkMDg5YTAxMGRkMGI4ZGRmNmQ1NTNhMTFjNmM1Zjg1YWViIiwiaXNzIjoiaHR0cHM6Ly9hcGkub3BlbmxvZ2luLmNvbSIsIndhbGxldHMiOlt7InB1YmxpY19rZXkiOiJhN2RmOWExMDcwM2ZhMTcwYjA4ZDRkMTg3N2FjNDMzZmIyNTEzMmNlYmNjOTM2NzgzMThiZTFiMzFiOTg5YTU2IiwidHlwZSI6IndlYjNhdXRoX2FwcF9rZXkiLCJjdXJ2ZSI6ImVkMjU1MTkifV0sImVtYWlsIjoiYW1pcnNoYXJpZmljb0BnbWFpbC5jb20iLCJuYW1lIjoiYW1pcnNoYXJpZmljb0BnbWFpbC5jb20iLCJ2ZXJpZmllciI6InRvcnVzIiwidmVyaWZpZXJJZCI6ImFtaXJzaGFyaWZpY29AZ21haWwuY29tIiwiYWdncmVnYXRlVmVyaWZpZXIiOiJ0a2V5LWF1dGgwLWVtYWlsLXBhc3N3b3JkbGVzcy1scmMiLCJleHAiOjE2ODgxMzQ5MTd9.u7nTs1T4KMcIm0cpDPRbg9INkwCzn9RFVl3V1xdcotwPNR9RMmdaQd5Mahe-DyQmIWn5iSGz1Nc2Sg9QT265WQ
 
 {
-    "wfId": "a-15",
+    "wfId": "a-29",
     "name": "mehdi2 test new",
     "description":"des test2 new",
-    "privateKey":"2b6fa08e6a9c3c076997b22dd52f26fe447aa0a11347b4f0c642087513683ceba7df9a10703fa170b08d4d1877ac433fb25132cebcc93678318be1b31b989a56",
     "fileName":"designity.png",
     "role":"admin",
-    "mintAddress":"3R8AN5mukRwKS6JfXJgcEHeCMp39T2rupibcGdifjWbA"
+    "mintAddress":"2mtKLvkMSaAX7TQzr4P8h5Dy2LJUihyvcSegM74m4dYw"    
 }

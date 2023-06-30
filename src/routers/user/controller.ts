@@ -8,6 +8,7 @@ import { UserDTO } from "../../models/userDto";
 import 'dotenv/config';
 import { NativeConnection, Worker } from "@temporalio/worker";
 import * as activities from "./../../workflows/user/activities";
+import { getPKIDToken } from "../../services/solana";
 
 let temporalConnConfig: ConnectionOptions;
 
@@ -75,6 +76,8 @@ class UserController extends controller {
 //----------------------------
   getAllNFT = async (req: Request, res: Response) => {
     const userDTO = await plainToClass(UserDTO, req.body);
+    const idToken=req.headers["id-token"]!;
+    userDTO.publicKey=await getPKIDToken(idToken.toString());
     const connection = await Connection.connect(temporalConnConfig);
     const client = new Client({
       connection,

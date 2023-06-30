@@ -17,6 +17,7 @@ import { MintDTO } from "../../models/mintDto";
 
 export async function uploadImage(mintDto: MintDTO): Promise<string> {
   const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
+  // ASH>> we are revealing the desiginty private key in console.log???
   console.log("private Key>>>>>>>>>>>>",metaplex)
   console.log("make metaplex");
   const buffer = fs.readFileSync("uploads/images/" + mintDto.fileName);
