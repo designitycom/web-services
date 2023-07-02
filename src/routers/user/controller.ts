@@ -9,27 +9,8 @@ import 'dotenv/config';
 import { NativeConnection, Worker } from "@temporalio/worker";
 import * as activities from "./../../workflows/user/activities";
 import { getPKIDToken } from "../../services/solana";
+import { createTemporalClient } from "../../services/temporal";
 
-let temporalConnConfig: ConnectionOptions;
-
-if (
-  process.env.NODE_ENV === "production" ||
-  process.env.NODE_ENV === "sandbox"
-) {
-  temporalConnConfig = {
-    address: process.env.TEMPORAL_ADDRESS!,
-    tls: {
-      clientCertPair: {
-        crt: Buffer.from(
-          fs.readFileSync(process.env.TEMPORAL_TLS_CRT!, "utf8")
-        ),
-        key: Buffer.from(
-          fs.readFileSync(process.env.TEMPORAL_TLS_KEY!, "utf8")
-        ),
-      },
-    },
-  };
-}
 
 class UserController extends controller {
 
@@ -37,12 +18,7 @@ class UserController extends controller {
   checkEmail = async (req: Request, res: Response) => {
     const userDTO = await plainToClass(UserDTO, req.body);
     console.log("user email", userDTO.email)
-    const connection = await Connection.connect(temporalConnConfig);
-    console.log("connection confirmed  ")
-    const client = new Client({
-      connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    });
+    const client = await createTemporalClient();
     console.log("after temporal")
     const workFlowId = "user-" + userDTO.wfId;
     const handle = await client.workflow.start(checkEmailWF, {
@@ -56,11 +32,7 @@ class UserController extends controller {
 
   getAllUserDTO= async (req: Request, res: Response)=>{
     const workFlowId = req.params.workFlowId
-    const connection = await Connection.connect(temporalConnConfig);
-    const client = new Client({
-      connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    });
+   const client = await createTemporalClient();
     console.log(workFlowId);
     const handle = client.workflow.getHandle(workFlowId);
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -78,11 +50,7 @@ class UserController extends controller {
     const userDTO = await plainToClass(UserDTO, req.body);
     const idToken=req.headers["id-token"]!;
     userDTO.publicKey=await getPKIDToken(idToken.toString());
-    const connection = await Connection.connect(temporalConnConfig);
-    const client = new Client({
-      connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    });
+    const client = await createTemporalClient();
     const workFlowId = "user-" + userDTO.wfId;
     const handle = await client.workflow.start(getAllNFTWF, {
       args: [userDTO],
@@ -93,13 +61,9 @@ class UserController extends controller {
     this.myResponse(res, 200, workFlowId, "set workflow");
   }
 
-  getNFTDetails = async (req: Request, res: Response) => {
+  checkGetAllNFTs = async (req: Request, res: Response) => {
     const workFlowId = req.params.workFlowId
-    const connection = await Connection.connect(temporalConnConfig);
-    const client = new Client({
-      connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    });
+    const client = await createTemporalClient();
     console.log(workFlowId);
     const handle = client.workflow.getHandle(workFlowId);
     await new Promise((resolve) => setTimeout(resolve, 2000));

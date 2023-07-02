@@ -12,26 +12,6 @@ import { PublicKey } from "@metaplex-foundation/js";
 import bs58 from "bs58";
 import { createTemporalClient } from "../../services/temporal";
 
-// let temporalConnConfig: ConnectionOptions;
-
-// if (
-//   process.env.NODE_ENV === "production" ||
-//   process.env.NODE_ENV === "sandbox"
-// ) {
-//   temporalConnConfig = {
-//     address: process.env.TEMPORAL_ADDRESS!,
-//     tls: {
-//       clientCertPair: {
-//         crt: Buffer.from(
-//           fs.readFileSync(process.env.TEMPORAL_TLS_CRT!, "utf8")
-//         ),
-//         key: Buffer.from(
-//           fs.readFileSync(process.env.TEMPORAL_TLS_KEY!, "utf8")
-//         ),
-//       },
-//     },
-//   };
-// }
 
 class MintController extends controller {
   createMint = async (req: Request, res: Response) => {
@@ -39,11 +19,6 @@ class MintController extends controller {
     const idToken=req.headers["id-token"]!;
     mintDTO.publicKey=await getPKIDToken(idToken.toString());
     const client = await createTemporalClient();
-    // const connection = await Connection.connect(temporalConnConfig);
-    // const client = new Client({
-    //   connection,
-    //   namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    // });
     const workFlowId = "mint-" + mintDTO.wfId;
     const handle = await client.workflow.start(createMintWF, {
       args: [mintDTO],
@@ -59,11 +34,6 @@ class MintController extends controller {
     const idToken=req.headers["id-token"]!;
     mintDTO.publicKey=await getPKIDToken(idToken.toString());
     const client = await createTemporalClient();
-    // const connection = await Connection.connect(temporalConnConfig);
-    // const client = new Client({
-    //   connection,
-    //   namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    // });
     const workFlowId = "mint-" + mintDTO.wfId;
     const handle = await client.workflow.start(updateMintWF, {
       args: [mintDTO],
@@ -102,25 +72,16 @@ class MintController extends controller {
   getMintedTokenData = async (req:Request, res:Response)=>{
     const workFlowId = req.params.workFlowId
     const client = await createTemporalClient();
-    // const connection = await Connection.connect(temporalConnConfig);
-    // const client = new Client({
-    //   connection,
-    //   namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    // });
     console.log(workFlowId);
     const handle = client.workflow.getHandle(workFlowId);
     await new Promise((resolve) => setTimeout(resolve, 2000));
     console.log("mint controller after temporal connection")
     const val = await handle.query(getMintAddress);
     console.log(val);
-
     await handle.result();
     console.log("complete");
-
-
     console.log(`Workflow Started `);
     this.myResponse(res, 200, val, "set workflow");
-
   }
 
   getUpdatedMintTokenData = async (req:Request, res:Response)=>{

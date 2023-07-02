@@ -56,9 +56,7 @@ export async function getUserDto(userDTO: UserDTO): Promise<UserDTO> {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Get All NFT
 
 export async function getAllNFT(userDTO: UserDTO):Promise<Nft | Sft | SftWithToken | NftWithToken> {
-
   const metaplex = makeSimpleMetaplex();
-
   const result = await metaplex.nfts().findAllByOwner({
     owner:new PublicKey(userDTO.publicKey)
   });

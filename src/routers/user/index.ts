@@ -4,10 +4,10 @@ const userRouter = express.Router();
 
 
 
-userRouter.post("/checkingEmail", UserController.checkEmail)
+userRouter.post("/checkEmail", UserController.checkEmail)
 userRouter.get("/getAllUserDTO/:workFlowId", UserController.getAllUserDTO)
 userRouter.post("/getAllNFT", UserController.getAllNFT)
-userRouter.get("/getAllNFT/:workFlowId", UserController.getNFTDetails)
+userRouter.get("/checkGetAllNFTs/:workFlowId", UserController.checkGetAllNFTs)
 userRouter.get("/startWorkerUser", UserController.startWorkerUser)
 
 
