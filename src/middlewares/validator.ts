@@ -1,5 +1,11 @@
 import { NextFunction } from "express";
-import { ValidationChain, body, check, query, validationResult } from "express-validator";
+import {
+  ValidationChain,
+  body,
+  check,
+  query,
+  validationResult,
+} from "express-validator";
 import multer from "multer";
 import * as jose from "jose";
 import { Request, Response } from "express";
@@ -17,11 +23,11 @@ export const mintParamValidator = () => [
   body("name").notEmpty(),
   body("description").notEmpty(),
 ];
-export const ruleUser=[body("name", "name is not email").isEmail()];
-export const validateUser=async()=>{
-  const result=validate([body("name", "name is not email").isEmail()])
-  console.log
-}
+export const ruleUser = [body("name", "name is not email").isEmail()];
+export const validateUser = async () => {
+  const result = validate([body("name", "name is not email").isEmail()]);
+  console.log;
+};
 export const validateIdToken = async (
   req: Request,
   res: Response,
