@@ -1,0 +1,27 @@
+POST http://34.123.25.77:5001/api/mint/createMint
+content-type: application/json
+id-token: 
+{
+    "wfId": "a-34",
+    "name": "name of a-34",
+    "description":"desc of a-34",
+    "fileName":"designity.png",
+    "role":"admin"
+}
+###
+GET http://34.123.25.77:5001/api/mint/getMintedTokenData/mint-a-34
+###
+GET http://34.123.25.77:5001/api/mint/getUpdatedMintTokenData/mint-a-299
+###
+POST http://34.123.25.77:5001/api/mint/updateMint
+content-type: application/json
+id-token: 
+{
+    "wfId": "a-299",
+    "name": "name ash updated ",
+    "description":"updated desc",
+    "fileName":"designity.png",
+    "role":"admin",
+    "mintAddress":"FHk3KYbk4MjpfoATszfeYMY6P82CSRMJm8vUzsLofdkj"    
+}
+
