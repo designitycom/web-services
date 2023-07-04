@@ -99,6 +99,12 @@ export function makeMetaplex(privateKey:string) {
 
   return metaplex;
 }
+
+export function makeSimpleMetaplex(){
+  const connection = getConnection();
+  const metaplex = new Metaplex(connection);
+  return metaplex;
+}
 export function publicKeyFromBn(bn:string) {
   const bigNumber = new BN(bn, 16)
   const decoded = { _bn: bigNumber };

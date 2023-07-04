@@ -4,5 +4,5 @@ export class UserDTO {
   name!: string;
   role!:string;
   level!:string;
-  privateKey!:string;
+  publicKey!:string;
 }

@@ -20,22 +20,22 @@ export async function createMintWF(mintDto: MintDTO): Promise<string> {
   wf.setHandler(getStatus, () => status);
   wf.setHandler(getMintAddress, () => mintAddress);
 
-  console.log("update start step 1");
+  console.log(">> In workflow, uploading image started ");
   const imageUri = await uploadImage(mintDto);
-  console.log("start step 2", imageUri);
-  status = "get uri";
+  console.log(">> In workflow, image URI: ", imageUri);
+  status = ">>In workflow, Image Uploaded";
   
   const uri = await uploadMetaData(mintDto,imageUri);
-  console.log("start step 3", uri);
-  status = "get uri";
+  status = ">>In workflow, Image URI recieved";
+  console.log(">>In workflow, metadata added to image", uri);
 
   const nftAddress = await createNft(mintDto, uri);
-  console.log("start step 4", nftAddress);
-  status = "create nft";
+  console.log(">>In workflow, NFT address: ", nftAddress);
+  status = ">>In workflow, NFT created";
   mintAddress=nftAddress;
+  console.log(">>In workflow, veifying NFT in the collection");
   const result = await verifyNft(nftAddress);
-  console.log("start step 5");
-  status = "nft verified";
+  status = ">>In workflow, NFT verified";
 
   // console.log("address:" + nft.address);
 

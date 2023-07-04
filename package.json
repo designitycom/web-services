@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npx tsc",
-    "dev": "npx tsc -w & nodemon ./src/index.ts",
+    "dev": "npx tsc -w & nodemon ./src/index.ts && curl http://34.123.25.77:5001/api/mint/startWorkerMint && curl http://34.123.25.77:5001/api/user/startWorkerUser",
     "worker": "nodemon ./src/worker/mint.ts",
     "start": "node ./dist/index.js"
   },

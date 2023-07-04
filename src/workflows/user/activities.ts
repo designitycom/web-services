@@ -4,7 +4,7 @@ import { UserDTO } from "../../models/userDto";
 import * as jose from "jose";
 import { Connection as solanaCon,PublicKey } from "@solana/web3.js";
 import { NETWORK } from "../../utils/globals";
-import {getKeyPair, makeMetaplex} from "../../services/solana";
+import {getKeyPair, makeMetaplex, makeSimpleMetaplex} from "../../services/solana";
 import {
   Metaplex,
   keypairIdentity,
@@ -56,11 +56,9 @@ export async function getUserDto(userDTO: UserDTO): Promise<UserDTO> {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Get All NFT
 
 export async function getAllNFT(userDTO: UserDTO):Promise<Nft | Sft | SftWithToken | NftWithToken> {
-
-  const metaplex = makeMetaplex(userDTO.privateKey);
-
+  const metaplex = makeSimpleMetaplex();
   const result = await metaplex.nfts().findAllByOwner({
-    owner: metaplex.identity().publicKey,
+    owner:new PublicKey(userDTO.publicKey)
   });
   const designityCollection = new PublicKey(
     process.env.DESIGNITY_COLLECTION_ADDRESS!
