@@ -111,7 +111,6 @@ export async function getPKIDToken(idToken:string){
   const jwtDecoded = await jose.jwtVerify(idToken, jwks, {
     algorithms: ["ES256"],
   });
-  console.log(jwtDecoded.payload)
   return publicKeyFromBn((jwtDecoded.payload as any).wallets[0].public_key).toBase58();
 }
 

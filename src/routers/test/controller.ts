@@ -38,6 +38,7 @@ import { nanoid } from "nanoid";
 import { cli } from "winston/lib/winston/config";
 import { BigQuery } from "@google-cloud/bigquery";
 import { NETWORK } from "../../utils/globals";
+import { validationResult } from "express-validator";
 
 let temporalConnConfig: ConnectionOptions;
 
@@ -670,6 +671,9 @@ class TestController extends controller {
 
     this.myResponse(res, 200, result, "");
   };
+  validation=async(req:Request,res:Response)=>{
+    res.send("passed");
+  }
 }
 
 export default new TestController();
