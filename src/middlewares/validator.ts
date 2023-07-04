@@ -36,7 +36,7 @@ export const validateIdToken = async (
       algorithms: ["ES256"],
     });
   } catch (e) {
-    return res.status(403).send({ data: {}, message: "Authorization failed2" });
+    return res.status(403).send({ data: {}, message: "Authorization failed" });
   }
   next();
 };

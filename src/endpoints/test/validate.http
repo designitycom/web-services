@@ -4,8 +4,7 @@ id-token: eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlRZT2dnXy01RU9FYmxhWS1WVl
 
 {
     "wfId": "m11",
-    "name":"mr.dehdar@gmail.com",
-    "description":"des test2 new",
+    "name":"mr.dehdar@g.com",
     "fileName":"designity.png",
     "role":"admin"
 }

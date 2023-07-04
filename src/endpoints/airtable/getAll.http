@@ -1,0 +1,64 @@
+@url=http://34.123.25.77
+@port=5000
+@host={{url}}:{{port}}
+
+
+POST  {{host}}/api/airtable/getAllRecord
+content-type: application/json
+
+{
+    "wfId": "11"
+}    
+
+
+####
+POST  http://34.123.25.77:5000/api/airtable/getRecord
+content-type: application/json
+
+{
+    "wfId": "13",
+    "recordId":"recPzPfesMi5MPGw0"
+}    
+
+
+####
+POST  http://34.123.25.77:5000/api/airtable/createRecord
+content-type: application/json
+
+{
+    "wfId": "14",
+    "name":"ash",
+    "notes":"notes ash",
+    "status":"Todo"
+}    
+
+
+####
+POST  http://34.123.25.77:5000/api/airtable/updateRecord
+content-type: application/json
+
+{
+    "wfId": "15",
+    "name":"ash updated",
+    "notes":"notes ash updated",
+    "status":"Todo",
+    "recordId":"receXaVmSygdSkA2c"
+}    
+
+
+####
+POST  http://34.123.25.77:5000/api/airtable/deleteRecord
+content-type: application/json
+
+{
+    "wfId": "4",
+    "recordId":"receXaVmSygdSkA2c"
+}  
+
+
+
+
+
+####
+GET   http://34.123.25.77:5000/api/airtable/startWorkerAirTable
+content-type: application/json
