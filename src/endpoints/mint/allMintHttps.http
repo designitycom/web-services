@@ -1,6 +1,11 @@
-POST http://34.123.25.77:5001/api/mint/createMint
+@url=http://34.123.25.77
+@port=5001
+@host={{url}}:{{port}}
+@idToken=
+
+POST {{host}}/api/mint/createMint
 content-type: application/json
-id-token: 
+id-token: {{idToken}}
 {
     "wfId": "a-34",
     "name": "name of a-34",
@@ -9,13 +14,13 @@ id-token:
     "role":"admin"
 }
 ###
-GET http://34.123.25.77:5001/api/mint/getMintedTokenData/mint-a-34
+GET {{host}}/api/mint/getMintedTokenData/mint-a-34
 ###
-GET http://34.123.25.77:5001/api/mint/getUpdatedMintTokenData/mint-a-299
+GET {{host}}/api/mint/getUpdatedMintTokenData/mint-a-299
 ###
-POST http://34.123.25.77:5001/api/mint/updateMint
+POST {{host}}/api/mint/updateMint
 content-type: application/json
-id-token: 
+id-token: {{idToken}}
 {
     "wfId": "a-299",
     "name": "name ash updated ",

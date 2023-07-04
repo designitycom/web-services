@@ -1,19 +1,23 @@
-POST http://34.123.25.77:5001/api/user/checkEmail
-content-type: application/json
+@url=http://34.123.25.77
+@port=5001
+@host={{url}}:{{port}}
+@idToken=
 
+POST {{host}}/api/user/checkEmail
+content-type: application/json
 {
     "wfId": "44",
     "email": "amirsharifico@gmail.com"
 }
 ###
-GET http://34.123.25.77:5001/api/user/getAllNFT/user-a-01
+GET {{host}}/api/user/getAllNFT/user-a-01
 ###
-POST http://34.123.25.77:5001/api/user/getAllNFT
+POST {{host}}/api/user/getAllNFT
 content-type: application/json
-id-token: 
+id-token:{{idToken}} 
 
 {
     "wfId": "a-01"
 }
 ###
-GET http://34.123.25.77:5001/api/user/getAllUserDTO/user-44
+GET {{host}}/api/user/getAllUserDTO/user-44
