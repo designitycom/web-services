@@ -1,7 +1,0 @@
-POST http://34.123.25.77:5001/api/user/checkEmail
-content-type: application/json
-
-{
-    "wfId": "44",
-    "email": "amirsharifico@gmail.com"
-}

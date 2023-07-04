@@ -1,7 +1,0 @@
-POST http://34.123.25.77:5001/api/user/getAllNFT
-content-type: application/json
-id-token: 
-
-{
-    "wfId": "a-01"
-}
