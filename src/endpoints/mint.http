@@ -6,6 +6,7 @@
 POST {{host}}/api/mint/createMint
 content-type: application/json
 id-token: {{idToken}}
+
 {
     "wfId": "a-34",
     "name": "name of a-34",
@@ -21,6 +22,7 @@ GET {{host}}/api/mint/getUpdatedMintTokenData/mint-a-299
 POST {{host}}/api/mint/updateMint
 content-type: application/json
 id-token: {{idToken}}
+
 {
     "wfId": "a-299",
     "name": "name ash updated ",
