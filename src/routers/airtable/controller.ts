@@ -13,39 +13,22 @@ import { plainToClass, plainToClassFromExist } from "class-transformer";
 import { MintDTO } from "../../models/mintDto";
 import Airtable from "airtable";
 import { AirTableDTO } from "../../models/airTableDto";
-import { createRecordAirTableWF, deleteRecordAirTableWF, getAllAirTableWF, getRecordAirTableWF, updateRecordAirTableWF } from "../../workflows/airtable/workflows";
+import {
+  createRecordAirTableWF,
+  deleteRecordAirTableWF,
+  getAllAirTableWF,
+  getRecordAirTableWF,
+  updateRecordAirTableWF,
+} from "../../workflows/airtable/workflows";
 import { NativeConnection, Worker } from "@temporalio/worker";
 import { getConnectionAirTable } from "../../services/airTable";
+import { createTemporalClient } from "../../services/temporal";
 let temporalConnConfig: ConnectionOptions;
 
-if (
-  process.env.NODE_ENV === "production" ||
-  process.env.NODE_ENV === "sandbox"
-) {
-  temporalConnConfig = {
-    address: process.env.TEMPORAL_ADDRESS!,
-    tls: {
-      clientCertPair: {
-        crt: Buffer.from(
-          fs.readFileSync(process.env.TEMPORAL_TLS_CRT!, "utf8")
-        ),
-        key: Buffer.from(
-          fs.readFileSync(process.env.TEMPORAL_TLS_KEY!, "utf8")
-        ),
-      },
-    },
-  };
-}
-
 class AirTableController extends controller {
-
-  getAllRecord=async(req: Request, res: Response) => {
+  getAllRecord = async (req: Request, res: Response) => {
     const airTableDto = await plainToClass(AirTableDTO, req.body);
-    const connection = await Connection.connect(temporalConnConfig);
-    const client = new Client({
-      connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    });
+    const client = await createTemporalClient();
     const workFlowId = "airtable-" + airTableDto.wfId;
     const handle = await client.workflow.start(getAllAirTableWF, {
       args: [airTableDto],
@@ -54,16 +37,11 @@ class AirTableController extends controller {
     });
     console.log(`Workflow Started `);
     this.myResponse(res, 200, workFlowId, "set workflow");
-  }
-
+  };
 
   getRecord = async (req: Request, res: Response) => {
     const airTableDto = await plainToClass(AirTableDTO, req.body);
-    const connection = await Connection.connect(temporalConnConfig);
-    const client = new Client({
-      connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    });
+    const client = await createTemporalClient();
     const workFlowId = "airtable-" + airTableDto.wfId;
     const handle = await client.workflow.start(getRecordAirTableWF, {
       args: [airTableDto],
@@ -76,11 +54,7 @@ class AirTableController extends controller {
 
   createRecord = async (req: Request, res: Response) => {
     const airTableDto = await plainToClass(AirTableDTO, req.body);
-    const connection = await Connection.connect(temporalConnConfig);
-    const client = new Client({
-      connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    });
+    const client = await createTemporalClient();
     const workFlowId = "airtable-" + airTableDto.wfId;
     const handle = await client.workflow.start(createRecordAirTableWF, {
       args: [airTableDto],
@@ -93,11 +67,7 @@ class AirTableController extends controller {
 
   updateRecord = async (req: Request, res: Response) => {
     const airTableDto = await plainToClass(AirTableDTO, req.body);
-    const connection = await Connection.connect(temporalConnConfig);
-    const client = new Client({
-      connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    });
+    const client = await createTemporalClient();
     const workFlowId = "airtable-" + airTableDto.wfId;
     const handle = await client.workflow.start(updateRecordAirTableWF, {
       args: [airTableDto],
@@ -110,11 +80,7 @@ class AirTableController extends controller {
 
   deleteRecord = async (req: Request, res: Response) => {
     const airTableDto = await plainToClass(AirTableDTO, req.body);
-    const connection = await Connection.connect(temporalConnConfig);
-    const client = new Client({
-      connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    });
+    const client = await createTemporalClient();
     const workFlowId = "airtable-" + airTableDto.wfId;
     const handle = await client.workflow.start(deleteRecordAirTableWF, {
       args: [airTableDto],
