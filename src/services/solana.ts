@@ -1,6 +1,11 @@
 import * as web3 from "@solana/web3.js"
 import * as fs from "fs"
 import dotenv from "dotenv"
+import { MintDTO } from "../models/mintDto"
+import { Connection as conn } from "@solana/web3.js";
+import * as jose from "jose";
+import { Metaplex, PublicKey, bundlrStorage, keypairIdentity } from "@metaplex-foundation/js";
+import { BN } from "bn.js";
 dotenv.config()
 //test git
 export async function airdrop(
@@ -67,14 +72,54 @@ export function initializeKeypair(
   return keypairFromSecretKey
 }
 export function getKeyPair(
-  privateKey: string,
-  connection: web3.Connection
+  privateKey: string
 ) {
   const secretKey = Uint8Array.from(fromHexString(privateKey))
   const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
-  airdropSolIfNeeded(keypairFromSecretKey, connection)
+  // airdropSolIfNeeded(keypairFromSecretKey, connection)
   return keypairFromSecretKey
 }
+export function getConnection(){
+  const connection = new conn(web3.clusterApiUrl("devnet"));
+  return connection;
+}
+export function makeMetaplex(privateKey:string) {
+  const connection = getConnection();
+  const user = getKeyPair(privateKey);
+  console.log("PublicKey:", user.publicKey.toBase58());
+  const metaplex = Metaplex.make(connection)
+    .use(keypairIdentity(user))
+    .use(
+      bundlrStorage({
+        address: "https://devnet.bundlr.network",
+        providerUrl: "https://api.devnet.solana.com",
+        timeout: 60000,
+      })
+    );
+
+  return metaplex;
+}
+
+export function makeSimpleMetaplex(){
+  const connection = getConnection();
+  const metaplex = new Metaplex(connection);
+  return metaplex;
+}
+export function publicKeyFromBn(bn:string) {
+  const bigNumber = new BN(bn, 16)
+  const decoded = { _bn: bigNumber };
+  return new PublicKey(decoded);
+};
+export async function getPKIDToken(idToken:string){
+  const jwks = jose.createRemoteJWKSet(
+    new URL("https://api.openlogin.com/jwks")
+  );
+  const jwtDecoded = await jose.jwtVerify(idToken, jwks, {
+    algorithms: ["ES256"],
+  });
+  return publicKeyFromBn((jwtDecoded.payload as any).wallets[0].public_key).toBase58();
+}
+
 
 async function airdropSolIfNeeded(
   signer: web3.Keypair,

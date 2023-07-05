@@ -6,7 +6,7 @@ import { Metaplex, Nft, NftWithToken, PublicKey, Sft, SftWithToken, bundlrStorag
 
 export async function mintActivity(privateKey: string, fileName: string, name: string, description: string): Promise<Nft> {
   const connection = new conn(clusterApiUrl("devnet"))
-  const user = await getKeyPair(privateKey, connection)
+  const user = await getKeyPair(privateKey)
   const metaplex = Metaplex.make(connection)
     .use(keypairIdentity(user))
     .use(
@@ -39,7 +39,7 @@ export async function mintActivity(privateKey: string, fileName: string, name: s
 }
 export async function updateMintActivity(privateKey: string, fileName: string, name: string, description: string, address: string): Promise<Sft | SftWithToken | Nft | NftWithToken> {
   const connection = new conn(clusterApiUrl("devnet"))
-  const user = await getKeyPair(privateKey, connection)
+  const user = await getKeyPair(privateKey)
   const metaplex = Metaplex.make(connection)
     .use(keypairIdentity(user))
     .use(
@@ -85,7 +85,7 @@ export async function updateMintActivity(privateKey: string, fileName: string, n
 }
 export async function getUser(privateKey: string): Promise<[Keypair, conn]> {
   const connection = new conn(clusterApiUrl("devnet"))
-  const user = await getKeyPair(privateKey, connection)
+  const user = await getKeyPair(privateKey)
   return [user, connection];
 }
 export async function makeMetaplex(user: Keypair, connection: conn, privateKey: string): Promise<any> {

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npx tsc",
-    "dev": "npx tsc -w & nodemon ./src/index.ts",
+    "dev": "npx tsc -w & nodemon ./src/index.ts && curl http://34.123.25.77:5001/api/mint/startWorkerMint && curl http://34.123.25.77:5001/api/user/startWorkerUser",
     "worker": "nodemon ./src/worker/mint.ts",
     "start": "node ./dist/index.js"
   },
@@ -23,9 +23,13 @@
     "@web3auth/no-modal": "^5.2.0",
     "@web3auth/node-sdk": "^1.1.0",
     "@web3auth/openlogin-adapter": "^5.2.0",
+    "airtable": "^0.12.1",
     "auto-bind": "^5.0.1",
     "bcrypt": "^5.1.0",
     "bigint-buffer": "^1.1.5",
+    "bn.js": "^5.2.1",
+    "bs58": "^5.0.0",
+    "class-transformer": "^0.5.1",
     "config": "^3.3.9",
     "cors": "^2.8.5",
     "debug": "^4.3.4",
@@ -38,6 +42,7 @@
     "multer": "^1.4.5-lts.1",
     "nanoid": "^3.3.6",
     "node-jose": "^2.2.0",
+    "reflect-metadata": "^0.1.13",
     "winston": "^3.8.2"
   },
   "devDependencies": {

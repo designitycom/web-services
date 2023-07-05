@@ -1,6 +1,8 @@
 import express from "express"
 import TestController from "./controller";
 import multer from 'multer';
+import { body, header, query } from "express-validator";
+import { mintParamValidator, ruleUser, validateIdToken,validate } from "../../middlewares/validator";
 const router = express.Router();
 
 const storage = multer.diskStorage({
@@ -14,27 +16,28 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage })
 
+router.post('/validation',validate([body("name", "name is not email").notEmpty().isEmail(),body('description',"aaaaaa").notEmpty()]),validateIdToken, TestController.validation)
 
-router.post('/', TestController.check)//site.com/api/test
-// router.post('/mint', upload.single('file'), TestController.mintWorkflow)//site.com/api/test/mint
-router.post('/mint', upload.single('file'), TestController.mint)//site.com/api/test/mint
-router.post('/defaultMint', multer().none(), TestController.defaultMint)//site.com/api/test/defaultMint
-router.post('/mintCollection', upload.single('file'), TestController.mintCollection)//site.com/api/test/mint
-router.post('/updateMint', upload.single('file'), TestController.updateMintWorkflow)//site.com/api/test/mint
-router.post('/updateDefaultMint', multer().none(), TestController.updateDefaultMintWorkflow)
+// router.post('/', TestController.check)//site.com/api/test
+// // router.post('/mint', upload.single('file'), TestController.mintWorkflow)//site.com/api/test/mint
+// router.post('/mint', upload.single('file'), TestController.mint)//site.com/api/test/mint
+// router.post('/defaultMint', multer().none(), TestController.defaultMint)//site.com/api/test/defaultMint
+// router.post('/mintCollection', upload.single('file'), TestController.mintCollection)//site.com/api/test/mint
+// router.post('/updateMint', upload.single('file'), TestController.updateMintWorkflow)//site.com/api/test/mint
+// router.post('/updateDefaultMint', multer().none(), TestController.updateDefaultMintWorkflow)
 router.post('/getBalance', multer().none(), TestController.getBalance)
-router.get('/startWorkFlow', TestController.workflow)
-router.get('/startWorker', TestController.mintWorker)
+// router.get('/startWorkFlow', TestController.workflow)
+// router.get('/startWorker', TestController.mintWorker)
 router.get('/getStatus/:workFlowId', TestController.getInfoWorkFlow)
-router.post('/getAllNft', multer().none(), TestController.findAllMint)
-router.post('/findAllMintWithCollection', multer().none(), TestController.findAllMintWithCollection)
+// router.post('/getAllNft', multer().none(), TestController.findAllMint)
+// router.post('/findAllMintWithCollection', multer().none(), TestController.findAllMintWithCollection)
 
 
-router.get('/callSignalWorkFlow', TestController.callSignalWorkFlow)
-router.get('/startWorkerSignal', TestController.startWorkerSignal)
+// router.get('/callSignalWorkFlow', TestController.callSignalWorkFlow)
+// router.get('/startWorkerSignal', TestController.startWorkerSignal)
 router.get('/getStatusSignal', TestController.getStatusSignal)
-router.get('/cancelSignal', TestController.cancelSignal)
-router.get('/callSignal', TestController.callSignal)  
+// router.get('/cancelSignal', TestController.cancelSignal)
+// router.get('/callSignal', TestController.callSignal)  
 
 
 

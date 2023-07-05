@@ -1,9 +1,15 @@
 import express from "express"
 import UserController from "./controller";
-const router =express.Router();
+import { validateIdToken } from "../../middlewares/validator";
+const userRouter = express.Router();
 
 
-router.get('/',UserController.dashboard)//site.com/api/user
+
+userRouter.post("/checkEmail", UserController.checkEmail)
+userRouter.get("/getAllUserDTO/:workFlowId", UserController.getAllUserDTO)
+userRouter.post("/getAllNFT",validateIdToken, UserController.getAllNFT)
+userRouter.get("/checkGetAllNFTs/:workFlowId", UserController.checkGetAllNFTs)
+userRouter.get("/startWorkerUser", UserController.startWorkerUser)
 
 
-export default router;
+export default userRouter;

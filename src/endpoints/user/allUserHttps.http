@@ -1,0 +1,23 @@
+@url=http://34.123.25.77
+@port=5001
+@host={{url}}:{{port}}
+@idToken=
+
+POST {{host}}/api/user/checkEmail
+content-type: application/json
+{
+    "wfId": "44",
+    "email": "amirsharifico@gmail.com"
+}
+###
+GET {{host}}/api/user/getAllNFT/user-a-01
+###
+POST {{host}}/api/user/getAllNFT
+content-type: application/json
+id-token:{{idToken}} 
+
+{
+    "wfId": "a-01"
+}
+###
+GET {{host}}/api/user/getAllUserDTO/user-44
