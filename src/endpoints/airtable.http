@@ -4,12 +4,14 @@
 
 POST  {{host}}/api/airtable/getAllRecord
 content-type: application/json
+
 {
     "wfId": "18"
 }    
 ####
 POST  http://34.123.25.77:5001/api/airtable/getRecord
 content-type: application/json
+
 {
     "wfId": "13",
     "recordId":"recPzPfesMi5MPGw0"
@@ -17,6 +19,7 @@ content-type: application/json
 ####
 POST  http://34.123.25.77:5001/api/airtable/createRecord
 content-type: application/json
+
 {
     "wfId": "14",
     "name":"ash",
@@ -26,6 +29,7 @@ content-type: application/json
 ####
 POST  http://34.123.25.77:5001/api/airtable/updateRecord
 content-type: application/json
+
 {
     "wfId": "15",
     "name":"ash updated",
@@ -36,6 +40,7 @@ content-type: application/json
 ####
 POST  http://34.123.25.77:5001/api/airtable/deleteRecord
 content-type: application/json
+
 {
     "wfId": "4",
     "recordId":"receXaVmSygdSkA2c"

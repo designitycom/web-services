@@ -5,6 +5,7 @@
 
 POST {{host}}/api/user/checkEmail
 content-type: application/json
+
 {
     "wfId": "44",
     "email": "amirsharifico@gmail.com"
