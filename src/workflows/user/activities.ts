@@ -2,9 +2,13 @@ import { BigQuery } from "@google-cloud/bigquery";
 import { Request, Response } from "express";
 import { UserDTO } from "../../models/userDto";
 import * as jose from "jose";
-import { Connection as solanaCon,PublicKey } from "@solana/web3.js";
+import { Connection as solanaCon, PublicKey } from "@solana/web3.js";
 import { NETWORK } from "../../utils/globals";
-import {getKeyPair, makeMetaplex, makeSimpleMetaplex} from "../../services/solana";
+import {
+  getKeyPair,
+  makeMetaplex,
+  makeSimpleMetaplex,
+} from "../../services/solana";
 import {
   Metaplex,
   keypairIdentity,
@@ -49,16 +53,18 @@ export async function getUserDto(userDTO: UserDTO): Promise<UserDTO> {
     userDTO.level = result.Level;
     userDTO.name = result.Name;
   }
-  console.log("userDTO in activity", userDTO)
+  console.log("userDTO in activity", userDTO);
 
   return userDTO;
 }
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Get All NFT
 
-export async function getAllNFT(userDTO: UserDTO):Promise<Nft | Sft | SftWithToken | NftWithToken> {
+export async function getAllNFT(
+  userDTO: UserDTO
+): Promise<Nft | Sft | SftWithToken | NftWithToken> {
   const metaplex = makeSimpleMetaplex();
   const result = await metaplex.nfts().findAllByOwner({
-    owner:new PublicKey(userDTO.publicKey)
+    owner: new PublicKey(userDTO.publicKey),
   });
   const designityCollection = new PublicKey(
     process.env.DESIGNITY_COLLECTION_ADDRESS!
@@ -76,13 +82,7 @@ export async function getAllNFT(userDTO: UserDTO):Promise<Nft | Sft | SftWithTok
       return metaplex.nfts().load({ metadata: metadata as Metadata });
     })
   );
-console.log(loadedNfts[0])
+  console.log(loadedNfts[0]);
 
-return loadedNfts[0]
-
-
-
-
-}//end of getAllNFT
-
-
+  return loadedNfts[0];
+} //end of getAllNFT

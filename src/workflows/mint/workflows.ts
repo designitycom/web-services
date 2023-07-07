@@ -2,7 +2,7 @@ import { proxyActivities } from "@temporalio/workflow";
 import * as wf from "@temporalio/workflow";
 import type * as activities from "./activities";
 import { MintDTO } from "../../models/mintDto";
-import { Connection as conn } from "@solana/web3.js";
+import { NftDTO } from "../../models/nft";
 
 const { uploadImage, verifyNft, createNft, updateNft ,uploadMetaData} = proxyActivities<
   typeof activities
@@ -11,11 +11,15 @@ const { uploadImage, verifyNft, createNft, updateNft ,uploadMetaData} = proxyAct
 });
 
 export const getStatus = wf.defineQuery<string>("getStatus");
-export const getMintAddress = wf.defineQuery<string>("getMintAddress");
+export const getMintAddress = wf.defineQuery<NftDTO>("getMintAddress");
 
 export async function createMintWF(mintDto: MintDTO): Promise<string> {
   let status = "start";
-  let mintAddress = "";
+  let mintAddress: NftDTO = {
+    name: "",
+    mintAddress: ""
+  };
+  
 
   wf.setHandler(getStatus, () => status);
   wf.setHandler(getMintAddress, () => mintAddress);
@@ -32,7 +36,8 @@ export async function createMintWF(mintDto: MintDTO): Promise<string> {
   const nftAddress = await createNft(mintDto, uri);
   console.log(">>In workflow, NFT address: ", nftAddress);
   status = ">>In workflow, NFT created";
-  mintAddress=nftAddress;
+  mintAddress.mintAddress=nftAddress;
+  mintAddress.name=uri;
   console.log(">>In workflow, veifying NFT in the collection");
   const result = await verifyNft(nftAddress);
   status = ">>In workflow, NFT verified";

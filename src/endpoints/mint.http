@@ -1,21 +1,21 @@
-@url=http://34.123.25.77
+@url=http://35.238.4.67
 @port=5001
 @host={{url}}:{{port}}
-@idToken=
+@idToken=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlRZT2dnXy01RU9FYmxhWS1WVlJZcVZhREFncHRuZktWNDUzNU1aUEMwdzAifQ.eyJpYXQiOjE2ODg2ODc5MzcsImF1ZCI6IkJFc3NHT0ZaRFVTT1BwelhadmRTUTAyblhCUVVDQTEzRVE3cElJZFBmbmljaEc1NUpSOGtVMHBVNXpSR28teEp1emEwU1VsNUd4OWUyUFhPdXZNejFvZyIsIm5vbmNlIjoiMDM0NzM3M2UzZDRkNWY0MTRiYmNjOWIyYzQxZWIwOGQ3MWM4ZmU5YjE5ODEwMDZjOTY0MTNkN2VlYzMzYjcyMGZmIiwiaXNzIjoiaHR0cHM6Ly9hcGkub3BlbmxvZ2luLmNvbSIsIndhbGxldHMiOlt7InB1YmxpY19rZXkiOiJhN2RmOWExMDcwM2ZhMTcwYjA4ZDRkMTg3N2FjNDMzZmIyNTEzMmNlYmNjOTM2NzgzMThiZTFiMzFiOTg5YTU2IiwidHlwZSI6IndlYjNhdXRoX2FwcF9rZXkiLCJjdXJ2ZSI6ImVkMjU1MTkifV0sImVtYWlsIjoiYW1pcnNoYXJpZmljb0BnbWFpbC5jb20iLCJuYW1lIjoiYW1pcnNoYXJpZmljb0BnbWFpbC5jb20iLCJ2ZXJpZmllciI6InRvcnVzIiwidmVyaWZpZXJJZCI6ImFtaXJzaGFyaWZpY29AZ21haWwuY29tIiwiYWdncmVnYXRlVmVyaWZpZXIiOiJ0a2V5LWF1dGgwLWVtYWlsLXBhc3N3b3JkbGVzcy1scmMiLCJleHAiOjE2ODg3NzQzMzd9.l4-_IoH0HwpajSDpxod0i5H93AMVaRYJ8T1HxZ3YgKVSDjmd84zPkey_DyKRfVlFW-8wcB3V8LQJyFh5050R0g
 
 POST {{host}}/api/mint/createMint
 content-type: application/json
 id-token: {{idToken}}
 
 {
-    "wfId": "a-34",
-    "name": "name of a-34",
-    "description":"desc of a-34",
+    "wfId": "ash-12",
+    "name": "name ",
+    "description":"desc",
     "fileName":"designity.png",
     "role":"admin"
 }
 ###
-GET {{host}}/api/mint/getMintedTokenData/mint-a-34
+GET {{host}}/api/mint/getMintedTokenData/mint-ash-12
 ###
 GET {{host}}/api/mint/getUpdatedMintTokenData/mint-a-299
 ###

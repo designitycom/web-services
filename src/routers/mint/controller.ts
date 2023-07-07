@@ -18,6 +18,8 @@ class MintController extends controller {
     const mintDTO = await plainToClass(MintDTO, req.body);
     const idToken=req.headers["id-token"]!;
     mintDTO.publicKey=await getPKIDToken(idToken.toString());
+    //ash
+    console.log(" this is user public key in controller", mintDTO.publicKey)
     const client = await createTemporalClient();
     const workFlowId = "mint-" + mintDTO.wfId;
     const handle = await client.workflow.start(createMintWF, {
