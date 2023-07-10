@@ -69,7 +69,7 @@ export async function getAllNFT(
   const designityCollection = new PublicKey(
     process.env.DESIGNITY_COLLECTION_ADDRESS!
   ).toBase58();
-  const ourCollectionNfts = result.filter((metadata) => {
+  const userNftCollection = result.filter((metadata) => {
     return (
       metadata.collection !== null &&
       metadata.collection.verified &&
@@ -78,7 +78,7 @@ export async function getAllNFT(
   });
 
   const loadedNfts = await Promise.all(
-    ourCollectionNfts.map((metadata) => {
+    userNftCollection.map((metadata) => {
       return metaplex.nfts().load({ metadata: metadata as Metadata });
     })
   );
