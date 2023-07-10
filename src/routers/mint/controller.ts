@@ -2,7 +2,7 @@ import controller from "../controller";
 import { Request, Response } from "express";
 import fs from "fs";
 import { Connection, Client, ConnectionOptions } from "@temporalio/client";
-import { createMintWF, getMintAddress, getUpdatedMintAddress, updateMintWF } from "../../workflows/mint/workflows";
+import { createMintWF, getCreatedNft, getUpdatedMintAddress, updateMintWF } from "../../workflows/mint/workflows";
 import * as activities from "./../../workflows/mint/activities";
 import { plainToClass, plainToClassFromExist } from "class-transformer";
 import { MintDTO } from "../../models/mintDto";
@@ -78,7 +78,7 @@ class MintController extends controller {
     const handle = client.workflow.getHandle(workFlowId);
     await new Promise((resolve) => setTimeout(resolve, 2000));
     console.log("mint controller after temporal connection")
-    const val = await handle.query(getMintAddress);
+    const val = await handle.query(getCreatedNft);
     console.log(val);
     await handle.result();
     console.log("complete");

@@ -46,7 +46,7 @@ export async function uploadMetaData(
 export async function createNft(
   mintDto: MintDTO,
   uri: string
-): Promise<string> {
+): Promise<Nft> {
   const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
   const keyPairDesignity=getKeyPair(process.env.DESIGNITY_PRIVATE_KEY!);
   const designityPK=new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!);
@@ -68,7 +68,7 @@ export async function createNft(
   console.log(
     `In activities  Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`
   );
-  return nft.address.toString();
+  return nft;
 }
 
 export async function updateNft(mintDto: MintDTO, uri: string) {

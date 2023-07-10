@@ -2,7 +2,7 @@ import { proxyActivities } from "@temporalio/workflow";
 import * as wf from "@temporalio/workflow";
 import type * as activities from "./activities";
 import { MintDTO } from "../../models/mintDto";
-import { NftDTO } from "../../models/nft";
+import { NftDTO } from "../../models/nftDTO";
 
 const { uploadImage, verifyNft, createNft, updateNft ,uploadMetaData} = proxyActivities<
   typeof activities
@@ -11,18 +11,23 @@ const { uploadImage, verifyNft, createNft, updateNft ,uploadMetaData} = proxyAct
 });
 
 export const getStatus = wf.defineQuery<string>("getStatus");
-export const getMintAddress = wf.defineQuery<NftDTO>("getMintAddress");
+export const getCreatedNft = wf.defineQuery<NftDTO>("getCreatedNft");
 
 export async function createMintWF(mintDto: MintDTO): Promise<string> {
   let status = "start";
-  let mintAddress: NftDTO = {
+  let nft: NftDTO = {
     name: "",
-    mintAddress: ""
+    mintAddress: "",
+    description:"",
+    uriData:"",
+    uriImage:"",
+    role:""
+    
   };
   
 
   wf.setHandler(getStatus, () => status);
-  wf.setHandler(getMintAddress, () => mintAddress);
+  wf.setHandler(getCreatedNft, () => nft); 
 
   console.log(">> In workflow, uploading image started ");
   const imageUri = await uploadImage(mintDto);
@@ -33,13 +38,19 @@ export async function createMintWF(mintDto: MintDTO): Promise<string> {
   status = ">>In workflow, Image URI recieved";
   console.log(">>In workflow, metadata added to image", uri);
 
-  const nftAddress = await createNft(mintDto, uri);
-  console.log(">>In workflow, NFT address: ", nftAddress);
+  const createdNft = await createNft(mintDto, uri);
+  console.log(">>In workflow, created NFT object: ", createdNft ); 
   status = ">>In workflow, NFT created";
-  mintAddress.mintAddress=nftAddress;
-  mintAddress.name=uri;
+  const {name,description,image}  =createdNft.json!;
+  // const {role}  =createdNft.json!;
+  nft.name=name;
+  nft.mintAddress=createdNft.address.toString();
+  nft.description=description;
+  nft.uriData=createdNft.uri;
+  nft.uriImage=image;
+  // nft.role=role;
   console.log(">>In workflow, veifying NFT in the collection");
-  const result = await verifyNft(nftAddress);
+  const result = await verifyNft(createdNft.address.toString());
   status = ">>In workflow, NFT verified";
 
   // console.log("address:" + nft.address);

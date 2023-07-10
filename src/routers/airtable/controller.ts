@@ -4,7 +4,7 @@ import fs from "fs";
 import { Connection, Client, ConnectionOptions } from "@temporalio/client";
 import {
   createMintWF,
-  getMintAddress,
+  getCreatedNft,
   getUpdatedMintAddress,
   updateMintWF,
 } from "../../workflows/mint/workflows";
