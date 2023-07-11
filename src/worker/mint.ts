@@ -3,7 +3,7 @@ import { NativeConnection, Worker } from '@temporalio/worker';
 import fs from "fs"
 import { Client, Connection, ConnectionOptions } from '@temporalio/client';
 
-import * as activities from './../routers/test/workflow/activities';
+import * as activities from "./../workflows/mint/activities";
 
 let temporalConnConfig: ConnectionOptions;
 
@@ -31,17 +31,21 @@ async function run() {
     address: process.env.TEMPORAL_ADDRESS!,
     tls: {
       clientCertPair: {
-        crt: Buffer.from(fs.readFileSync(process.env.TEMPORAL_TLS_CRT!, 'utf8')),
-        key: Buffer.from(fs.readFileSync(process.env.TEMPORAL_TLS_KEY!, 'utf8')),
-      }
-    }
+        crt: Buffer.from(
+          fs.readFileSync(process.env.TEMPORAL_TLS_CRT!, "utf8")
+        ),
+        key: Buffer.from(
+          fs.readFileSync(process.env.TEMPORAL_TLS_KEY!, "utf8")
+        ),
+      },
+    },
   });
   const worker = await Worker.create({
     connection,
-    namespace: process.env.TEMPORAL_NAMESPACE || 'default',
-    workflowsPath: require.resolve('./../workflows/mint/workflows'),
+    namespace: process.env.TEMPORAL_NAMESPACE || "default",
+    workflowsPath: require.resolve("./../workflows/mint/workflows"),
     activities,
-    taskQueue: 'mint',
+    taskQueue: "mint",
   });
   await worker.run();
 }
