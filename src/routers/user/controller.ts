@@ -3,7 +3,7 @@ import controller from "../controller";
 import { Request, Response } from "express";
 import fs from "fs";
 import { plainToClass, plainToClassFromExist } from "class-transformer";
-import { getMintAddress, checkEmailWF, getAllNFTWF, handleUserDTO} from "../../workflows/user/workflows";
+import { getUserNft, checkEmailWF, getAllNFTWF, handleUserDTO} from "../../workflows/user/workflows";
 import { UserDTO } from "../../models/userDto";
 import 'dotenv/config';
 import { NativeConnection, Worker } from "@temporalio/worker";
@@ -68,7 +68,7 @@ class UserController extends controller {
     const handle = client.workflow.getHandle(workFlowId);
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    const val = await handle.query(getMintAddress);
+    const val = await handle.query(getUserNft);
     console.log(val);
 
     await handle.result();

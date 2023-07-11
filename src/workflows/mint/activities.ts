@@ -1,9 +1,7 @@
-import { Keypair, clusterApiUrl } from "@solana/web3.js";
-import { Connection as conn } from "@solana/web3.js";
-import { getConnection, getKeyPair, makeMetaplex, publicKeyFromBn } from "../../services/solana";
+
+import {  getKeyPair, makeMetaplex } from "../../services/solana";
 import fs from "fs";
 import {
-  Metaplex,
   Nft,
   NftWithToken,
   PublicKey,
@@ -17,8 +15,6 @@ import { MintDTO } from "../../models/mintDto";
 
 export async function uploadImage(mintDto: MintDTO): Promise<string> {
   const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
-  // ASH>> we are revealing the desiginty private key in console.log???
-  // console.log("In activities private Key>>>>>>>>>>>>",metaplex)
   console.log("In activities  make metaplex");
   const buffer = fs.readFileSync("uploads/images/" + mintDto.fileName);
   console.log("In activities  make buffer");
@@ -46,7 +42,7 @@ export async function uploadMetaData(
 export async function createNft(
   mintDto: MintDTO,
   uri: string
-): Promise<Nft> {
+): Promise<Nft | Sft | SftWithToken | NftWithToken> {
   const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
   const keyPairDesignity=getKeyPair(process.env.DESIGNITY_PRIVATE_KEY!);
   const designityPK=new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!);
@@ -71,7 +67,7 @@ export async function createNft(
   return nft;
 }
 
-export async function updateNft(mintDto: MintDTO, uri: string) {
+export async function updateNft(mintDto: MintDTO, uri: string):Promise<Nft | Sft | SftWithToken | NftWithToken> {
   const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
   const mintAddress = new PublicKey(mintDto.mintAddress);
   // fetch NFT data using mint address
@@ -86,7 +82,7 @@ export async function updateNft(mintDto: MintDTO, uri: string) {
     { commitment: "finalized" }
   );
 
-  return nft.address.toString();
+  return nft;
 }
 export async function verifyNft(nftAddress: string) {
 

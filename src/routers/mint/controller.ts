@@ -89,11 +89,6 @@ class MintController extends controller {
   getUpdatedMintTokenData = async (req:Request, res:Response)=>{
     const workFlowId = req.params.workFlowId
     const client = await createTemporalClient();
-    // const connection = await Connection.connect(temporalConnConfig);
-    // const client = new Client({
-    //   connection,
-    //   namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    // });
     console.log(workFlowId);
     const handle = client.workflow.getHandle(workFlowId);
     await new Promise((resolve) => setTimeout(resolve, 2000));
