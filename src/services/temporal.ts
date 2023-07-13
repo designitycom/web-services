@@ -1,5 +1,5 @@
-
 import { Connection, Client, ConnectionOptions } from "@temporalio/client";
+import { NativeConnection } from "@temporalio/worker";
 import fs from "fs";
 let temporalConnConfig: ConnectionOptions;
 
@@ -22,13 +22,27 @@ if (
   };
 }
 export async function createTemporalClient() {
-    const connection = await Connection.connect(temporalConnConfig);
-    const client = new Client({
-      connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    });
-    return client;
-  }
+  const connection = await Connection.connect(temporalConnConfig);
+  const client = new Client({
+    connection,
+    namespace: process.env.TEMPORAL_NAMESPACE || "default",
+  });
+  return client;
+}
 
-  
-  
+export async function createTemporalWorkerCon() {
+  const connection = await NativeConnection.connect({
+    address: process.env.TEMPORAL_ADDRESS!,
+    tls: {
+      clientCertPair: {
+        crt: Buffer.from(
+          fs.readFileSync(process.env.TEMPORAL_TLS_CRT!, "utf8")
+        ),
+        key: Buffer.from(
+          fs.readFileSync(process.env.TEMPORAL_TLS_KEY!, "utf8")
+        ),
+      },
+    },
+  });
+  return connection;
+}

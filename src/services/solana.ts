@@ -1,7 +1,6 @@
 import * as web3 from "@solana/web3.js"
 import * as fs from "fs"
 import dotenv from "dotenv"
-import { MintDTO } from "../models/mintDto"
 import { Connection as conn } from "@solana/web3.js";
 import * as jose from "jose";
 import { Metaplex, PublicKey, bundlrStorage, keypairIdentity } from "@metaplex-foundation/js";

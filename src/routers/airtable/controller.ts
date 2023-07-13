@@ -1,17 +1,8 @@
 import controller from "../controller";
 import { Request, Response } from "express";
 import fs from "fs";
-import { Connection, Client, ConnectionOptions } from "@temporalio/client";
-import {
-  createMintWF,
-  getCreatedNft,
-  getUpdatedMintAddress,
-  updateMintWF,
-} from "../../workflows/mint/workflows";
 import * as activities from "./../../workflows/airtable/activities";
-import { plainToClass, plainToClassFromExist } from "class-transformer";
-import { MintDTO } from "../../models/mintDto";
-import Airtable from "airtable";
+import { plainToClass } from "class-transformer";
 import { AirTableDTO } from "../../models/airTableDto";
 import {
   createRecordAirTableWF,
@@ -21,11 +12,10 @@ import {
   updateRecordAirTableWF,
 } from "../../workflows/airtable/workflows";
 import { NativeConnection, Worker } from "@temporalio/worker";
-import { getConnectionAirTable } from "../../services/airTable";
 import { createTemporalClient } from "../../services/temporal";
-let temporalConnConfig: ConnectionOptions;
 
 class AirTableController extends controller {
+
   getAllRecord = async (req: Request, res: Response) => {
     const airTableDto = await plainToClass(AirTableDTO, req.body);
     const client = await createTemporalClient();
@@ -91,30 +81,30 @@ class AirTableController extends controller {
     this.myResponse(res, 200, {}, "set workflow");
   };
 
-  startWorkerAirTable = async (req: Request, res: Response) => {
-    const connection = await NativeConnection.connect({
-      address: process.env.TEMPORAL_ADDRESS!,
-      tls: {
-        clientCertPair: {
-          crt: Buffer.from(
-            fs.readFileSync(process.env.TEMPORAL_TLS_CRT!, "utf8")
-          ),
-          key: Buffer.from(
-            fs.readFileSync(process.env.TEMPORAL_TLS_KEY!, "utf8")
-          ),
-        },
-      },
-    });
-    const worker = await Worker.create({
-      connection,
-      namespace: process.env.TEMPORAL_NAMESPACE || "default",
-      workflowsPath: require.resolve("./../../workflows/airtable/workflows"),
-      activities,
-      taskQueue: "airtable",
-    });
-    worker.run();
-    res.send("worker run");
-  };
+  // startWorkerAirTable = async (req: Request, res: Response) => {
+  //   const connection = await NativeConnection.connect({
+  //     address: process.env.TEMPORAL_ADDRESS!,
+  //     tls: {
+  //       clientCertPair: {
+  //         crt: Buffer.from(
+  //           fs.readFileSync(process.env.TEMPORAL_TLS_CRT!, "utf8")
+  //         ),
+  //         key: Buffer.from(
+  //           fs.readFileSync(process.env.TEMPORAL_TLS_KEY!, "utf8")
+  //         ),
+  //       },
+  //     },
+  //   });
+  //   const worker = await Worker.create({
+  //     connection,
+  //     namespace: process.env.TEMPORAL_NAMESPACE || "default",
+  //     workflowsPath: require.resolve("./../../workflows/airtable/workflows"),
+  //     activities,
+  //     taskQueue: "airtable",
+  //   });
+  //   worker.run();
+  //   res.send("worker run");
+  // };
 } // end of AirTableController
 
 export default new AirTableController();
