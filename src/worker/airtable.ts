@@ -1,4 +1,5 @@
 // @@@SNIPSTART typescript-hello-worker
+import 'dotenv/config';
 import { Worker } from "@temporalio/worker";
 import * as activities from "./../workflows/airtable/activities";
 import { createTemporalWorkerCon } from "../services/temporal";
