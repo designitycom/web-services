@@ -1,34 +1,33 @@
-@url=http://34.123.25.77
+@url=http://35.192.129.66
 @port=5001
 @host={{url}}:{{port}}
-@idToken=
-
+@idToken=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlRZT2dnXy01RU9FYmxhWS1WVlJZcVZhREFncHRuZktWNDUzNU1aUEMwdzAifQ.eyJpYXQiOjE2ODkwOTA3MjEsImF1ZCI6IkJLdzhoZ0lQRE1sM3A2YmNZWWxaZ2RYU29Jckx5Sml2dG9aV2NsZDQwd3NOLUFNLVhVQU9raUktQVR2UUdKdTl4NmtSVngzYUd0ZEtRZzNFTWhNX0JyRSIsIm5vbmNlIjoiMDIzYzg5Mjg0ZGEzYjBhMWUwYzhkZGZlNWIxYjlmNDk1YTBiOGQ2NzhlZTIzY2E3MWUzNTQ2OGM3ZmZiNDc3MjAzIiwiaXNzIjoiaHR0cHM6Ly9hcGkub3BlbmxvZ2luLmNvbSIsIndhbGxldHMiOlt7InB1YmxpY19rZXkiOiI4YjhjYTNjMDAwMmVmM2Q2NDAxZTM3ZjUwYmY1OGU2MGE4MGQ3ZGMyYzNlODFmNWI0OTA4ODk3YjY3MjRlNDc1IiwidHlwZSI6IndlYjNhdXRoX2FwcF9rZXkiLCJjdXJ2ZSI6ImVkMjU1MTkifV0sImVtYWlsIjoiYW1pcnNoYXJpZmljb0BnbWFpbC5jb20iLCJuYW1lIjoiYW1pcnNoYXJpZmljb0BnbWFpbC5jb20iLCJ2ZXJpZmllciI6InRvcnVzIiwidmVyaWZpZXJJZCI6ImFtaXJzaGFyaWZpY29AZ21haWwuY29tIiwiYWdncmVnYXRlVmVyaWZpZXIiOiJ0a2V5LWF1dGgwLWVtYWlsLXBhc3N3b3JkbGVzcy1scmMiLCJleHAiOjE2ODkxNzcxMjF9.U-bQPIfDXYxeyCt6BIUrtnAVvPvT5YUUmalOMRRRgTrzkvT8Q-XgpB_tMhiTxw3LC1doBLXnU3jTlqLo1_nhPQ
 POST {{host}}/api/mint/createMint
 content-type: application/json
 id-token: {{idToken}}
 
 {
-    "wfId": "a-34",
-    "name": "name of a-34",
-    "description":"desc of a-34",
+    "wfId": "ash-24",
+    "name": "ash-16 name ",
+    "description":"ash-16desc", 
     "fileName":"designity.png",
     "role":"admin"
 }
 ###
-GET {{host}}/api/mint/getMintedTokenData/mint-a-34
+GET {{host}}/api/mint/getMintedTokenData/mint-ash-24
 ###
-GET {{host}}/api/mint/getUpdatedMintTokenData/mint-a-299
+GET {{host}}/api/mint/getUpdatedMintTokenData/mint-ash-20
 ###
 POST {{host}}/api/mint/updateMint
 content-type: application/json
 id-token: {{idToken}}
 
 {
-    "wfId": "a-299",
+    "wfId": "ash-20",
     "name": "name ash updated ",
     "description":"updated desc",
     "fileName":"designity.png",
     "role":"admin",
-    "mintAddress":"FHk3KYbk4MjpfoATszfeYMY6P82CSRMJm8vUzsLofdkj"    
+    "mintAddress":"5jTrekCe95fwXh31Pq7k6BqNKbKYYcNCULwrE5RrEXpU"    
 }
 

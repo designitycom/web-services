@@ -2,8 +2,6 @@ import { NextFunction } from "express";
 import {
   ValidationChain,
   body,
-  check,
-  query,
   validationResult,
 } from "express-validator";
 import multer from "multer";

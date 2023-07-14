@@ -1,4 +1,4 @@
-@url=http://34.123.25.77
+@url=http://35.192.129.66
 @port=5001
 @host={{url}}:{{port}}
 

@@ -1,6 +1,5 @@
 import Airtable from "airtable";
 import { AirtableBase } from "airtable/lib/airtable_base";
-import { env } from "process";
 
 
 export async function getConnectionAirTable():Promise<AirtableBase>{

@@ -23,13 +23,10 @@ export async function checkEmailWF(userDTO: UserDTO): Promise<string> {
   return "ok";
 }
 //---------------------------------------------------------
-export const getMintAddress = wf.defineQuery<string>("getMintAddress");
+export const getUserNft = wf.defineQuery<Nft | Sft | SftWithToken | NftWithToken>("getUserNft");
 export async function getAllNFTWF(userDTO: UserDTO): Promise<string> {
-  let mintAddress="";
-  wf.setHandler(getMintAddress, () => mintAddress);
-  const allNFT = await getAllNFT(userDTO);
-  mintAddress=allNFT.address.toString();
-  console.log("in workflow>>>>>>>>>", allNFT);
+  wf.setHandler(getUserNft, () => userNFT);
+  const userNFT = await getAllNFT(userDTO);
 
   return "ok";
 }
