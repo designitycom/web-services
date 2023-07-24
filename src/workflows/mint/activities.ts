@@ -45,7 +45,7 @@ export async function createNft(
 ): Promise<Nft | Sft | SftWithToken | NftWithToken> {
   const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
   const keyPairDesignity=getKeyPair(process.env.DESIGNITY_PRIVATE_KEY!);
-  const designityPK=new PublicKey(process.env.DESIGNITY_COLLECTION_ADDRESS!);
+  const designityPK=new PublicKey(process.env.COLLECTION_ADDRESS!);
   const userPK=new PublicKey(mintDto.publicKey);
   console.log("In activities userPK", userPK)
   console.log("In activities  create mint activity PK:",mintDto.publicKey);
@@ -91,7 +91,7 @@ export async function verifyNft(nftAddress: string) {
     //this is what verifies our collection as a Certified Collection
     mintAddress: new PublicKey(nftAddress),
     collectionMintAddress: new PublicKey(
-      process.env.DESIGNITY_COLLECTION_ADDRESS!
+      process.env.COLLECTION_ADDRESS!
     ),
     isSizedCollection: true,
   });
