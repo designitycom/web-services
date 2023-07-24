@@ -1,17 +1,8 @@
 import controller from "../controller";
 import { Request, Response } from "express";
 import fs from "fs";
-import { Connection, Client, ConnectionOptions } from "@temporalio/client";
-import {
-  createMintWF,
-  getMintAddress,
-  getUpdatedMintAddress,
-  updateMintWF,
-} from "../../workflows/mint/workflows";
 import * as activities from "./../../workflows/airtable/activities";
-import { plainToClass, plainToClassFromExist } from "class-transformer";
-import { MintDTO } from "../../models/mintDto";
-import Airtable from "airtable";
+import { plainToClass } from "class-transformer";
 import { AirTableDTO } from "../../models/airTableDto";
 import {
   createRecordAirTableWF,
@@ -21,11 +12,10 @@ import {
   updateRecordAirTableWF,
 } from "../../workflows/airtable/workflows";
 import { NativeConnection, Worker } from "@temporalio/worker";
-import { getConnectionAirTable } from "../../services/airTable";
 import { createTemporalClient } from "../../services/temporal";
-let temporalConnConfig: ConnectionOptions;
 
 class AirTableController extends controller {
+
   getAllRecord = async (req: Request, res: Response) => {
     const airTableDto = await plainToClass(AirTableDTO, req.body);
     const client = await createTemporalClient();

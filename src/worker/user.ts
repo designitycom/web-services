@@ -1,6 +1,6 @@
 // @@@SNIPSTART typescript-hello-worker
-import { Worker } from "@temporalio/worker";
-import * as activities from "./../workflows/mint/activities";
+import {Worker } from "@temporalio/worker";
+import * as activities from "./../workflows/user/activities";
 import { createTemporalWorkerCon } from "../services/temporal";
 
 async function run() {
@@ -8,9 +8,9 @@ async function run() {
   const worker = await Worker.create({
     connection,
     namespace: process.env.TEMPORAL_NAMESPACE || "default",
-    workflowsPath: require.resolve("./../workflows/mint/workflows"),
+    workflowsPath: require.resolve("./../workflows/user/workflows"),
     activities,
-    taskQueue: "mint",
+    taskQueue: "user",
   });
   await worker.run();
 }

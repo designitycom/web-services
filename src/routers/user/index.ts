@@ -9,7 +9,6 @@ userRouter.post("/checkEmail", UserController.checkEmail)
 userRouter.get("/getAllUserDTO/:workFlowId", UserController.getAllUserDTO)
 userRouter.post("/getAllNFT",validateIdToken, UserController.getAllNFT)
 userRouter.get("/checkGetAllNFTs/:workFlowId", UserController.checkGetAllNFTs)
-userRouter.get("/startWorkerUser", UserController.startWorkerUser)
 
 
 export default userRouter;
