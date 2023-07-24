@@ -43,7 +43,8 @@
     "nanoid": "^3.3.6",
     "node-jose": "^2.2.0",
     "reflect-metadata": "^0.1.13",
-    "winston": "^3.8.2"
+    "winston": "^3.8.2",
+    "@project-serum/anchor": "^0.25.0"
   },
   "devDependencies": {
     "@types/config": "^3.3.0",
