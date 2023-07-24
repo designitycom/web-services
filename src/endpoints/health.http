@@ -1,1 +1,1 @@
-GET http://35.238.4.67:5001/api/health
+GET http://35.192.129.66:5000/api/health
