@@ -16,8 +16,9 @@ class UserController extends controller {
 
   checkEmail = async (req: Request, res: Response) => {
     const userDTO = await plainToClass(UserDTO, req.body);
+    console.log("user email", req.body);
     console.log("user email", userDTO.email);
-    const client = await createTemporalClient();
+    const client = await createTemporalClient();    
     console.log("after temporal");
     const workFlowId = "user-" + userDTO.wfId;
     const handle = await client.workflow.start(checkEmailWF, {
