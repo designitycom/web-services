@@ -8,5 +8,12 @@ mintRouter.get("/getMintedTokenData/:workFlowId", MintController.getMintedTokenD
 mintRouter.post("/updateMint", validateIdToken, MintController.updateMint);
 mintRouter.get("/getUpdatedMintTokenData/:workFlowId", MintController.getUpdatedMintTokenData);
 
+//ASH--------------------------->
+mintRouter.post("/getAllNFT",validateIdToken, MintController.getAllNFT)
+mintRouter.get("/checkGetAllNFTs/:workFlowId", MintController.checkGetAllNFTs)
+mintRouter.post("/checkUserThenCreateNft", MintController.checkUserThenCreateNft)
+
+
+
 
 export default mintRouter;

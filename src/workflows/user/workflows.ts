@@ -27,7 +27,6 @@ export const getUserNft = wf.defineQuery<Nft | Sft | SftWithToken | NftWithToken
 export async function getAllNFTWF(userDTO: UserDTO): Promise<string> {
   wf.setHandler(getUserNft, () => userNFT);
   const userNFT = await getAllNFT(userDTO);
-
   return "ok";
 }
 

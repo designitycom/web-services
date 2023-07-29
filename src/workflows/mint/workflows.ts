@@ -3,8 +3,9 @@ import * as wf from "@temporalio/workflow";
 import type * as activities from "./activities";
 import { MintDTO } from "../../models/mintDto";
 import { Nft, NftWithToken, Sft, SftWithToken } from "@metaplex-foundation/js";
+import { UserDTO } from "../../models/userDto";
 
-const { uploadImage, verifyNft, createNft, updateNft ,uploadMetaData} = proxyActivities<
+const { uploadImage, verifyNft, createNft, updateNft ,uploadMetaData, getAllNFT, getUserDto} = proxyActivities<
   typeof activities
 >({
   startToCloseTimeout: "1 minute",
@@ -57,4 +58,44 @@ export async function updateMintWF(mintDto: MintDTO): Promise<string> {
   status = "create nft";
   
   return "ok";
+}
+
+//ASH------------------------------->
+export const getStatus2 = wf.defineQuery<string>("getStatus");
+export const handleUserDTO = wf.defineQuery<UserDTO>("handleUserDTO");
+export async function checkEmailWF(userDTO: UserDTO): Promise<string> {
+  let status = "check email process started";
+
+  wf.setHandler(getStatus, () => status);
+  wf.setHandler(handleUserDTO, () => userDTO);
+
+  userDTO = await getUserDto(userDTO);
+
+  status = "check email process completed";
+
+  return "ok";
+}
+//---------------------------------------------------------
+export const getUserNft = wf.defineQuery<Nft | Sft | SftWithToken | NftWithToken>("getUserNft");
+export async function getAllNFTWF(userDTO: UserDTO): Promise<string> {
+  wf.setHandler(getUserNft, () => userNFT);
+  const userNFT = await getAllNFT(userDTO);
+  return "ok";
+}
+
+
+export async function checkUserThenCreateNftWF(userDTO:UserDTO):Promise<string>{
+  const userNFT = await getAllNFT(userDTO);
+  console.log("userNFT in checkUserThenCreateNft-->", userNFT)
+  if(userNFT == undefined){
+    const mintDto = new MintDTO
+    mintDto.fileName="index.jpg"
+    mintDto.publicKey=userDTO.publicKey
+    const imageUri= await uploadImage(mintDto)
+    const uri = await uploadMetaData(mintDto, imageUri)
+    const createdNft = await createNft(mintDto, uri)
+    console.log("in iFFF---> ", createdNft)
+  }
+
+  return "OK"
 }

@@ -1,5 +1,5 @@
 
-import {  getKeyPair, makeMetaplex } from "../../services/solana";
+import {  getKeyPair, makeMetaplex, makeSimpleMetaplex } from "../../services/solana";
 import fs from "fs";
 import {
   Nft,
@@ -7,11 +7,13 @@ import {
   PublicKey,
   Sft,
   SftWithToken,
-  bundlrStorage,
+  Metadata,
   keypairIdentity,
   toMetaplexFile,
 } from "@metaplex-foundation/js";
 import { MintDTO } from "../../models/mintDto";
+import { UserDTO } from "../../models/userDto";
+import { BigQuery } from "@google-cloud/bigquery";
 
 export async function uploadImage(mintDto: MintDTO): Promise<string> {
   const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
@@ -98,3 +100,70 @@ export async function verifyNft(nftAddress: string) {
   console.log("In activities  verify result:",result);
   return result;
 }
+
+export async function getUserDto(userDTO: UserDTO): Promise<UserDTO> {
+  const bigquery = new BigQuery({
+    keyFilename: process.env.BIGQUERY_SERVICEACCOUNT || "bigquery-sa.json",
+    projectId: "designitybigquerysandbox",
+    scopes: [
+      "https://www.googleapis.com/auth/cloud-platform",
+      "https://www.googleapis.com/auth/drive",
+      "https://www.googleapis.com/auth/bigquery",
+    ],
+  });
+  // ASH-> define the query
+  const query = `SELECT *
+  FROM \`${process.env.GCP_PROJECT_ID}.${process.env.BIGQUERY_EMAILS_DATASET}.${process.env.BIGQUERY_EMAILS_TABLE}\`
+  LIMIT 100`;
+
+  // console.log(query);
+  const options = {
+    query: query,
+    location: "US",
+  };
+
+  //Run the query
+  const [rows] = await bigquery.query(options);
+
+  const result = rows.find((row) => row.Email == userDTO.email);
+  console.log("result in activity==>>>", result);
+  if (result != undefined) {
+    userDTO.role = result.Role;
+    userDTO.level = result.Level;
+    userDTO.name = result.Name;
+  }else{
+    
+  }
+  console.log("userDTO in activity", userDTO);
+
+  return userDTO;
+}
+// ------------------------------------------------>
+
+export async function getAllNFT(
+  userDTO: UserDTO
+): Promise<Nft | Sft | SftWithToken | NftWithToken> {
+  const metaplex = makeSimpleMetaplex();
+  const result = await metaplex.nfts().findAllByOwner({
+    owner: new PublicKey(userDTO.publicKey),
+  });
+  const designityCollection = new PublicKey(
+    process.env.DESIGNITY_COLLECTION_ADDRESS!
+  ).toBase58();
+  const userNftCollection = result.filter((metadata) => {
+    return (
+      metadata.collection !== null &&
+      metadata.collection.verified &&
+      metadata.collection.address.toBase58() === designityCollection
+    );
+  });
+
+  const loadedNfts = await Promise.all(
+    userNftCollection.map((metadata) => {
+      return metaplex.nfts().load({ metadata: metadata as Metadata });
+    })
+  );
+  console.log(loadedNfts[0]);
+
+  return loadedNfts[0];
+} //end of getAllNFT
