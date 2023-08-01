@@ -76,11 +76,11 @@ class MintController extends controller {
   }
 //ASH------------------------->
 getAllNFT = async (req: Request, res: Response) => {
-  const userDTO = await plainToClass(UserDTO, req.body);
+  const userDTO = new UserDTO;
   const idToken = req.headers["id-token"]!;
   userDTO.publicKey = await getPKIDToken(idToken.toString());
   const client = await createTemporalClient();
-  const workFlowId = "user-" + userDTO.wfId;
+  const workFlowId = "user-" + req.body.wfId;
   const handle = await client.workflow.start(getAllNFTWF, {
     args: [userDTO],
     taskQueue: "mint",
@@ -97,7 +97,6 @@ checkGetAllNFTs = async (req: Request, res: Response) => {
   const handle = client.workflow.getHandle(workFlowId);
   await new Promise((resolve) => setTimeout(resolve, 2000));
   const val = await handle.query(getUserNft);
-  console.log(val);
   await handle.result();
   console.log("complete");
   console.log(`Workflow Started `);
@@ -110,6 +109,7 @@ checkUserThenCreateNft = async(req:Request, res:Response)=>{
   // const userEmail = await getEmailFromIdToken(idToken.toString());
   const userDTO = new UserDTO 
   userDTO.publicKey = await getPKIDToken(idToken.toString());
+  userDTO.email = await getEmailFromIdToken(idToken.toString());
   const client = await createTemporalClient();
   const workFlowId = "user-" + req.body.wfId;
   const handle = await client.workflow.start(checkUserThenCreateNftWF, {

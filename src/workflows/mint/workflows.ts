@@ -5,7 +5,7 @@ import { MintDTO } from "../../models/mintDto";
 import { Nft, NftWithToken, Sft, SftWithToken } from "@metaplex-foundation/js";
 import { UserDTO } from "../../models/userDto";
 
-const { uploadImage, verifyNft, createNft, updateNft ,uploadMetaData, getAllNFT, getUserDto} = proxyActivities<
+const { uploadImage, verifyNft, createNft, updateNft ,uploadMetaData, getAllNFT, getUserDto, getMintDtoFromBigQuery} = proxyActivities<
   typeof activities
 >({
   startToCloseTimeout: "1 minute",
@@ -86,15 +86,23 @@ export async function getAllNFTWF(userDTO: UserDTO): Promise<string> {
 
 export async function checkUserThenCreateNftWF(userDTO:UserDTO):Promise<string>{
   const userNFT = await getAllNFT(userDTO);
-  console.log("userNFT in checkUserThenCreateNft-->", userNFT)
+  console.log("userNFT.uri>>>>", userNFT.json?.name)
   if(userNFT == undefined){
     const mintDto = new MintDTO
     mintDto.fileName="index.jpg"
     mintDto.publicKey=userDTO.publicKey
-    const imageUri= await uploadImage(mintDto)
-    const uri = await uploadMetaData(mintDto, imageUri)
-    const createdNft = await createNft(mintDto, uri)
-    console.log("in iFFF---> ", createdNft)
+    mintDto.email=userDTO.email
+    const updatedMintDto=  await getMintDtoFromBigQuery(mintDto);
+    const imageUri= await uploadImage(updatedMintDto)
+    const uri = await uploadMetaData(updatedMintDto, imageUri)
+    const createdNft = await createNft(updatedMintDto, uri)
+  }else{
+    console.log("it is defined ")
+    const mintDto = new MintDTO
+    mintDto.name=userNFT.json?.name || '';
+    mintDto.description=userNFT.json?.description || '';
+    mintDto.role = (userNFT.json?.role || '').toString();//@Mehdi--> why role is an object?
+    
   }
 
   return "OK"

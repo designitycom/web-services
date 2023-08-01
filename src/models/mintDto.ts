@@ -8,4 +8,6 @@ export class MintDTO {
   role!: string;
   fileName!: string;
   mintAddress!: string;
+  email!:string;
+  level!:string;
 }

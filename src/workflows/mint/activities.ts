@@ -126,7 +126,6 @@ export async function getUserDto(userDTO: UserDTO): Promise<UserDTO> {
   const [rows] = await bigquery.query(options);
 
   const result = rows.find((row) => row.Email == userDTO.email);
-  console.log("result in activity==>>>", result);
   if (result != undefined) {
     userDTO.role = result.Role;
     userDTO.level = result.Level;
@@ -148,7 +147,7 @@ export async function getAllNFT(
     owner: new PublicKey(userDTO.publicKey),
   });
   const designityCollection = new PublicKey(
-    process.env.DESIGNITY_COLLECTION_ADDRESS!
+    process.env.COLLECTION_ADDRESS!
   ).toBase58();
   const userNftCollection = result.filter((metadata) => {
     return (
@@ -163,7 +162,44 @@ export async function getAllNFT(
       return metaplex.nfts().load({ metadata: metadata as Metadata });
     })
   );
-  console.log(loadedNfts[0]);
+  console.log("loaded NFT: ", loadedNfts[0]);
 
   return loadedNfts[0];
 } //end of getAllNFT
+
+export async function getMintDtoFromBigQuery(mintDTO: MintDTO): Promise<any> {
+  const bigquery = new BigQuery({
+    keyFilename: process.env.BIGQUERY_SERVICEACCOUNT || "bigquery-sa.json",
+    projectId: "designitybigquerysandbox",
+    scopes: [
+      "https://www.googleapis.com/auth/cloud-platform",
+      "https://www.googleapis.com/auth/drive",
+      "https://www.googleapis.com/auth/bigquery",
+    ],
+  });
+  // ASH-> define the query
+  const query = `SELECT *
+  FROM \`${process.env.GCP_PROJECT_ID}.${process.env.BIGQUERY_EMAILS_DATASET}.${process.env.BIGQUERY_EMAILS_TABLE}\`
+  LIMIT 100`;
+
+  // console.log(query);
+  const options = {
+    query: query,
+    location: "US",
+  };
+
+  //Run the query
+  const [rows] = await bigquery.query(options);
+
+  const result = rows.find((row) => row.Email == mintDTO.email);
+  if (result != undefined) {
+    mintDTO.role = result.Role;
+    mintDTO.level = result.Level;
+    mintDTO.name = result.Name;
+  }else{
+    
+  }
+  console.log("userDTO in activity", mintDTO);
+
+  return mintDTO;
+}
