@@ -109,6 +109,7 @@ export function publicKeyFromBn(bn:string) {
   const decoded = { _bn: bigNumber };
   return new PublicKey(decoded);
 };
+
 export async function getPKIDToken(idToken:string){
   const jwks = jose.createRemoteJWKSet(
     new URL("https://api.openlogin.com/jwks")
@@ -117,6 +118,16 @@ export async function getPKIDToken(idToken:string){
     algorithms: ["ES256"],
   });
   return publicKeyFromBn((jwtDecoded.payload as any).wallets[0].public_key).toBase58();
+}
+
+export async function getEmailFromIdToken(idToken:string){
+  const jwks = jose.createRemoteJWKSet(
+    new URL("https://api.openlogin.com/jwks")
+  );
+  const jwtDecoded = await jose.jwtVerify(idToken, jwks, {
+    algorithms: ["ES256"],
+  });
+  return (jwtDecoded.payload as any).email;
 }
 
 

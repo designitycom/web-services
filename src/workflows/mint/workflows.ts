@@ -3,8 +3,9 @@ import * as wf from "@temporalio/workflow";
 import type * as activities from "./activities";
 import { MintDTO } from "../../models/mintDto";
 import { Nft, NftWithToken, Sft, SftWithToken } from "@metaplex-foundation/js";
+import { UserDTO } from "../../models/userDto";
 
-const { uploadImage, verifyNft, createNft, updateNft ,uploadMetaData} = proxyActivities<
+const { uploadImage, verifyNft, createNft, updateNft ,uploadMetaData, getAllNFT, getUserDto, getMintDtoFromBigQuery} = proxyActivities<
   typeof activities
 >({
   startToCloseTimeout: "1 minute",
@@ -57,4 +58,67 @@ export async function updateMintWF(mintDto: MintDTO): Promise<string> {
   status = "create nft";
   
   return "ok";
+}
+
+//ASH------------------------------->
+export const getStatus2 = wf.defineQuery<string>("getStatus");
+export const handleUserDTO = wf.defineQuery<UserDTO>("handleUserDTO");
+export async function checkEmailWF(userDTO: UserDTO): Promise<string> {
+  let status = "check email process started";
+
+  wf.setHandler(getStatus, () => status);
+  wf.setHandler(handleUserDTO, () => userDTO);
+
+  userDTO = await getUserDto(userDTO);
+
+  status = "check email process completed";
+
+  return "ok";
+}
+//---------------------------------------------------------
+export const getUserNft = wf.defineQuery<Nft | Sft | SftWithToken | NftWithToken>("getUserNft");
+export async function getAllNFTWF(userDTO: UserDTO): Promise<string> {
+  wf.setHandler(getUserNft, () => userNFT);
+  const userNFT = await getAllNFT(userDTO);
+  return "ok";
+}
+
+
+export const getUserNftAfterCheck = wf.defineQuery<Nft | Sft | SftWithToken | NftWithToken | null>("getUserNftAfterCheck");
+export async function checkUserThenCreateNftWF(userDTO:UserDTO):Promise<string>{
+  let userNFTAfterCheck: Nft | Sft | SftWithToken | NftWithToken | null = null;
+  wf.setHandler(getUserNftAfterCheck, () => userNFTAfterCheck);
+  const userNFT = await getAllNFT(userDTO);
+  console.log("userNFT>>>>", userNFT)
+  if(userNFT == undefined){
+    const mintDto = new MintDTO
+    mintDto.fileName="index.jpg"
+    mintDto.publicKey=userDTO.publicKey
+    mintDto.email=userDTO.email
+    const updatedMintDto=  await getMintDtoFromBigQuery(mintDto);
+    const imageUri= await uploadImage(updatedMintDto)
+    const uri = await uploadMetaData(updatedMintDto, imageUri)
+    const createdNft = await createNft(updatedMintDto, uri)
+    await verifyNft(createdNft.address.toString())
+    console.log("mintwotkflow>checkUserThenCreateNftWF>createdNft>>>", createdNft)
+    userNFTAfterCheck = createdNft
+  }else{
+    console.log("it is defined ")
+    const mintDto = new MintDTO
+    mintDto.email=userDTO.email;
+    mintDto.fileName="index.jpg"
+    mintDto.publicKey=userDTO.publicKey
+    mintDto.mintAddress=userNFT.address.toString();
+    console.log("mintFto.emal>>>", mintDto.email);
+    const updatedMintDto=  await getMintDtoFromBigQuery(mintDto);
+    console.log ("updatedMintDto >>>>", updatedMintDto)
+    const imageUri= await uploadImage(updatedMintDto)
+    const uri = await uploadMetaData(updatedMintDto, imageUri)
+    const updatedNft= await updateNft(mintDto, uri);
+    userNFTAfterCheck = updatedNft;
+    console.log("userNFTAfterCheck updatedNft>>>", userNFTAfterCheck)
+  }
+
+
+return "ok"
 }
