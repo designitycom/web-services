@@ -84,9 +84,12 @@ export async function getAllNFTWF(userDTO: UserDTO): Promise<string> {
 }
 
 
+export const getUserNftAfterCheck = wf.defineQuery<Nft | Sft | SftWithToken | NftWithToken | null>("getUserNftAfterCheck");
 export async function checkUserThenCreateNftWF(userDTO:UserDTO):Promise<string>{
+  let userNFTAfterCheck: Nft | Sft | SftWithToken | NftWithToken | null = null;
+  wf.setHandler(getUserNftAfterCheck, () => userNFTAfterCheck);
   const userNFT = await getAllNFT(userDTO);
-  console.log("userNFT.uri>>>>", userNFT.json?.name)
+  console.log("userNFT>>>>", userNFT)
   if(userNFT == undefined){
     const mintDto = new MintDTO
     mintDto.fileName="index.jpg"
@@ -96,14 +99,26 @@ export async function checkUserThenCreateNftWF(userDTO:UserDTO):Promise<string>{
     const imageUri= await uploadImage(updatedMintDto)
     const uri = await uploadMetaData(updatedMintDto, imageUri)
     const createdNft = await createNft(updatedMintDto, uri)
+    await verifyNft(createdNft.address.toString())
+    console.log("mintwotkflow>checkUserThenCreateNftWF>createdNft>>>", createdNft)
+    userNFTAfterCheck = createdNft
   }else{
     console.log("it is defined ")
     const mintDto = new MintDTO
-    mintDto.name=userNFT.json?.name || '';
-    mintDto.description=userNFT.json?.description || '';
-    mintDto.role = (userNFT.json?.role || '').toString();//@Mehdi--> why role is an object?
-    
+    mintDto.email=userDTO.email;
+    mintDto.fileName="index.jpg"
+    mintDto.publicKey=userDTO.publicKey
+    mintDto.mintAddress=userNFT.address.toString();
+    console.log("mintFto.emal>>>", mintDto.email);
+    const updatedMintDto=  await getMintDtoFromBigQuery(mintDto);
+    console.log ("updatedMintDto >>>>", updatedMintDto)
+    const imageUri= await uploadImage(updatedMintDto)
+    const uri = await uploadMetaData(updatedMintDto, imageUri)
+    const updatedNft= await updateNft(mintDto, uri);
+    userNFTAfterCheck = updatedNft;
+    console.log("userNFTAfterCheck updatedNft>>>", userNFTAfterCheck)
   }
 
-  return "OK"
+
+return "ok"
 }

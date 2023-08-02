@@ -1,6 +1,6 @@
 import controller from "../controller";
 import { Request, Response } from "express";
-import { createMintWF, getAllNFTWF, getCreatedNft, getUpdatedMintAddress, getUserNft, updateMintWF, checkUserThenCreateNftWF } from "../../workflows/mint/workflows";
+import { createMintWF, getAllNFTWF, getCreatedNft, getUpdatedMintAddress, getUserNft, updateMintWF, checkUserThenCreateNftWF, getUserNftAfterCheck } from "../../workflows/mint/workflows";
 import { plainToClass } from "class-transformer";
 import { MintDTO } from "../../models/mintDto";
 import {  getEmailFromIdToken, getPKIDToken } from "../../services/solana";
@@ -117,11 +117,22 @@ checkUserThenCreateNft = async(req:Request, res:Response)=>{
     taskQueue: "mint",
     workflowId: workFlowId,
   });
-  console.log(`Workflow Started `);
   this.myResponse(res, 200, workFlowId, "set workflow");
-
-
 }
+
+returnDataFromCheckUserThenCreateNft = async (req: Request, res: Response) => {
+  const workFlowId = req.params.workFlowId;
+  const client = await createTemporalClient();
+  console.log(workFlowId);
+  const handle = client.workflow.getHandle(workFlowId);
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  const val = await handle.query(getUserNftAfterCheck);
+  await handle.result();
+  console.log("complete");
+  console.log(`Workflow Started `);
+  this.myResponse(res, 200, val, "set workflow");
+};
+
 }// end of MintController
 
 export default new MintController();

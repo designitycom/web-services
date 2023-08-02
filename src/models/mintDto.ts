@@ -10,4 +10,5 @@ export class MintDTO {
   mintAddress!: string;
   email!:string;
   level!:string;
+  image!:string;
 }

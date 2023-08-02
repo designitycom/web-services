@@ -142,10 +142,12 @@ export async function getUserDto(userDTO: UserDTO): Promise<UserDTO> {
 export async function getAllNFT(
   userDTO: UserDTO
 ): Promise<Nft | Sft | SftWithToken | NftWithToken> {
+  console.log("publickey in minyworkflow> getAllNft>>>",userDTO.publicKey )
   const metaplex = makeSimpleMetaplex();
   const result = await metaplex.nfts().findAllByOwner({
     owner: new PublicKey(userDTO.publicKey),
   });
+  console.log("mintActivity>getAllNft>result>>> ", result)
   const designityCollection = new PublicKey(
     process.env.COLLECTION_ADDRESS!
   ).toBase58();
