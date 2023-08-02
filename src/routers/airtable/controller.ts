@@ -7,6 +7,7 @@ import { AirTableDTO } from "../../models/airTableDto";
 import {
   createRecordAirTableWF,
   deleteRecordAirTableWF,
+  findRecordWithEmailWF,
   getAllAirTableWF,
   getRecordAirTableWF,
   updateRecordAirTableWF,
@@ -74,6 +75,19 @@ class AirTableController extends controller {
     const workFlowId = "airtable-" + airTableDto.wfId;
     const handle = await client.workflow.start(deleteRecordAirTableWF, {
       args: [airTableDto],
+      taskQueue: "airtable",
+      workflowId: workFlowId,
+    });
+    console.log(`Workflow Started `);
+    this.myResponse(res, 200, {}, "set workflow");
+  };
+  
+  findRecordWithEmail = async (req: Request, res: Response) => {
+    const airTableDto = await plainToClass(AirTableDTO, req.body);
+    const client = await createTemporalClient();
+    const workFlowId = "airtable-" + airTableDto.wfId;
+    const handle = await client.workflow.start(findRecordWithEmailWF, {
+      args: [airTableDto.email],
       taskQueue: "airtable",
       workflowId: workFlowId,
     });

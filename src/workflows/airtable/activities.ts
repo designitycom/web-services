@@ -1,3 +1,4 @@
+import { FieldSet } from "airtable";
 import { AirTableDTO } from "../../models/airTableDto";
 import { getConnectionAirTable } from "../../services/airTable";
 
@@ -5,15 +6,14 @@ import { getConnectionAirTable } from "../../services/airTable";
 
 export async function getAllRecord(airTableDto: AirTableDTO): Promise<string> {
     const base=await getConnectionAirTable();
-    base('Table 1').select({
-        // Selecting the first 3 records in Grid view:
-        maxRecords: 4,
+    base('Creatives Master').select({
         view: "Grid view"
     }).eachPage(function page(records, fetchNextPage) {
         // This function (`page`) will get called for each page of records.
     
         records.forEach(function(record) {
-            console.log('Retrieved', record.get('Name'), record.id);
+          // console.log(record);
+            console.log('Retrieved', record.get('Current Role'), record.id);
         });
     
         // To fetch the next page of records, call `fetchNextPage`.
@@ -28,10 +28,42 @@ export async function getAllRecord(airTableDto: AirTableDTO): Promise<string> {
 }
 
 
+export async function findRecordWithEmail(email:String): Promise<FieldSet|null> {
+  const base=await getConnectionAirTable();
+  let findRecord=null;
+  await base('Creatives Master').select({
+      view: "Grid view"
+  }).eachPage(async function page(records, fetchNextPage) {
+      // This function (`page`) will get called for each page of records.
+  
+      records.forEach(function(record) {
+        // console.log(record);
+
+        const emailRecord=record.get('Personal Email Address');
+        if(emailRecord==email){
+          console.log('find', record.get('Token Wallet ID'), record.id);
+          findRecord=record;
+          return findRecord;
+        }
+      });
+  
+      // To fetch the next page of records, call `fetchNextPage`.
+      // If there are more records, `page` will get called again.
+      // If there are no more records, `done` will get called.
+      fetchNextPage();
+  
+  }, function done(err) {
+      if (err) { console.error(err); return; }
+  });
+  
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  return findRecord;
+}
+
 export async function getRecord(airTableDto: AirTableDTO): Promise<string> {
     const base=await getConnectionAirTable();
     console.log("record id:",airTableDto.recordId);
-    base("Table 1").find(airTableDto.recordId, function (err, record) {
+    base("Creatives Master").find(airTableDto.recordId, function (err, record) {
         if (err) {
           console.error(err);
           return;
@@ -43,7 +75,7 @@ export async function getRecord(airTableDto: AirTableDTO): Promise<string> {
 
 export async function createRecord(airTableDto: AirTableDTO): Promise<string> {
     const base=await getConnectionAirTable();
-    base("Table 1").create(
+    base("Creatives Master").create(
         [
           {
             fields: {
@@ -74,19 +106,12 @@ export async function createRecord(airTableDto: AirTableDTO): Promise<string> {
 
 export async function updateRecord(airTableDto: AirTableDTO): Promise<string> {
     const base=await getConnectionAirTable();
-    base("Table 1").update(
+    base("Creatives Master").update(
         [
           {
             id: airTableDto.recordId,
             fields: {
-              Name: airTableDto.name,
-              Notes: airTableDto.notes,
-              Assignee: {
-                id: "usrOz3PeABd8QrPH2",
-                email: "mehdidehdar89@gmail.com",
-                name: "mehdi dehdar",
-              },
-              Status: airTableDto.status,
+              'Token Wallet ID': 'aaaa',
             },
           },
         ],
@@ -106,7 +131,7 @@ export async function updateRecord(airTableDto: AirTableDTO): Promise<string> {
 
 export async function deleteRecord(airTableDto: AirTableDTO): Promise<string> {
     const base=await getConnectionAirTable();
-    base("Table 1").destroy(
+    base("Creatives Master").destroy(
         [airTableDto.recordId],
         function (err, deletedRecords) {
           if (err) {
