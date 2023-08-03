@@ -5,4 +5,5 @@ export class UserDTO {
   role!:string;
   level!:string;
   publicKey!:string;
+  airtableMagicLink!:string;
 }

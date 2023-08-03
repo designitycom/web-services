@@ -13,6 +13,8 @@ mintRouter.post("/getAllNFT", validateIdToken, MintController.getAllNFT)
 mintRouter.get("/checkGetAllNFTs/:workFlowId", MintController.checkGetAllNFTs)
 mintRouter.post("/checkUserThenCreateNft", MintController.checkUserThenCreateNft)
 mintRouter.get("/returnDataFromCheckUserThenCreateNft/:workFlowId", MintController.returnDataFromCheckUserThenCreateNft)
+mintRouter.post("/getMagicLinkFromAirtable", MintController.getMagicLinkFromAirtable)
+mintRouter.get("/returnLogedinUserAiritableMagigLink/:workFlowId", MintController.returnLogedinUserAiritableMagigLink)
 
 
 
