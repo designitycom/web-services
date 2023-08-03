@@ -43,4 +43,7 @@ router.get('/getStatusSignal', TestController.getStatusSignal)
 
 router.post('/checkingEmail', multer().none(), TestController.checkingEmail)
 
+
+router.post('/call_parent', TestController.callParent)
+
 export default router;                   

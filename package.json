@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npx tsc",
-    "dev": "npx tsc -w & nodemon ./src/index.ts & nodemon ./src/worker/mint.ts & nodemon ./src/worker/user.ts & nodemon ./src/worker/airtable.ts",
+    "dev": "npx tsc -w & nodemon ./src/index.ts & nodemon ./src/worker/child.ts &  nodemon ./src/worker/mint.ts & nodemon ./src/worker/user.ts & nodemon ./src/worker/airtable.ts",
     "worker-mint": "nodemon ./src/worker/mint.ts",
     "worker-user": "nodemon ./src/worker/user.ts",
     "worker-airtable": "nodemon ./src/worker/airtable.ts",
