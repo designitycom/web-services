@@ -110,7 +110,7 @@ export function publicKeyFromBn(bn:string) {
   return new PublicKey(decoded);
 };
 
-export async function getPKIDToken(idToken:string){
+export async function getWalletPublicKeyFromIdToken(idToken:string){
   const jwks = jose.createRemoteJWKSet(
     new URL("https://api.openlogin.com/jwks")
   );
