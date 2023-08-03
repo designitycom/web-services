@@ -143,3 +143,9 @@ export async function deleteRecord(airTableDto: AirTableDTO): Promise<string> {
   );
   return "";
 }
+
+export async function childAirtable(str:String): Promise<string> {
+  
+  console.log("call child airtable");
+  return "child-airtable:"+str;
+}

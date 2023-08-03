@@ -39,6 +39,7 @@ import { cli } from "winston/lib/winston/config";
 import { BigQuery } from "@google-cloud/bigquery";
 import { NETWORK } from "../../utils/globals";
 import { validationResult } from "express-validator";
+import { parentWF } from "../../workflows/child/workflows";
 
 let temporalConnConfig: ConnectionOptions;
 
@@ -674,6 +675,23 @@ class TestController extends controller {
   validation=async(req:Request,res:Response)=>{
     res.send("passed");
   }
+  callParent = async (req: Request, res: Response) => {
+    const connection = await Connection.connect(temporalConnConfig);
+    const client = new Client({
+      connection,
+      namespace: process.env.TEMPORAL_NAMESPACE || "default",
+    });
+
+    const workFlowId = "child-test";
+    const handle = await client.workflow.start(parentWF, {
+      args: [],
+      taskQueue: "child",
+      workflowId: workFlowId,
+    });
+    console.log(`Started workflow`);
+
+    res.send("worker run:" + workFlowId);
+  };
 }
 
 export default new TestController();
