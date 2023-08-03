@@ -4,8 +4,10 @@ import type * as activities from "./activities";
 import { MintDTO } from "../../models/mintDto";
 import { Nft, NftWithToken, Sft, SftWithToken } from "@metaplex-foundation/js";
 import { UserDTO } from "../../models/userDto";
+import { AirTableDTO } from "../../models/airTableDto";
+import Airtable from "airtable";
 
-const { uploadImage, verifyNft, createNft, updateNft ,uploadMetaData, getAllNFT, getUserDto, getMintDtoFromBigQuery} = proxyActivities<
+const { uploadImage, verifyNft, createNft, updateNft ,uploadMetaData, getAllNFT, getUserDto, getMintDtoFromBigQuery, findRecordWithEmail, updateRecord} = proxyActivities<
   typeof activities
 >({
   startToCloseTimeout: "1 minute",
@@ -95,25 +97,38 @@ export async function checkUserThenCreateNftWF(userDTO:UserDTO):Promise<string>{
     mintDto.fileName="index.jpg"
     mintDto.publicKey=userDTO.publicKey
     mintDto.email=userDTO.email
-    const updatedMintDto=  await getMintDtoFromBigQuery(mintDto);
-    const imageUri= await uploadImage(updatedMintDto)
-    const uri = await uploadMetaData(updatedMintDto, imageUri)
-    const createdNft = await createNft(updatedMintDto, uri)
+    // const updatedMintDto=  await getMintDtoFromBigQuery(mintDto);
+    const retrivedRecord: any =  await findRecordWithEmail(mintDto.email);
+    console.log("updatedMintDto>getMintDtoFromAirtable>>>", retrivedRecord)
+    mintDto.name=retrivedRecord.fields.Name
+    mintDto.role=retrivedRecord.fields.Role
+    mintDto.level=retrivedRecord.fields.Level
+
+    const imageUri= await uploadImage(mintDto)
+    const uri = await uploadMetaData(mintDto, imageUri)
+    const createdNft = await createNft(mintDto, uri)
     await verifyNft(createdNft.address.toString())
     console.log("mintwotkflow>checkUserThenCreateNftWF>createdNft>>>", createdNft)
     userNFTAfterCheck = createdNft
+    const airTableDto = new AirTableDTO
+    airTableDto.walletAddress= userDTO.publicKey
+    airTableDto.tokenAddress=createdNft.address.toString();
+    airTableDto.recordId=retrivedRecord.id
+    await updateRecord(airTableDto)
   }else{
     console.log("it is defined ")
     const mintDto = new MintDTO
     mintDto.email=userDTO.email;
     mintDto.fileName="index.jpg"
     mintDto.publicKey=userDTO.publicKey
-    mintDto.mintAddress=userNFT.address.toString();
-    console.log("mintFto.emal>>>", mintDto.email);
-    const updatedMintDto=  await getMintDtoFromBigQuery(mintDto);
-    console.log ("updatedMintDto >>>>", updatedMintDto)
-    const imageUri= await uploadImage(updatedMintDto)
-    const uri = await uploadMetaData(updatedMintDto, imageUri)
+    const retrivedRecord: any =  await findRecordWithEmail(mintDto.email);
+    mintDto.name=retrivedRecord.fields.Name
+    mintDto.role=retrivedRecord.fields.Role
+    mintDto.level=retrivedRecord.fields.Level
+    mintDto.mintAddress=retrivedRecord.fields['Token Address'];
+    console.log("mintDto updatedNft>>>", mintDto)
+    const imageUri= await uploadImage(mintDto)
+    const uri = await uploadMetaData(mintDto, imageUri)
     const updatedNft= await updateNft(mintDto, uri);
     userNFTAfterCheck = updatedNft;
     console.log("userNFTAfterCheck updatedNft>>>", userNFTAfterCheck)

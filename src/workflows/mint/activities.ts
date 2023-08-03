@@ -14,6 +14,9 @@ import {
 import { MintDTO } from "../../models/mintDto";
 import { UserDTO } from "../../models/userDto";
 import { BigQuery } from "@google-cloud/bigquery";
+import { getConnectionAirTable } from "../../services/airTable";
+import { FieldSet } from "airtable";
+import { AirTableDTO } from "../../models/airTableDto";
 
 export async function uploadImage(mintDto: MintDTO): Promise<string> {
   const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
@@ -204,4 +207,100 @@ export async function getMintDtoFromBigQuery(mintDTO: MintDTO): Promise<any> {
   console.log("userDTO in activity", mintDTO);
 
   return mintDTO;
+}
+
+// export async function getMintDtoFromAirtable(mintDTO: MintDTO): Promise<FieldSet | null>{
+//   const base = await getConnectionAirTable();
+//   let findRecord: FieldSet| null = null;
+//   await base('Creatives Softr Users').select({
+//     view: "Grid view"
+//   }).eachPage(async function page(records, fetchNextPage) {
+//     // This function (`page`) will get called for each page of records.
+
+//     records.forEach(function (record) {
+//       // console.log(record);
+
+//       const emailRecord = record.get('Personal Email Address');
+//       if (emailRecord == mintDTO.email) {
+//         console.log('find', record.get('Token Wallet ID'), record.id);
+//         findRecord = record;
+//         return findRecord;
+//       }
+//     });
+
+//     // To fetch the next page of records, call `fetchNextPage`.
+//     // If there are more records, `page` will get called again.
+//     // If there are no more records, `done` will get called.
+//     fetchNextPage();
+
+//   }, function done(err) {
+//     if (err) { console.error(err); return; }
+//   });
+
+//   await new Promise((resolve) => setTimeout(resolve, 2000));
+//   // return findRecord;
+//   mintDTO.role = findRecord!.Role;
+//   mintDTO.level = findRecord!.Level;
+//   mintDTO.name = findRecord!.Name;
+//   return mintDTO
+// }
+
+export async function findRecordWithEmail(email: String): Promise<FieldSet | null | Nft | Sft | SftWithToken | NftWithToken> {
+  const base = await getConnectionAirTable();
+  let findRecord: any = null;
+  await base('Creatives Softr Users').select({
+    view: "Grid view"
+  }).eachPage(async function page(records, fetchNextPage) {
+    // This function (`page`) will get called for each page of records.
+
+    records.forEach(function (record) {
+      // console.log(record);
+
+      const emailRecord = record.get('Email');
+      if (emailRecord == email) {
+        console.log('find', record.get('Token Wallet ID'), record.id);
+        findRecord = record;
+        return findRecord;
+      }
+    });
+
+    // To fetch the next page of records, call `fetchNextPage`.
+    // If there are more records, `page` will get called again.
+    // If there are no more records, `done` will get called.
+    fetchNextPage();
+
+  }, function done(err) {
+    if (err) { console.error(err); return; }
+  });
+
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  
+  console.log("findRecord.fields",findRecord.fields)
+  return findRecord;
+
+}
+
+export async function updateRecord(airTableDto: AirTableDTO): Promise<string> {
+  const base = await getConnectionAirTable();
+  base("Creatives Softr Users").update(
+    [
+      {
+        id: airTableDto.recordId,
+        fields: {
+          'Wallet Address': airTableDto.walletAddress ,
+          'Token Address':airTableDto.tokenAddress
+        },
+      },
+    ],
+    function (err, records) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      records!.forEach(function (record) {
+        console.log(record.get("Name"));
+      });
+    }
+  );
+  return "";
 }

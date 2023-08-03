@@ -5,5 +5,8 @@ export class AirTableDTO {
     assignee!: string;
     status!: string;
     recordId!: string;
-  }
+    email!: string;
+    walletAddress!: string;
+    tokenAddress!:string;
+  } 
   

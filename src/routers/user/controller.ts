@@ -9,7 +9,7 @@ import {
 } from "../../workflows/user/workflows";
 import { UserDTO } from "../../models/userDto";
 import "dotenv/config";
-import { getPKIDToken } from "../../services/solana";
+import { getWalletPublicKeyFromIdToken } from "../../services/solana";
 import { createTemporalClient } from "../../services/temporal";
 
 class UserController extends controller {
@@ -48,7 +48,7 @@ class UserController extends controller {
   getAllNFT = async (req: Request, res: Response) => {
     const userDTO = await plainToClass(UserDTO, req.body);
     const idToken = req.headers["id-token"]!;
-    userDTO.publicKey = await getPKIDToken(idToken.toString());
+    userDTO.publicKey = await getWalletPublicKeyFromIdToken(idToken.toString());
     const client = await createTemporalClient();
     const workFlowId = "user-" + userDTO.wfId;
     const handle = await client.workflow.start(getAllNFTWF, {

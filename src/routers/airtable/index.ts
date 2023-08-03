@@ -7,6 +7,7 @@ airTableRouter.post("/getRecord", AirTableController.getRecord);
 airTableRouter.post("/createRecord", AirTableController.createRecord);
 airTableRouter.post("/updateRecord", AirTableController.updateRecord);
 airTableRouter.post("/deleteRecord", AirTableController.deleteRecord);
+airTableRouter.post("/findRecordWithEmail", AirTableController.findRecordWithEmail);
 // airTableRouter.get("/startWorkerAirTable", AirTableController.startWorkerAirTable)
 
 export default airTableRouter;

@@ -1,4 +1,4 @@
-@url=http://35.192.129.66
+@url=http://104.197.47.223
 @port=5001
 @host={{url}}:{{port}}
 
@@ -9,7 +9,7 @@ content-type: application/json
     "wfId": "18"
 }    
 ####
-POST  http://34.123.25.77:5001/api/airtable/getRecord
+POST  {{host}}/api/airtable/getRecord
 content-type: application/json
 
 {
@@ -17,7 +17,7 @@ content-type: application/json
     "recordId":"recPzPfesMi5MPGw0"
 }    
 ####
-POST  http://34.123.25.77:5001/api/airtable/createRecord
+POST  {{host}}/api/airtable/createRecord
 content-type: application/json
 
 {
@@ -27,7 +27,7 @@ content-type: application/json
     "status":"Todo"
 }    
 ####
-POST  http://34.123.25.77:5001/api/airtable/updateRecord
+POST  {{host}}/api/airtable/updateRecord
 content-type: application/json
 
 {
@@ -35,10 +35,10 @@ content-type: application/json
     "name":"ash updated",
     "notes":"notes ash updated",
     "status":"Todo",
-    "recordId":"receXaVmSygdSkA2c"
+    "recordId":"recrP2pwewxSbgRmw"
 }    
 ####
-POST  http://34.123.25.77:5001/api/airtable/deleteRecord
+POST  {{host}}/api/airtable/deleteRecord
 content-type: application/json
 
 {
@@ -46,5 +46,15 @@ content-type: application/json
     "recordId":"receXaVmSygdSkA2c"
 }  
 ####
-GET   http://34.123.25.77:5001/api/airtable/startWorkerAirTable
+
+POST  {{host}}/api/airtable/findRecordWithEmail
+content-type: application/json
+
+{
+    "wfId": "4",
+    "recordId":"receXaVmSygdSkA2c",
+    "email":"mooreaaliyah0119@gmail.com"
+}  
+####
+GET   {{host}}/api/airtable/startWorkerAirTable
 content-type: application/json

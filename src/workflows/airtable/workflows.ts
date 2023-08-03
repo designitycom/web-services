@@ -3,7 +3,7 @@ import * as wf from "@temporalio/workflow";
 import type * as activities from "./activities";
 import { AirTableDTO } from "../../models/airTableDto";
 
-const { getAllRecord, getRecord,createRecord,updateRecord,deleteRecord } = proxyActivities<typeof activities>({
+const { getAllRecord, getRecord,createRecord,updateRecord,deleteRecord,findRecordWithEmail } = proxyActivities<typeof activities>({
   startToCloseTimeout: "1 minute",
 });
 
@@ -75,6 +75,21 @@ export async function deleteRecordAirTableWF(
   console.log("start step 1:call deleteRecord");
   await deleteRecord(airTableDto);
   console.log("end step:end deleteRecord");
+  status = "end";
+
+  return "ok";
+}
+
+export async function findRecordWithEmailWF(
+  email: String
+): Promise<string> {
+  let status = "start";
+  wf.setHandler(getStatus, () => status);
+
+  console.log("start step 1:call find record with email");
+  const record=await findRecordWithEmail(email);
+  console.log("end step:end find record with email");
+  // console.log("workflow result:",record);
   status = "end";
 
   return "ok";

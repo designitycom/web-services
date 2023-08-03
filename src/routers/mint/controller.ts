@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { createMintWF, getAllNFTWF, getCreatedNft, getUpdatedMintAddress, getUserNft, updateMintWF, checkUserThenCreateNftWF, getUserNftAfterCheck } from "../../workflows/mint/workflows";
 import { plainToClass } from "class-transformer";
 import { MintDTO } from "../../models/mintDto";
-import {  getEmailFromIdToken, getPKIDToken } from "../../services/solana";
+import {  getEmailFromIdToken, getWalletPublicKeyFromIdToken } from "../../services/solana";
 import { createTemporalClient } from "../../services/temporal";
 import { UserDTO } from "../../models/userDto";
 
@@ -12,8 +12,7 @@ class MintController extends controller {
   createMint = async (req: Request, res: Response) => {
     const mintDTO = await plainToClass(MintDTO, req.body);
     const idToken=req.headers["id-token"]!;
-    mintDTO.publicKey=await getPKIDToken(idToken.toString());
-    //ash
+    mintDTO.publicKey=await getWalletPublicKeyFromIdToken(idToken.toString());
     console.log(" this is user public key in controller", mintDTO.publicKey)
     const client = await createTemporalClient();
     const workFlowId = "mint-" + mintDTO.wfId;
@@ -29,7 +28,7 @@ class MintController extends controller {
   updateMint = async (req: Request, res: Response) => {
     const mintDTO = await plainToClass(MintDTO, req.body);
     const idToken=req.headers["id-token"]!;
-    mintDTO.publicKey=await getPKIDToken(idToken.toString());
+    mintDTO.publicKey=await getWalletPublicKeyFromIdToken(idToken.toString());
     const client = await createTemporalClient();
     const workFlowId = "mint-" + mintDTO.wfId;
     const handle = await client.workflow.start(updateMintWF, {
@@ -78,7 +77,7 @@ class MintController extends controller {
 getAllNFT = async (req: Request, res: Response) => {
   const userDTO = new UserDTO;
   const idToken = req.headers["id-token"]!;
-  userDTO.publicKey = await getPKIDToken(idToken.toString());
+  userDTO.publicKey = await getWalletPublicKeyFromIdToken(idToken.toString());
   const client = await createTemporalClient();
   const workFlowId = "user-" + req.body.wfId;
   const handle = await client.workflow.start(getAllNFTWF, {
@@ -108,7 +107,7 @@ checkUserThenCreateNft = async(req:Request, res:Response)=>{
   const idToken = req.headers["id-token"]!;
   // const userEmail = await getEmailFromIdToken(idToken.toString());
   const userDTO = new UserDTO 
-  userDTO.publicKey = await getPKIDToken(idToken.toString());
+  userDTO.publicKey = await getWalletPublicKeyFromIdToken(idToken.toString());
   userDTO.email = await getEmailFromIdToken(idToken.toString());
   const client = await createTemporalClient();
   const workFlowId = "user-" + req.body.wfId;
