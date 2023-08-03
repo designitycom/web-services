@@ -87,7 +87,7 @@ class AirTableController extends controller {
     const client = await createTemporalClient();
     const workFlowId = "airtable-" + airTableDto.wfId;
     const handle = await client.workflow.start(findRecordWithEmailWF, {
-      args: [airTableDto.email],
+      args: [airTableDto],
       taskQueue: "airtable",
       workflowId: workFlowId,
     });

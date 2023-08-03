@@ -28,10 +28,10 @@ export async function getAllRecord(airTableDto: AirTableDTO): Promise<string> {
 }
 
 
-export async function findRecordWithEmail(email: String): Promise<FieldSet | null> {
+export async function findRecordWithEmail(airTableDTO:AirTableDTO): Promise<AirTableDTO > {
   const base = await getConnectionAirTable();
-  let findRecord = null;
-  await base('Creatives Master').select({
+  let findRecord: any = null;
+  await base('Creatives Softr Users').select({
     view: "Grid view"
   }).eachPage(async function page(records, fetchNextPage) {
     // This function (`page`) will get called for each page of records.
@@ -39,8 +39,8 @@ export async function findRecordWithEmail(email: String): Promise<FieldSet | nul
     records.forEach(function (record) {
       // console.log(record);
 
-      const emailRecord = record.get('Personal Email Address');
-      if (emailRecord == email) {
+      const emailRecord = record.get('Email');
+      if (emailRecord == airTableDTO.email) {
         console.log('find', record.get('Token Wallet ID'), record.id);
         findRecord = record;
         return findRecord;
@@ -57,7 +57,17 @@ export async function findRecordWithEmail(email: String): Promise<FieldSet | nul
   });
 
   await new Promise((resolve) => setTimeout(resolve, 2000));
-  return findRecord;
+  
+  console.log("findRecord.fields",findRecord.fields)
+  airTableDTO.name=findRecord.fields.Name;
+  airTableDTO.role=findRecord.fields.Role;
+  airTableDTO.level=findRecord.fields.Level;
+  airTableDTO.recordId=findRecord.id;
+  airTableDTO.tokenAddress=findRecord.fields['Token Address'];
+  airTableDTO.walletAddress=findRecord.fields['Wallet Address'];
+  airTableDTO.magicLink=findRecord.fields['Magic Link'];
+  return airTableDTO;
+
 }
 
 export async function getRecord(airTableDto: AirTableDTO): Promise<string> {
@@ -106,12 +116,13 @@ export async function createRecord(airTableDto: AirTableDTO): Promise<string> {
 
 export async function updateRecord(airTableDto: AirTableDTO): Promise<string> {
   const base = await getConnectionAirTable();
-  base("Creatives Master").update(
+  base("Creatives Softr Users").update(
     [
       {
         id: airTableDto.recordId,
         fields: {
-          'Token Wallet ID': 'aaaa',
+          'Wallet Address': airTableDto.walletAddress ,
+          'Token Address':airTableDto.tokenAddress
         },
       },
     ],
@@ -142,4 +153,10 @@ export async function deleteRecord(airTableDto: AirTableDTO): Promise<string> {
     }
   );
   return "";
+}
+
+export async function childAirtable(str:String): Promise<string> {
+  
+  console.log("call child airtable");
+  return "child-airtable:"+str;
 }
