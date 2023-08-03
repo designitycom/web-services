@@ -137,3 +137,14 @@ export async function checkUserThenCreateNftWF(userDTO:UserDTO):Promise<string>{
 
 return "ok"
 }
+
+export const getUserMagicLinkFromAirtable = wf.defineQuery<string>("getUserMagicLinkFromAirtable");
+export async function getMagicLinkFromAirtableWF (userDTO:UserDTO):Promise<string>{
+  let logedinUserAiritableMagigLink= "";
+  wf.setHandler(getUserMagicLinkFromAirtable, () => logedinUserAiritableMagigLink);
+  const retrivedRecord: any =  await findRecordWithEmail(userDTO.email);
+   logedinUserAiritableMagigLink= retrivedRecord.fields['Magic Link']
+  console.log("MagicLinkFromAirtableWF>>>", logedinUserAiritableMagigLink)
+
+  return "ok"
+}

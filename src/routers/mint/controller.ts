@@ -1,6 +1,6 @@
 import controller from "../controller";
 import { Request, Response } from "express";
-import { createMintWF, getAllNFTWF, getCreatedNft, getUpdatedMintAddress, getUserNft, updateMintWF, checkUserThenCreateNftWF, getUserNftAfterCheck } from "../../workflows/mint/workflows";
+import { createMintWF, getAllNFTWF, getCreatedNft, getUpdatedMintAddress, getUserNft, updateMintWF, checkUserThenCreateNftWF, getUserNftAfterCheck, getMagicLinkFromAirtableWF , getUserMagicLinkFromAirtable} from "../../workflows/mint/workflows";
 import { plainToClass } from "class-transformer";
 import { MintDTO } from "../../models/mintDto";
 import {  getEmailFromIdToken, getWalletPublicKeyFromIdToken } from "../../services/solana";
@@ -129,8 +129,37 @@ returnDataFromCheckUserThenCreateNft = async (req: Request, res: Response) => {
   await handle.result();
   console.log("complete");
   console.log(`Workflow Started `);
-  this.myResponse(res, 200, val, "set workflow");
+  this.myResponse(res, 200, val, "set workflow"); 
 };
+
+
+getMagicLinkFromAirtable =async (req:Request, res: Response) => {
+  const idToken = req.headers["id-token"]!;
+  const userDTO = new UserDTO 
+  userDTO.email=await getEmailFromIdToken(idToken.toString());
+  const client = await createTemporalClient();
+  const workFlowId = "user-" + req.body.wfId;
+  const handle = await client.workflow.start(getMagicLinkFromAirtableWF, {
+    args: [userDTO],
+    taskQueue: "mint",
+    workflowId: workFlowId,
+  });
+  this.myResponse(res, 200, workFlowId, "set workflow");
+}
+
+returnLogedinUserAiritableMagigLink = async (req:Request, res:Response)=>{
+  const workFlowId = req.params.workFlowId;
+  const client = await createTemporalClient();
+  console.log("wfid>>>", workFlowId)
+  const handle = client.workflow.getHandle(workFlowId);
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  const val = await handle.query(getUserMagicLinkFromAirtable);
+  await handle.result();
+  console.log("complete");
+  console.log(`Workflow Started `);
+  this.myResponse(res, 200, val, "set workflow");
+}
+
 
 }// end of MintController
 
