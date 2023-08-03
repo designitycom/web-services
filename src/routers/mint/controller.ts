@@ -1,6 +1,6 @@
 import controller from "../controller";
 import { Request, Response } from "express";
-import { createMintWF, getAllNFTWF, getCreatedNft, getUpdatedMintAddress, getUserNft, updateMintWF, checkUserThenCreateNftWF, getUserNftAfterCheck, getMagicLinkFromAirtableWF , getUserMagicLinkFromAirtable} from "../../workflows/mint/workflows";
+import { createMintWF, getAllNFTWF, getCreatedNft, getUpdatedMintAddress, getUserNft, updateMintWF, checkUserThenCreateNftWF, getUserNftAfterCheck, getMagicLinkFromAirtableWF, getUserMagicLinkFromAirtable } from "../../workflows/mint/workflows";
 import { plainToClass } from "class-transformer";
 import { MintDTO } from "../../models/mintDto";
 import {  getEmailFromIdToken, getWalletPublicKeyFromIdToken } from "../../services/solana";

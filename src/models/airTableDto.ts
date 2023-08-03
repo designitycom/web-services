@@ -8,5 +8,8 @@ export class AirTableDTO {
     email!: string;
     walletAddress!: string;
     tokenAddress!:string;
+    role!:string;
+    level!:string;
+    magicLink!:string;
   } 
   

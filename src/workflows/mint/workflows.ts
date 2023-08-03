@@ -5,44 +5,57 @@ import { MintDTO } from "../../models/mintDto";
 import { Nft, NftWithToken, Sft, SftWithToken } from "@metaplex-foundation/js";
 import { UserDTO } from "../../models/userDto";
 import { AirTableDTO } from "../../models/airTableDto";
-import Airtable from "airtable";
+import {
+  findRecordWithEmailWF,
+  updateRecordAirTableWF,
+} from "../airtable/workflows";
 
-const { uploadImage, verifyNft, createNft, updateNft ,uploadMetaData, getAllNFT, getUserDto, getMintDtoFromBigQuery, findRecordWithEmail, updateRecord} = proxyActivities<
-  typeof activities
->({
+const {
+  uploadImage,
+  verifyNft,
+  createNft,
+  updateNft,
+  uploadMetaData,
+  getAllNFT,
+  getUserDto,
+} = proxyActivities<typeof activities>({
   startToCloseTimeout: "1 minute",
 });
 
 export const getStatus = wf.defineQuery<string>("getStatus");
-export const getCreatedNft = wf.defineQuery<Nft | Sft | SftWithToken | NftWithToken>("getCreatedNft");
+export const getCreatedNft = wf.defineQuery<
+  Nft | Sft | SftWithToken | NftWithToken
+>("getCreatedNft");
 
-export async function createMintWF(mintDto: MintDTO): Promise<string> {
+export async function createMintWF(
+  mintDto: MintDTO
+): Promise<Nft | Sft | SftWithToken | NftWithToken> {
   let status = "start";
   wf.setHandler(getStatus, () => status);
-  wf.setHandler(getCreatedNft, () => createdNft); 
+  wf.setHandler(getCreatedNft, () => createdNft);
 
   console.log(">> In workflow, uploading image started ");
   const imageUri = await uploadImage(mintDto);
   console.log(">> In workflow, image URI: ", imageUri);
   status = ">>In workflow, Image Uploaded";
-  
-  const uri = await uploadMetaData(mintDto,imageUri);
+
+  const uri = await uploadMetaData(mintDto, imageUri);
   status = ">>In workflow, Image URI recieved";
   console.log(">>In workflow, metadata added to image", uri);
 
   const createdNft = await createNft(mintDto, uri);
-  console.log(">>In workflow, created NFT object: ", createdNft ); 
+  console.log(">>In workflow, created NFT object: ", createdNft);
   status = ">>In workflow, NFT created";
   console.log(">>In workflow, veifying NFT in the collection");
-  const result = await verifyNft(createdNft.address.toString());
+  await verifyNft(createdNft.address.toString());
   status = ">>In workflow, NFT verified";
-
-
-  return "ok";
+  return createdNft;
 }
-export const getUpdatedMintAddress = wf.defineQuery<Nft | Sft | SftWithToken | NftWithToken>("getUpdatedMintAddress");
-export async function updateMintWF(mintDto: MintDTO): Promise<string> {
-  let status = "start";  
+export const getUpdatedMintAddress = wf.defineQuery<
+  Nft | Sft | SftWithToken | NftWithToken
+>("getUpdatedMintAddress");
+export async function updateMintWF(mintDto: MintDTO): Promise< Nft | Sft | SftWithToken | NftWithToken> {
+  let status = "start";
   wf.setHandler(getStatus, () => status);
   wf.setHandler(getUpdatedMintAddress, () => updatedNft);
 
@@ -50,16 +63,16 @@ export async function updateMintWF(mintDto: MintDTO): Promise<string> {
   const imageUri = await uploadImage(mintDto);
   console.log("start step 2", imageUri);
   status = "get uri";
-  
-  const uri = await uploadMetaData(mintDto,imageUri);
+
+  const uri = await uploadMetaData(mintDto, imageUri);
   console.log("start step 3", uri);
   status = "get uri";
 
   const updatedNft = await updateNft(mintDto, uri);
   console.log("start step 3", updatedNft);
   status = "create nft";
-  
-  return "ok";
+
+  return updatedNft;
 }
 
 //ASH------------------------------->
@@ -78,72 +91,98 @@ export async function checkEmailWF(userDTO: UserDTO): Promise<string> {
   return "ok";
 }
 //---------------------------------------------------------
-export const getUserNft = wf.defineQuery<Nft | Sft | SftWithToken | NftWithToken>("getUserNft");
+export const getUserNft = wf.defineQuery<
+  Nft | Sft | SftWithToken | NftWithToken
+>("getUserNft");
 export async function getAllNFTWF(userDTO: UserDTO): Promise<string> {
   wf.setHandler(getUserNft, () => userNFT);
   const userNFT = await getAllNFT(userDTO);
   return "ok";
 }
 
-
-export const getUserNftAfterCheck = wf.defineQuery<Nft | Sft | SftWithToken | NftWithToken | null>("getUserNftAfterCheck");
-export async function checkUserThenCreateNftWF(userDTO:UserDTO):Promise<string>{
+export const getUserNftAfterCheck = wf.defineQuery<
+  Nft | Sft | SftWithToken | NftWithToken | null
+>("getUserNftAfterCheck");
+export async function checkUserThenCreateNftWF(
+  userDTO: UserDTO
+): Promise<string> {
   let userNFTAfterCheck: Nft | Sft | SftWithToken | NftWithToken | null = null;
   wf.setHandler(getUserNftAfterCheck, () => userNFTAfterCheck);
   const userNFT = await getAllNFT(userDTO);
-  console.log("userNFT>>>>", userNFT)
-  if(userNFT == undefined){
-    const mintDto = new MintDTO
-    mintDto.fileName="index.jpg"
-    mintDto.publicKey=userDTO.publicKey
-    mintDto.email=userDTO.email
-    // const updatedMintDto=  await getMintDtoFromBigQuery(mintDto);
-    const retrivedRecord: any =  await findRecordWithEmail(mintDto.email);
-    console.log("updatedMintDto>getMintDtoFromAirtable>>>", retrivedRecord)
-    mintDto.name=retrivedRecord.fields.Name
-    mintDto.role=retrivedRecord.fields.Role
-    mintDto.level=retrivedRecord.fields.Level
+  console.log("userNFT>>>>", userNFT);
+  if (userNFT == undefined) {
+    const mintDto = new MintDTO();
+    const airTableDTO = new AirTableDTO();
+    mintDto.fileName = "index.jpg";
+    mintDto.publicKey = userDTO.publicKey;
+    mintDto.email = userDTO.email;
+    airTableDTO.email = userDTO.email;
+    const updatedAirTableDTO = await wf.executeChild(findRecordWithEmailWF, {
+      args: [airTableDTO],
+      workflowId: "parent-airtable-1",
+      taskQueue: "airtable",
+    });
+    mintDto.name = updatedAirTableDTO.name;
+    mintDto.role = updatedAirTableDTO.role;
+    mintDto.level = updatedAirTableDTO.level;
+    const createdNft = await wf.executeChild(createMintWF, {
+      args: [mintDto],
+      workflowId: "parent-1",
+      taskQueue: "mint",
+    });
+    console.log("createdMint>>>", createdNft);
 
-    const imageUri= await uploadImage(mintDto)
-    const uri = await uploadMetaData(mintDto, imageUri)
-    const createdNft = await createNft(mintDto, uri)
-    await verifyNft(createdNft.address.toString())
-    console.log("mintwotkflow>checkUserThenCreateNftWF>createdNft>>>", createdNft)
-    userNFTAfterCheck = createdNft
-    const airTableDto = new AirTableDTO
-    airTableDto.walletAddress= userDTO.publicKey
-    airTableDto.tokenAddress=createdNft.address.toString();
-    airTableDto.recordId=retrivedRecord.id
-    await updateRecord(airTableDto)
-  }else{
-    console.log("it is defined ")
-    const mintDto = new MintDTO
-    mintDto.email=userDTO.email;
-    mintDto.fileName="index.jpg"
-    mintDto.publicKey=userDTO.publicKey
-    const retrivedRecord: any =  await findRecordWithEmail(mintDto.email);
-    mintDto.name=retrivedRecord.fields.Name
-    mintDto.role=retrivedRecord.fields.Role
-    mintDto.level=retrivedRecord.fields.Level
-    mintDto.mintAddress=retrivedRecord.fields['Token Address'];
-    console.log("mintDto updatedNft>>>", mintDto)
-    const imageUri= await uploadImage(mintDto)
-    const uri = await uploadMetaData(mintDto, imageUri)
-    const updatedNft= await updateNft(mintDto, uri);
+    userNFTAfterCheck = createdNft;
+    airTableDTO.walletAddress = userDTO.publicKey;
+    airTableDTO.tokenAddress = createdNft.address.toString();
+    airTableDTO.recordId = updatedAirTableDTO.recordId;
+    await wf.executeChild(updateRecordAirTableWF, {
+      args: [airTableDTO],
+      workflowId: "parent-airtable-1",
+      taskQueue: "airtable",
+    });
+  } else {
+    console.log("it is defined ");
+    const airTableDTO = new AirTableDTO();
+    airTableDTO.email = userDTO.email;
+    const updatedAirTableDTO = await wf.executeChild(findRecordWithEmailWF, {
+      args: [airTableDTO],
+      workflowId: "parent-airtable-1",
+      taskQueue: "airtable",
+    });
+    const mintDto = new MintDTO();
+    mintDto.email = userDTO.email;
+    mintDto.fileName = "index.jpg";
+    mintDto.publicKey = userDTO.publicKey;
+    mintDto.name=updatedAirTableDTO.name
+    mintDto.role=updatedAirTableDTO.role
+    mintDto.level=updatedAirTableDTO.level
+    mintDto.mintAddress=updatedAirTableDTO.tokenAddress
+    const updatedNft = await wf.executeChild(updateMintWF, {
+      args: [mintDto],
+      workflowId: "parent-1",
+      taskQueue: "mint",
+    });
     userNFTAfterCheck = updatedNft;
-    console.log("userNFTAfterCheck updatedNft>>>", userNFTAfterCheck)
+
   }
-
-
-return "ok"
+  return "ok";
 }
 
 export const getUserMagicLinkFromAirtable = wf.defineQuery<string>("getUserMagicLinkFromAirtable");
 export async function getMagicLinkFromAirtableWF (userDTO:UserDTO):Promise<string>{
   let logedinUserAiritableMagigLink= "";
   wf.setHandler(getUserMagicLinkFromAirtable, () => logedinUserAiritableMagigLink);
-  const retrivedRecord: any =  await findRecordWithEmail(userDTO.email);
-   logedinUserAiritableMagigLink= retrivedRecord.fields['Magic Link']
+  //--
+  const airTableDTO = new AirTableDTO
+  airTableDTO.email=userDTO.email
+  const updatedAirTableDTO = await wf.executeChild(findRecordWithEmailWF, {
+    args: [airTableDTO],
+    workflowId: "parent-airtable-1",
+    taskQueue: "airtable",
+  });
+  //--
+   logedinUserAiritableMagigLink= updatedAirTableDTO.magicLink
   console.log("MagicLinkFromAirtableWF>>>", logedinUserAiritableMagigLink)
 
   return "ok"
