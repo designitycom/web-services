@@ -10,14 +10,16 @@ import {
   updateRecordAirTableWF,
 } from "../airtable/workflows";
 
+import { getAllNFTWF } from "../user/workflows";
+
 const {
   uploadImage,
   verifyNft,
   createNft,
   updateNft,
   uploadMetaData,
-  getAllNFT,
-  getUserDto,
+  // getAllNFT,
+  // getUserDto,
 } = proxyActivities<typeof activities>({
   startToCloseTimeout: "1 minute",
 });
@@ -51,10 +53,13 @@ export async function createMintWF(
   status = ">>In workflow, NFT verified";
   return createdNft;
 }
+
 export const getUpdatedMintAddress = wf.defineQuery<
   Nft | Sft | SftWithToken | NftWithToken
 >("getUpdatedMintAddress");
-export async function updateMintWF(mintDto: MintDTO): Promise< Nft | Sft | SftWithToken | NftWithToken> {
+export async function updateMintWF(
+  mintDto: MintDTO
+): Promise<Nft | Sft | SftWithToken | NftWithToken> {
   let status = "start";
   wf.setHandler(getStatus, () => status);
   wf.setHandler(getUpdatedMintAddress, () => updatedNft);
@@ -74,29 +79,36 @@ export async function updateMintWF(mintDto: MintDTO): Promise< Nft | Sft | SftWi
 
   return updatedNft;
 }
+//-> userwf
+// export const getStatus2 = wf.defineQuery<string>("getStatus");
+// export const handleUserDTO = wf.defineQuery<UserDTO>("handleUserDTO");
+// export async function checkEmailWF(userDTO: UserDTO): Promise<string> {
+//   let status = "check email process started";
 
-//ASH------------------------------->
-export const getStatus2 = wf.defineQuery<string>("getStatus");
-export const handleUserDTO = wf.defineQuery<UserDTO>("handleUserDTO");
-export async function checkEmailWF(userDTO: UserDTO): Promise<string> {
-  let status = "check email process started";
+//   wf.setHandler(getStatus, () => status);
+//   wf.setHandler(handleUserDTO, () => updatedUserDTO);
 
-  wf.setHandler(getStatus, () => status);
-  wf.setHandler(handleUserDTO, () => userDTO);
+//   userDTO = await getUserDto(userDTO);
 
-  userDTO = await getUserDto(userDTO);
 
-  status = "check email process completed";
+//   status = "check email process completed";
 
-  return "ok";
-}
-//---------------------------------------------------------
+//   return "ok";
+// }
+
 export const getUserNft = wf.defineQuery<
   Nft | Sft | SftWithToken | NftWithToken
 >("getUserNft");
-export async function getAllNFTWF(userDTO: UserDTO): Promise<string> {
-  wf.setHandler(getUserNft, () => userNFT);
-  const userNFT = await getAllNFT(userDTO);
+export async function getAllNFTWFinMint(userDTO: UserDTO): Promise< string> {
+  // wf.setHandler(getUserNft, () => userNFT);
+  // const userNFT = await getAllNFT(userDTO);
+    //--
+    // const userNFT = await wf.executeChild(getAllNFTWF, { 
+    //   args: [userDTO],
+    //   workflowId: "parent-airtable-1",
+    //   taskQueue: "user",
+    // });
+    //--
   return "ok";
 }
 
@@ -108,7 +120,14 @@ export async function checkUserThenCreateNftWF(
 ): Promise<string> {
   let userNFTAfterCheck: Nft | Sft | SftWithToken | NftWithToken | null = null;
   wf.setHandler(getUserNftAfterCheck, () => userNFTAfterCheck);
-  const userNFT = await getAllNFT(userDTO);
+  // const userNFT = await getAllNFT(userDTO);
+  //--
+  const userNFT = await wf.executeChild(getAllNFTWF, {
+    args: [userDTO],
+    workflowId: "parent-airtable-1",
+    taskQueue: "user",
+  });
+  //--
   console.log("userNFT>>>>", userNFT);
   if (userNFT == undefined) {
     const mintDto = new MintDTO();
@@ -154,36 +173,42 @@ export async function checkUserThenCreateNftWF(
     mintDto.email = userDTO.email;
     mintDto.fileName = "index.jpg";
     mintDto.publicKey = userDTO.publicKey;
-    mintDto.name=updatedAirTableDTO.name
-    mintDto.role=updatedAirTableDTO.role
-    mintDto.level=updatedAirTableDTO.level
-    mintDto.mintAddress=updatedAirTableDTO.tokenAddress
+    mintDto.name = updatedAirTableDTO.name;
+    mintDto.role = updatedAirTableDTO.role;
+    mintDto.level = updatedAirTableDTO.level;
+    mintDto.mintAddress = updatedAirTableDTO.tokenAddress;
     const updatedNft = await wf.executeChild(updateMintWF, {
       args: [mintDto],
       workflowId: "parent-1",
       taskQueue: "mint",
     });
     userNFTAfterCheck = updatedNft;
-
   }
   return "ok";
 }
 
-export const getUserMagicLinkFromAirtable = wf.defineQuery<string>("getUserMagicLinkFromAirtable");
-export async function getMagicLinkFromAirtableWF (userDTO:UserDTO):Promise<string>{
-  let logedinUserAiritableMagigLink= "";
-  wf.setHandler(getUserMagicLinkFromAirtable, () => logedinUserAiritableMagigLink);
+export const getUserMagicLinkFromAirtable = wf.defineQuery<string>(
+  "getUserMagicLinkFromAirtable"
+);
+export async function getMagicLinkFromAirtableWF(
+  userDTO: UserDTO
+): Promise<string> {
+  let logedinUserAiritableMagigLink = "";
+  wf.setHandler(
+    getUserMagicLinkFromAirtable,
+    () => logedinUserAiritableMagigLink
+  );
   //--
-  const airTableDTO = new AirTableDTO
-  airTableDTO.email=userDTO.email
+  const airTableDTO = new AirTableDTO();
+  airTableDTO.email = userDTO.email;
   const updatedAirTableDTO = await wf.executeChild(findRecordWithEmailWF, {
     args: [airTableDTO],
     workflowId: "parent-airtable-1",
     taskQueue: "airtable",
   });
   //--
-   logedinUserAiritableMagigLink= updatedAirTableDTO.magicLink
-  console.log("MagicLinkFromAirtableWF>>>", logedinUserAiritableMagigLink)
+  logedinUserAiritableMagigLink = updatedAirTableDTO.magicLink;
+  console.log("MagicLinkFromAirtableWF>>>", logedinUserAiritableMagigLink);
 
-  return "ok"
+  return "ok";
 }

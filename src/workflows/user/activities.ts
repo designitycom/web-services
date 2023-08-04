@@ -34,7 +34,7 @@ export async function getUserDto(userDTO: UserDTO): Promise<UserDTO> {
   });
   // ASH-> define the query
   const query = `SELECT *
-  FROM \`${process.env.GCP_PROJECT_ID}.${process.env.BIGQUERY_EMAILS_DATASET}.${process.env.BIGQUERY_EMAILS_TABLE}\`
+  FROM \`${process.env.GCP_PROJECT_ID}.${process.env.BIGQUERY_EMAILS_DATASET}.${process.env. BIGQUERY_EMAILS_TABLE}\`
   LIMIT 100`;
 
   // console.log(query);
@@ -47,11 +47,12 @@ export async function getUserDto(userDTO: UserDTO): Promise<UserDTO> {
   const [rows] = await bigquery.query(options);
 
   const result = rows.find((row) => row.Email == userDTO.email);
-  console.log("result in activity==>>>", result);
   if (result != undefined) {
     userDTO.role = result.Role;
     userDTO.level = result.Level;
     userDTO.name = result.Name;
+  }else{
+    
   }
   console.log("userDTO in activity", userDTO);
 
@@ -62,12 +63,14 @@ export async function getUserDto(userDTO: UserDTO): Promise<UserDTO> {
 export async function getAllNFT(
   userDTO: UserDTO
 ): Promise<Nft | Sft | SftWithToken | NftWithToken> {
+  console.log("publickey in minyworkflow> getAllNft>>>",userDTO.publicKey )
   const metaplex = makeSimpleMetaplex();
   const result = await metaplex.nfts().findAllByOwner({
     owner: new PublicKey(userDTO.publicKey),
   });
+  console.log("mintActivity>getAllNft>result>>> ", result)
   const designityCollection = new PublicKey(
-    process.env.DESIGNITY_COLLECTION_ADDRESS!
+    process.env.COLLECTION_ADDRESS!
   ).toBase58();
   const userNftCollection = result.filter((metadata) => {
     return (
@@ -82,7 +85,7 @@ export async function getAllNFT(
       return metaplex.nfts().load({ metadata: metadata as Metadata });
     })
   );
-  console.log(loadedNfts[0]);
+  console.log("loaded NFT: ", loadedNfts[0]);
 
   return loadedNfts[0];
-} //end of getAllNFT
+}  //end of getAllNFT

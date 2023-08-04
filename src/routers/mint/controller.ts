@@ -1,6 +1,6 @@
 import controller from "../controller";
 import { Request, Response } from "express";
-import { createMintWF, getAllNFTWF, getCreatedNft, getUpdatedMintAddress, getUserNft, updateMintWF, checkUserThenCreateNftWF, getUserNftAfterCheck, getMagicLinkFromAirtableWF, getUserMagicLinkFromAirtable } from "../../workflows/mint/workflows";
+import { createMintWF, getAllNFTWFinMint, getCreatedNft, getUpdatedMintAddress, getUserNft, updateMintWF, checkUserThenCreateNftWF, getUserNftAfterCheck, getMagicLinkFromAirtableWF, getUserMagicLinkFromAirtable } from "../../workflows/mint/workflows";
 import { plainToClass } from "class-transformer";
 import { MintDTO } from "../../models/mintDto";
 import {  getEmailFromIdToken, getWalletPublicKeyFromIdToken } from "../../services/solana";
@@ -80,7 +80,7 @@ getAllNFT = async (req: Request, res: Response) => {
   userDTO.publicKey = await getWalletPublicKeyFromIdToken(idToken.toString());
   const client = await createTemporalClient();
   const workFlowId = "user-" + req.body.wfId;
-  const handle = await client.workflow.start(getAllNFTWF, {
+  const handle = await client.workflow.start(getAllNFTWFinMint, {
     args: [userDTO],
     taskQueue: "mint",
     workflowId: workFlowId,
