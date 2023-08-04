@@ -99,16 +99,14 @@ export async function updateMintWF(
 export const getUserNft = wf.defineQuery<
   Nft | Sft | SftWithToken | NftWithToken
 >("getUserNft");
-export async function getAllNFTWFinMint(userDTO: UserDTO): Promise< string> {
-  // wf.setHandler(getUserNft, () => userNFT);
-  // const userNFT = await getAllNFT(userDTO);
-    //--
-    // const userNFT = await wf.executeChild(getAllNFTWF, { 
-    //   args: [userDTO],
-    //   workflowId: "parent-airtable-1",
-    //   taskQueue: "user",
-    // });
-    //--
+export async function getAllNFTWFinMint(userDTO: UserDTO): Promise<string> { 
+  wf.setHandler(getUserNft, () => userNFT);
+  const userNFT = await wf.executeChild(getAllNFTWF, {
+    args: [userDTO],
+    workflowId: "parent-airtable-1",
+    taskQueue: "user",
+  });
+
   return "ok";
 }
 

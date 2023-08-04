@@ -25,7 +25,6 @@ export async function checkEmailWF(userDTO: UserDTO): Promise<UserDTO> {
 //---------------------------------------------------------
 export const getUserNft = wf.defineQuery<Nft | Sft | SftWithToken | NftWithToken>("getUserNft");
 export async function getAllNFTWF(userDTO: UserDTO): Promise<Nft | Sft | SftWithToken | NftWithToken > {
-  wf.setHandler(getUserNft, () => userNFT);
   const userNFT = await getAllNFT(userDTO);
   return userNFT;
 }
