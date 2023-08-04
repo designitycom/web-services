@@ -10,7 +10,7 @@ const { getUserDto, getAllNFT } = proxyActivities<typeof activities>({
 //---------------------------------------------------------
 export const getStatus = wf.defineQuery<string>("getStatus");
 export const handleUserDTO = wf.defineQuery<UserDTO>("handleUserDTO");
-export async function checkEmailWF(userDTO: UserDTO): Promise<string> {
+export async function checkEmailWF(userDTO: UserDTO): Promise<UserDTO> {
   let status = "check email process started";
 
   wf.setHandler(getStatus, () => status);
@@ -20,14 +20,13 @@ export async function checkEmailWF(userDTO: UserDTO): Promise<string> {
 
   status = "check email process completed";
 
-  return "ok";
+  return userDTO;
 }
 //---------------------------------------------------------
 export const getUserNft = wf.defineQuery<Nft | Sft | SftWithToken | NftWithToken>("getUserNft");
-export async function getAllNFTWF(userDTO: UserDTO): Promise<string> {
-  wf.setHandler(getUserNft, () => userNFT);
+export async function getAllNFTWF(userDTO: UserDTO): Promise<Nft | Sft | SftWithToken | NftWithToken > {
   const userNFT = await getAllNFT(userDTO);
-  return "ok";
+  return userNFT;
 }
 
 
