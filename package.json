@@ -9,7 +9,7 @@
     "worker-mint": "nodemon ./src/worker/mint.ts",
     "worker-user": "nodemon ./src/worker/user.ts",
     "worker-airtable": "nodemon ./src/worker/airtable.ts",
-    "start": "node ./dist/index.js"
+    "start": "node ./dist/index.js & node ./dist/worker/mint.js & node ./dist/worker/user.js & node ./dist/worker/airtable.js"
   },
   "author": "",
   "license": "ISC",
