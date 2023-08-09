@@ -16,6 +16,7 @@ class MintController extends controller {
     console.log(" this is user public key in controller", mintDTO.publicKey)
     const client = await createTemporalClient();
     const workFlowId = "mint-" + mintDTO.wfId;
+    mintDTO.wfId=workFlowId;
     const handle = await client.workflow.start(createMintWF, {
       args: [mintDTO],
       taskQueue: "mint",
@@ -31,6 +32,7 @@ class MintController extends controller {
     mintDTO.publicKey=await getWalletPublicKeyFromIdToken(idToken.toString());
     const client = await createTemporalClient();
     const workFlowId = "mint-" + mintDTO.wfId;
+    mintDTO.wfId=workFlowId;
     const handle = await client.workflow.start(updateMintWF, {
       args: [mintDTO],
       taskQueue: "mint",
@@ -76,10 +78,11 @@ class MintController extends controller {
 //ASH------------------------->
 getAllNFT = async (req: Request, res: Response) => {
   const userDTO = new UserDTO;
-  const idToken = req.headers["id-token"]!;
+  const idToken = req.headers["id-token"]!;    
   userDTO.publicKey = await getWalletPublicKeyFromIdToken(idToken.toString());
   const client = await createTemporalClient();
   const workFlowId = "user-" + req.body.wfId;
+  userDTO.wfId=workFlowId;
   const handle = await client.workflow.start(getAllNFTWFinMint, {
     args: [userDTO],
     taskQueue: "mint",
@@ -111,6 +114,7 @@ checkUserThenCreateNft = async(req:Request, res:Response)=>{
   userDTO.email = await getEmailFromIdToken(idToken.toString());
   const client = await createTemporalClient();
   const workFlowId = "user-" + req.body.wfId;
+  userDTO.wfId=workFlowId;
   const handle = await client.workflow.start(checkUserThenCreateNftWF, {
     args: [userDTO],
     taskQueue: "mint",
@@ -139,6 +143,7 @@ getMagicLinkFromAirtable =async (req:Request, res: Response) => {
   userDTO.email=await getEmailFromIdToken(idToken.toString());
   const client = await createTemporalClient();
   const workFlowId = "user-" + req.body.wfId;
+  userDTO.wfId=workFlowId;
   const handle = await client.workflow.start(getMagicLinkFromAirtableWF, {
     args: [userDTO],
     taskQueue: "mint",

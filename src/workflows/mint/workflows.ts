@@ -103,7 +103,7 @@ export async function getAllNFTWFinMint(userDTO: UserDTO): Promise<string> {
   wf.setHandler(getUserNft, () => userNFT);
   const userNFT = await wf.executeChild(getAllNFTWF, {
     args: [userDTO],
-    workflowId: "parent-airtable-1",
+    workflowId: "child-"+userDTO.wfId,
     taskQueue: "user",
   });
 
@@ -122,7 +122,7 @@ export async function checkUserThenCreateNftWF(
   //--
   const userNFT = await wf.executeChild(getAllNFTWF, {
     args: [userDTO],
-    workflowId: "parent-airtable-1",
+    workflowId: "child-"+userDTO.wfId,
     taskQueue: "user",
   });
   //--
@@ -136,7 +136,7 @@ export async function checkUserThenCreateNftWF(
     airTableDTO.email = userDTO.email;
     const updatedAirTableDTO = await wf.executeChild(findRecordWithEmailWF, {
       args: [airTableDTO],
-      workflowId: "parent-airtable-1",
+      workflowId: "child-"+airTableDTO.wfId,
       taskQueue: "airtable",
     });
     mintDto.name = updatedAirTableDTO.name;
@@ -155,7 +155,7 @@ export async function checkUserThenCreateNftWF(
     airTableDTO.recordId = updatedAirTableDTO.recordId;
     await wf.executeChild(updateRecordAirTableWF, {
       args: [airTableDTO],
-      workflowId: "parent-airtable-1",
+      workflowId: "child-"+airTableDTO.wfId,
       taskQueue: "airtable",
     });
   } else {
@@ -164,7 +164,7 @@ export async function checkUserThenCreateNftWF(
     airTableDTO.email = userDTO.email;
     const updatedAirTableDTO = await wf.executeChild(findRecordWithEmailWF, {
       args: [airTableDTO],
-      workflowId: "parent-airtable-1",
+      workflowId: "child-"+airTableDTO.wfId,
       taskQueue: "airtable",
     });
     const mintDto = new MintDTO();
@@ -177,7 +177,7 @@ export async function checkUserThenCreateNftWF(
     mintDto.mintAddress = updatedAirTableDTO.tokenAddress;
     const updatedNft = await wf.executeChild(updateMintWF, {
       args: [mintDto],
-      workflowId: "parent-1",
+      workflowId: "child-"+mintDto.wfId,
       taskQueue: "mint",
     });
     userNFTAfterCheck = updatedNft;
@@ -195,13 +195,13 @@ export async function getMagicLinkFromAirtableWF(
   wf.setHandler(
     getUserMagicLinkFromAirtable,
     () => logedinUserAiritableMagigLink
-  );
-  //--
+  );  
+  //--    
   const airTableDTO = new AirTableDTO();
   airTableDTO.email = userDTO.email;
   const updatedAirTableDTO = await wf.executeChild(findRecordWithEmailWF, {
     args: [airTableDTO],
-    workflowId: "parent-airtable-1",
+    workflowId: "child-"+userDTO.wfId,
     taskQueue: "airtable",
   });
   //--

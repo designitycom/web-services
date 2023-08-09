@@ -1,0 +1,5 @@
+@url=http://104.197.47.223
+@port=5000
+@host={{url}}:{{port}}
+
+GET  {{host}}/api/smart/callSmart
