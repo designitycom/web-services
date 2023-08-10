@@ -1,8 +1,6 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program, Wallet } from "@coral-xyz/anchor";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, createMint, getAssociatedTokenAddressSync, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
-import * as fs from "fs";
-import * as path from "path";
 
 import { Growth } from "../types/growth";
 import { } from "@metaplex-foundation/js";
@@ -11,6 +9,12 @@ import { Connection, Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
     "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 );
+
+const wait = (timeout: number) => {
+    return new Promise((resolve) => {
+        setTimeout(resolve, timeout);
+    });
+}
 
 export class GrowthService {
     private program: Program<Growth>;
@@ -107,6 +111,7 @@ export class GrowthService {
     }
 
     public async register(name: string, applicant: PublicKey, mint: Keypair) {
+        console.log("creating mint");
         const applicanMint = await createMint(
             this.program.provider.connection,
             this.authority,
@@ -118,12 +123,21 @@ export class GrowthService {
                 commitment: "confirmed"
             }
         );
+        console.log("ATA");
+        // await wait(10000);
+        console.log(this.program.provider.connection);
         let registerMintATA = await getOrCreateAssociatedTokenAccount(
             this.program.provider.connection,
             this.authority,
             mint.publicKey,
-            applicant
+            applicant,
+            false,
+            "confirmed",
+            {
+                commitment: "confirmed",
+            }
         );
+        console.log("ATA", registerMintATA);
         const tx1 = await this.program.methods
             .register(name)
             .accounts({
@@ -144,6 +158,17 @@ export class GrowthService {
             .rpc({
                 skipPreflight: true,
             });
-        return await this.program.account.org.fetch(this.orgAddress);;
+        return await this.program.account.score.fetch(this.getScore(this.orgAddress, applicant));;
     }
+
+    public async getScoreAccount(applicant: PublicKey) {
+        try {
+            return await this.program.account.score.fetch(this.getScore(this.orgAddress, applicant));
+        } catch (err) {
+            console.error(err);
+            return null;
+        }
+    }
+
+    // TODO: verify and score functions
 }

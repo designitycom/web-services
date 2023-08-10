@@ -1,10 +1,12 @@
 import * as web3 from "@solana/web3.js"
 import * as fs from "fs"
+import * as path from "path"
 import dotenv from "dotenv"
-import { Connection as conn } from "@solana/web3.js";
+import { Keypair, Connection as conn } from "@solana/web3.js";
 import * as jose from "jose";
 import { Metaplex, PublicKey, bundlrStorage, keypairIdentity } from "@metaplex-foundation/js";
 import { BN } from "bn.js";
+import { GrowthService } from "./growth";
 dotenv.config()
 //test git
 export async function airdrop(
@@ -49,6 +51,24 @@ export async function createKeypair(
 
   return keypairFromSecretKey
 }
+export function getGrowthService() {
+  console.log("path....");
+  const c = getConnection();
+  const decodedAuthorityKey = new Uint8Array(
+    JSON.parse(
+      fs.readFileSync(path.join(__dirname, "../../authority.json")).toString()
+    )
+  );
+  let authority = Keypair.fromSecretKey(decodedAuthorityKey);
+
+  const decodedMintKey = new Uint8Array(
+    JSON.parse(
+      fs.readFileSync(path.join(__dirname, "../../mint.json")).toString()
+    )
+  );
+  let mint = Keypair.fromSecretKey(decodedMintKey);
+  return new GrowthService(c.rpcEndpoint, authority, mint);
+}
 const fromHexString = (hexString: string) =>
   Uint8Array.from(hexString!.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)));
 export function initializeKeypair(
@@ -78,11 +98,11 @@ export function getKeyPair(
   // airdropSolIfNeeded(keypairFromSecretKey, connection)
   return keypairFromSecretKey
 }
-export function getConnection(){
-  const connection = new conn(web3.clusterApiUrl("devnet"));
+export function getConnection() {
+  const connection = new conn("http://localhost:8899");
   return connection;
 }
-export function makeMetaplex(privateKey:string) {
+export function makeMetaplex(privateKey: string) {
   const connection = getConnection();
   const user = getKeyPair(privateKey);
   console.log("PublicKey:", user.publicKey.toBase58());
@@ -99,18 +119,18 @@ export function makeMetaplex(privateKey:string) {
   return metaplex;
 }
 
-export function makeSimpleMetaplex(){
+export function makeSimpleMetaplex() {
   const connection = getConnection();
   const metaplex = new Metaplex(connection);
   return metaplex;
 }
-export function publicKeyFromBn(bn:string) {
+export function publicKeyFromBn(bn: string) {
   const bigNumber = new BN(bn, 16)
   const decoded = { _bn: bigNumber };
   return new PublicKey(decoded);
 };
 
-export async function getWalletPublicKeyFromIdToken(idToken:string){
+export async function getWalletPublicKeyFromIdToken(idToken: string) {
   const jwks = jose.createRemoteJWKSet(
     new URL("https://api.openlogin.com/jwks")
   );
@@ -120,7 +140,7 @@ export async function getWalletPublicKeyFromIdToken(idToken:string){
   return publicKeyFromBn((jwtDecoded.payload as any).wallets[0].public_key).toBase58();
 }
 
-export async function getEmailFromIdToken(idToken:string){
+export async function getEmailFromIdToken(idToken: string) {
   const jwks = jose.createRemoteJWKSet(
     new URL("https://api.openlogin.com/jwks")
   );
