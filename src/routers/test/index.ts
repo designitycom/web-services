@@ -17,6 +17,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 router.post('/validation',validate([body("name", "name is not email").notEmpty().isEmail(),body('description',"aaaaaa").notEmpty()]),validateIdToken, TestController.validation)
+router.post('/growth', TestController.growth)
 
 // router.post('/', TestController.check)//site.com/api/test
 // // router.post('/mint', upload.single('file'), TestController.mintWorkflow)//site.com/api/test/mint

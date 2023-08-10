@@ -34,6 +34,10 @@ bigquery-sa.json
 temporal_tls_crt.pem
 temporal_tls_key.key
 
+# Contract Keys
+mint.json
+authority.json
+
 
 #target smart contract
 /target
