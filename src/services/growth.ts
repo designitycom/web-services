@@ -161,7 +161,7 @@ export class GrowthService {
                 skipPreflight: true,
                 commitment: "confirmed"
             });
-        return await this.program.account.score.fetch(this.getScore(this.orgAddress, applicant));;
+            return await this.getScoreAccount(applicant);
     }
 
     public async getScoreAccount(applicant: PublicKey) {

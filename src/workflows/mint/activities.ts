@@ -20,16 +20,20 @@ export async function verify(nftAddress: string) {
   // TODO: verify with growth service
 }
 
+export async function scoreAccountDTO(scoreAccount: any) {
+  return {
+    mint: scoreAccount.mint.toBase58() as string,
+    applicant: scoreAccount.applicant.toBase58() as string,
+    name: scoreAccount.name as string
+  }
+}
+
 export async function getScoreAccount(applicant: string) {
   const growth = getGrowthService();
 
   const scoreAccount = await growth.getScoreAccount(new PublicKey(applicant));
   if (scoreAccount) {
-    return {
-      mint: scoreAccount.mint.toBase58(),
-      applicant: scoreAccount.applicant.toBase58(),
-      name: scoreAccount.name
-    }
+    return scoreAccountDTO(scoreAccount);
   }
   return null;
 }
@@ -37,12 +41,13 @@ export async function getScoreAccount(applicant: string) {
 export async function register(name: string, applicant: string, mint: string) {
   const growth = getGrowthService();
 
-  const scoreAccount = await growth.register(name, new PublicKey(applicant), new PublicKey(mint));
-  return {
-    mint: scoreAccount.mint.toBase58(),
-    applicant: scoreAccount.applicant.toBase58(),
-    name: scoreAccount.name
+  let scoreAccount = await getScoreAccount(applicant);
+  if (!scoreAccount) {
+    const storeAccount2 = await growth.register(name, new PublicKey(applicant), new PublicKey(mint));
+    scoreAccount = await scoreAccountDTO(storeAccount2);
   }
+
+  return scoreAccount;
 }
 
 export async function createRegisterMint() {
