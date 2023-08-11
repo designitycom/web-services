@@ -1,5 +1,6 @@
 import controller from "../controller";
 import { Request, Response } from "express";
+import * as path from "path";
 import {
   Metaplex,
   keypairIdentity,
@@ -17,6 +18,8 @@ import {
   airdrop,
   createKeypair,
   getBalance,
+  getConnection,
+  getGrowthService,
   getKeyPair,
   initializeKeypair,
 } from "../../services/solana";
@@ -37,9 +40,9 @@ import * as activities from "./workflow/activities";
 import { nanoid } from "nanoid";
 import { cli } from "winston/lib/winston/config";
 import { BigQuery } from "@google-cloud/bigquery";
-import { NETWORK } from "../../utils/globals";
 import { validationResult } from "express-validator";
 import { parentWF } from "../../workflows/child/workflows";
+import { GrowthService } from "../../services/growth";
 
 let temporalConnConfig: ConnectionOptions;
 
@@ -76,7 +79,7 @@ class TestController extends controller {
 
   getBalance = async (req: Request, res: Response) => {
     const privateKey = req.body.privateKey;
-    const connection = new conn(NETWORK);
+    const connection = getConnection();
     const user = await getKeyPair(privateKey);
     const balance = await connection.getBalance(new PublicKey(user.publicKey));
     res.send(balance / web3.LAMPORTS_PER_SOL + "");
@@ -100,7 +103,7 @@ class TestController extends controller {
     // console.log((jwtDecoded.payload as any).wallets[0]);
     console.log(privateKey);
 
-    const connection = new conn(NETWORK);
+    const connection = getConnection();
     const user = await getKeyPair(privateKey);
     console.log("PublicKey:", user.publicKey.toBase58());
     const metaplex = Metaplex.make(connection)
@@ -183,7 +186,7 @@ class TestController extends controller {
     // console.log((jwtDecoded.payload as any).wallets[0]);
     console.log(privateKey);
 
-    const connection = new conn(NETWORK);
+    const connection = getConnection();
     const user = await getKeyPair(privateKey);
     console.log("PublicKey:", user.publicKey.toBase58());
     const metaplex = Metaplex.make(connection)
@@ -269,7 +272,7 @@ class TestController extends controller {
     console.log(privateKey);
     // const connection = new conn(clusterApiUrl("devnet"))
 
-    const connection = new conn(NETWORK);
+    const connection = getConnection();
     const user = await getKeyPair(privateKey);
     console.log("PublicKey:", user.publicKey.toBase58());
     const metaplex = Metaplex.make(connection)
@@ -388,7 +391,7 @@ class TestController extends controller {
     const privateKey = req.body.privateKey;
     const address = req.body.mintAddress;
     console.log("nft mintAddress>>>>>" + address);
-    const connection = new conn(NETWORK);
+    const connection = getConnection();
     const user = await getKeyPair(privateKey);
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
@@ -494,7 +497,7 @@ class TestController extends controller {
     console.log("public_key>>>>" + public_key);
     console.log("private_key>>>>" + privateKey);
 
-    const connection = new conn(NETWORK);
+    const connection = getConnection();
     const user = getKeyPair(privateKey);
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
@@ -523,7 +526,7 @@ class TestController extends controller {
     const public_key = (jwtDecoded.payload as any).wallets[0].public_key;
     const privateKey = req.body.privateKey;
 
-    const connection = new conn(NETWORK);
+    const connection = getConnection();
     const user = getKeyPair(privateKey);
     const metaplex = Metaplex.make(connection)
       .use(keypairIdentity(user))
@@ -672,7 +675,7 @@ class TestController extends controller {
 
     this.myResponse(res, 200, result, "");
   };
-  validation=async(req:Request,res:Response)=>{
+  validation = async (req: Request, res: Response) => {
     res.send("passed");
   }
   callParent = async (req: Request, res: Response) => {
@@ -692,6 +695,24 @@ class TestController extends controller {
 
     res.send("worker run:" + workFlowId);
   };
+  growth = async (req: Request, res: Response) => {
+    const decodedAuthorityKey = new Uint8Array(
+      JSON.parse(
+        fs.readFileSync(path.join(__dirname, "../../../authority.json")).toString()
+      )
+    );
+    let authority = Keypair.fromSecretKey(decodedAuthorityKey);
+
+    const decodedMintKey = new Uint8Array(
+      JSON.parse(
+        fs.readFileSync(path.join(__dirname, "../../../mint.json")).toString()
+      )
+    );
+    let mint = Keypair.fromSecretKey(decodedMintKey);
+
+    const g = getGrowthService();
+    await g.createOrganization("Designity", [1,1,1,1,1,1,1,1,1], [3], [[50], [25, 75]], "https://public.designity.software", 5);
+  }
 }
 
 export default new TestController();

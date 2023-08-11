@@ -2,7 +2,7 @@ import { proxyActivities } from "@temporalio/workflow";
 import * as wf from "@temporalio/workflow";
 import type * as activities from "./activities";
 import { MintDTO } from "../../models/mintDto";
-import { Nft, NftWithToken, Sft, SftWithToken } from "@metaplex-foundation/js";
+import { Nft, NftWithToken, PublicKey, Sft, SftWithToken } from "@metaplex-foundation/js";
 import { UserDTO } from "../../models/userDto";
 import { AirTableDTO } from "../../models/airTableDto";
 import {
@@ -18,6 +18,9 @@ const {
   createNft,
   updateNft,
   uploadMetaData,
+  getScoreAccount,
+  register,
+  createRegisterMint,
   // getAllNFT,
   // getUserDto,
 } = proxyActivities<typeof activities>({
@@ -118,69 +121,27 @@ export async function checkUserThenCreateNftWF(
 ): Promise<string> {
   let userNFTAfterCheck: Nft | Sft | SftWithToken | NftWithToken | null = null;
   wf.setHandler(getUserNftAfterCheck, () => userNFTAfterCheck);
-  // const userNFT = await getAllNFT(userDTO);
-  //--
-  const userNFT = await wf.executeChild(getAllNFTWF, {
-    args: [userDTO],
-    workflowId: "child-"+userDTO.wfId,
-    taskQueue: "user",
-  });
-  //--
-  console.log("userNFT>>>>", userNFT);
-  if (userNFT == undefined) {
-    const mintDto = new MintDTO();
+  console.log("checking score account");
+  let scoreAccount = await getScoreAccount(userDTO.publicKey);
+  console.log("scoreAccount>>>>", scoreAccount);
+  if (scoreAccount == undefined) {
     const airTableDTO = new AirTableDTO();
-    mintDto.fileName = "index.jpg";
-    mintDto.publicKey = userDTO.publicKey;
-    mintDto.email = userDTO.email;
     airTableDTO.email = userDTO.email;
     const updatedAirTableDTO = await wf.executeChild(findRecordWithEmailWF, {
       args: [airTableDTO],
-      workflowId: "child-"+airTableDTO.wfId,
+      workflowId: "child-checkuser-"+userDTO.wfId,
       taskQueue: "airtable",
     });
-    mintDto.name = updatedAirTableDTO.name;
-    mintDto.role = updatedAirTableDTO.role;
-    mintDto.level = updatedAirTableDTO.level;
-    const createdNft = await wf.executeChild(createMintWF, {
-      args: [mintDto],
-      workflowId: "parent-1",
-      taskQueue: "mint",
-    });
-    console.log("createdMint>>>", createdNft);
-
-    userNFTAfterCheck = createdNft;
+    const registerMintAddress  = await createRegisterMint();
+    scoreAccount = await register(updatedAirTableDTO.name, userDTO.publicKey, registerMintAddress);
     airTableDTO.walletAddress = userDTO.publicKey;
-    airTableDTO.tokenAddress = createdNft.address.toString();
-    airTableDTO.recordId = updatedAirTableDTO.recordId;
+    airTableDTO.tokenAddress = scoreAccount.mint.toBase58();
     await wf.executeChild(updateRecordAirTableWF, {
       args: [airTableDTO],
       workflowId: "child-"+airTableDTO.wfId,
       taskQueue: "airtable",
     });
-  } else {
-    console.log("it is defined ");
-    const airTableDTO = new AirTableDTO();
-    airTableDTO.email = userDTO.email;
-    const updatedAirTableDTO = await wf.executeChild(findRecordWithEmailWF, {
-      args: [airTableDTO],
-      workflowId: "child-"+airTableDTO.wfId,
-      taskQueue: "airtable",
-    });
-    const mintDto = new MintDTO();
-    mintDto.email = userDTO.email;
-    mintDto.fileName = "index.jpg";
-    mintDto.publicKey = userDTO.publicKey;
-    mintDto.name = updatedAirTableDTO.name;
-    mintDto.role = updatedAirTableDTO.role;
-    mintDto.level = updatedAirTableDTO.level;
-    mintDto.mintAddress = updatedAirTableDTO.tokenAddress;
-    const updatedNft = await wf.executeChild(updateMintWF, {
-      args: [mintDto],
-      workflowId: "child-"+mintDto.wfId,
-      taskQueue: "mint",
-    });
-    userNFTAfterCheck = updatedNft;
+    console.log("scoreAccount>>>", scoreAccount);
   }
   return "ok";
 }
@@ -201,7 +162,7 @@ export async function getMagicLinkFromAirtableWF(
   airTableDTO.email = userDTO.email;
   const updatedAirTableDTO = await wf.executeChild(findRecordWithEmailWF, {
     args: [airTableDTO],
-    workflowId: "child-"+userDTO.wfId,
+    workflowId: "child-magiclink-"+userDTO.wfId,
     taskQueue: "airtable",
   });
   //--
