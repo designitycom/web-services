@@ -50,22 +50,26 @@ export async function checkUserThenCreateNftWF(
   wf.setHandler(getUserNftAfterCheck, () => userNFTAfterCheck);
   console.log("checking score account");
   let scoreAccount = await getScoreAccount(userDTO.publicKey);
-  console.log("scoreAccount>>>>", scoreAccount);
+  console.log("scoreAccount>>>>",  );
   if (scoreAccount == undefined) {
-    const airTableDTO = new AirTableDTO();
+    let airTableDTO = new AirTableDTO();
     airTableDTO.email = userDTO.email;
-    const updatedAirTableDTO = await wf.executeChild(findRecordWithEmailWF, {
+    airTableDTO.wfId  = userDTO.wfId;
+    airTableDTO = await wf.executeChild(findRecordWithEmailWF, {
       args: [airTableDTO],
       workflowId: "child-checkuser-" + userDTO.wfId,
       taskQueue: "airtable",
     });
+    if (!airTableDTO.name) {
+      return "not found";
+    }
     const registerMintAddress = await createRegisterMint();
-    scoreAccount = await register(updatedAirTableDTO.name, userDTO.publicKey, registerMintAddress);
+    scoreAccount = await register(airTableDTO.name, userDTO.publicKey, registerMintAddress);
     airTableDTO.walletAddress = userDTO.publicKey;
     airTableDTO.tokenAddress = scoreAccount.mint;
     await wf.executeChild(updateRecordAirTableWF, {
       args: [airTableDTO],
-      workflowId: "child-" + airTableDTO.wfId,
+      workflowId: "child-updateuser-" + airTableDTO.wfId,
       taskQueue: "airtable",
     });
     console.log("scoreAccount>>>", scoreAccount);

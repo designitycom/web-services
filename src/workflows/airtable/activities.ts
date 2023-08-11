@@ -28,21 +28,22 @@ export async function getAllRecord(airTableDto: AirTableDTO): Promise<string> {
 }
 
 
-export async function findRecordWithEmail(airTableDTO:AirTableDTO): Promise<AirTableDTO > {
+export async function findRecordWithEmail(airTableDTO: AirTableDTO): Promise<AirTableDTO> {
   const base = await getConnectionAirTable();
+  // base("").select().eachPage();
   let findRecord: any = null;
   await base('Creatives Softr Users').select({
-    view: "Grid view"
-  }).eachPage(async function page(records, fetchNextPage) {
+    view: "Grid view",
+  }).eachPage(function page(records, fetchNextPage) {
     // This function (`page`) will get called for each page of records.
 
     records.forEach(function (record) {
-      // console.log(record);
-
       const emailRecord = record.get('Email');
+      console.log(emailRecord, airTableDTO.email);
       if (emailRecord == airTableDTO.email) {
         console.log('find', record.get('Token Wallet ID'), record.id);
         findRecord = record;
+        console.log(record);
         return findRecord;
       }
     });
@@ -51,21 +52,19 @@ export async function findRecordWithEmail(airTableDTO:AirTableDTO): Promise<AirT
     // If there are more records, `page` will get called again.
     // If there are no more records, `done` will get called.
     fetchNextPage();
-
-  }, function done(err) {
-    if (err) { console.error(err); return; }
   });
 
   await new Promise((resolve) => setTimeout(resolve, 2000));
-  
-  console.log("findRecord.fields",findRecord.fields)
-  airTableDTO.name=findRecord.fields.Name;
-  airTableDTO.role=findRecord.fields.Role;
-  airTableDTO.level=findRecord.fields.Level;
-  airTableDTO.recordId=findRecord.id;
-  airTableDTO.tokenAddress=findRecord.fields['Token Address'];
-  airTableDTO.walletAddress=findRecord.fields['Wallet Address'];
-  airTableDTO.magicLink=findRecord.fields['Magic Link'];
+
+  if (findRecord) {
+    airTableDTO.name = findRecord.fields.Name;
+    airTableDTO.role = findRecord.fields.Role;
+    airTableDTO.level = findRecord.fields.Level;
+    airTableDTO.recordId = findRecord.id;
+    airTableDTO.tokenAddress = findRecord.fields['Token Address'];
+    airTableDTO.walletAddress = findRecord.fields['Wallet Address'];
+    airTableDTO.magicLink = findRecord.fields['Magic Link'];
+  }
   return airTableDTO;
 
 }
@@ -121,8 +120,8 @@ export async function updateRecord(airTableDto: AirTableDTO): Promise<string> {
       {
         id: airTableDto.recordId,
         fields: {
-          'Wallet Address': airTableDto.walletAddress ,
-          'Token Address':airTableDto.tokenAddress
+          'Wallet Address': airTableDto.walletAddress,
+          'Token Address': airTableDto.tokenAddress
         },
       },
     ],
@@ -155,8 +154,8 @@ export async function deleteRecord(airTableDto: AirTableDTO): Promise<string> {
   return "";
 }
 
-export async function childAirtable(str:String): Promise<string> {
-  
+export async function childAirtable(str: String): Promise<string> {
+
   console.log("call child airtable");
-  return "child-airtable:"+str;
+  return "child-airtable:" + str;
 }

@@ -693,22 +693,12 @@ class TestController extends controller {
     res.send("worker run:" + workFlowId);
   };
   growth = async (req: Request, res: Response) => {
-    const decodedAuthorityKey = new Uint8Array(
-      JSON.parse(
-        fs.readFileSync(path.join(__dirname, "../../../authority.json")).toString()
-      )
-    );
-    let authority = Keypair.fromSecretKey(decodedAuthorityKey);
-
-    const decodedMintKey = new Uint8Array(
-      JSON.parse(
-        fs.readFileSync(path.join(__dirname, "../../../mint.json")).toString()
-      )
-    );
-    let mint = Keypair.fromSecretKey(decodedMintKey);
-
     const g = getGrowthService();
-    await g.createOrganization("Designity", [1, 1, 1, 1, 1, 1, 1, 1, 1], [3], [[50], [25, 75]], "https://public.designity.software", 5);
+    try {
+      await g.createOrganization("Designity", [1, 1, 1, 1, 1, 1, 1, 1, 1], [3], [[50], [25, 75]], "https://public.designity.software", 5);
+    } catch (err) {
+      console.error(err);
+    }
   }
 }
 

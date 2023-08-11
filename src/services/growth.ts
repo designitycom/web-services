@@ -103,10 +103,11 @@ export class GrowthService {
             })
             .signers([this.authority, this.orgMint])
             .rpc({
+                commitment: "confirmed",
                 skipPreflight: true,
             });
         console.log("Create ORG tx:", tx);
-        return await this.program.account.org.fetch(this.orgAddress);
+        return await this.program.account.org.fetch(this.orgAddress, "confirmed");
     }
 
     public async createRegisterMint(mint: Keypair){
@@ -166,7 +167,7 @@ export class GrowthService {
 
     public async getScoreAccount(applicant: PublicKey) {
         try {
-            return await this.program.account.score.fetch(this.getScore(this.orgAddress, applicant));
+            return await this.program.account.score.fetch(this.getScore(this.orgAddress, applicant), "confirmed");
         } catch (err) {
             console.error(err);
             return null;

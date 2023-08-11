@@ -9,6 +9,11 @@ export async function getMetaplexNFT(nftAddress: string) {
   try {
     return m.nfts().findByMint({
       mintAddress: new PublicKey(nftAddress),
+    }, {
+      commitment: "confirmed",
+      confirmOptions: {
+        commitment: "confirmed"
+      }
     });
   } catch (err) {
     console.error(err);
