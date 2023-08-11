@@ -63,13 +63,12 @@ export class GrowthService {
         )[0];
     };
 
-    constructor(rpc: string, authority: Keypair, mint: Keypair) {
+    constructor(connection: Connection, authority: Keypair, mint: Keypair) {
         this.authority = authority;
         this.orgMint = mint;
 
         let w = new Wallet(this.authority);
-        const c = new Connection(rpc);
-        const env = new anchor.AnchorProvider(c, w, {
+        const env = new anchor.AnchorProvider(connection, w, {
             commitment: "confirmed",
         });
         anchor.setProvider(env);
@@ -110,9 +109,9 @@ export class GrowthService {
         return await this.program.account.org.fetch(this.orgAddress);
     }
 
-    public async register(name: string, applicant: PublicKey, mint: Keypair) {
-        console.log("creating mint");
-        const applicanMint = await createMint(
+    public async createRegisterMint(mint: Keypair){
+        console.log(`creating mint by ${this.authority.publicKey.toBase58()}`);
+        return await createMint(
             this.program.provider.connection,
             this.authority,
             this.orgAddress,
@@ -123,13 +122,16 @@ export class GrowthService {
                 commitment: "confirmed"
             }
         );
+    }
+
+    public async register(name: string, applicant: PublicKey, mint: PublicKey) {
         console.log("ATA");
         // await wait(10000);
         console.log(this.program.provider.connection);
         let registerMintATA = await getOrCreateAssociatedTokenAccount(
             this.program.provider.connection,
             this.authority,
-            mint.publicKey,
+            mint,
             applicant,
             false,
             "confirmed",
@@ -146,8 +148,8 @@ export class GrowthService {
                 org: this.orgAddress,
                 collectionMaster: this.orgMaster,
                 score: this.getScore(this.orgAddress, applicant),
-                registerMint: mint.publicKey,
-                metadata: this.getMetadata(mint.publicKey),
+                registerMint: mint,
+                metadata: this.getMetadata(mint),
                 tokenAccount: registerMintATA.address,
                 systemProgram: SystemProgram.programId,
                 tokenProgram: TOKEN_PROGRAM_ID,
@@ -157,6 +159,7 @@ export class GrowthService {
             .signers([this.authority])
             .rpc({
                 skipPreflight: true,
+                commitment: "confirmed"
             });
         return await this.program.account.score.fetch(this.getScore(this.orgAddress, applicant));;
     }

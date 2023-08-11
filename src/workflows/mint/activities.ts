@@ -113,11 +113,16 @@ export async function getScoreAccount(applicant: string) {
   return await growth.getScoreAccount(new PublicKey(applicant));
 }
 
-export async function register(name: string, applicant: string) {
+export async function register(name: string, applicant: string, mint: string) {
   const growth = getGrowthService();
 
-  const mint = new Keypair();
-  return await growth.register(name, new PublicKey(applicant), mint);
+  return await growth.register(name, new PublicKey(applicant), new PublicKey(mint));
+}
+
+export async function createRegisterMint() {
+  const growth = getGrowthService();
+  const mint = await growth.createRegisterMint(new Keypair());
+  return mint.toBase58();
 }
 
 

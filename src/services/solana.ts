@@ -66,7 +66,7 @@ export function getGrowthService() {
     )
   );
   let mint = Keypair.fromSecretKey(decodedMintKey);
-  return new GrowthService(c.rpcEndpoint, authority, mint);
+  return new GrowthService(c, authority, mint);
 }
 const fromHexString = (hexString: string) =>
   Uint8Array.from(hexString!.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)));

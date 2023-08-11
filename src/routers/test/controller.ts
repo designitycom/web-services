@@ -19,6 +19,7 @@ import {
   createKeypair,
   getBalance,
   getConnection,
+  getGrowthService,
   getKeyPair,
   initializeKeypair,
 } from "../../services/solana";
@@ -709,7 +710,7 @@ class TestController extends controller {
     );
     let mint = Keypair.fromSecretKey(decodedMintKey);
 
-    const g = new GrowthService("http://localhost:8899", authority, mint);
+    const g = getGrowthService();
     await g.createOrganization("Designity", [1,1,1,1,1,1,1,1,1], [3], [[50], [25, 75]], "https://public.designity.software", 5);
   }
 }

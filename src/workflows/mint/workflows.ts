@@ -20,6 +20,7 @@ const {
   uploadMetaData,
   getScoreAccount,
   register,
+  createRegisterMint,
   // getAllNFT,
   // getUserDto,
 } = proxyActivities<typeof activities>({
@@ -131,7 +132,8 @@ export async function checkUserThenCreateNftWF(
       workflowId: "child-checkuser-"+userDTO.wfId,
       taskQueue: "airtable",
     });
-    scoreAccount = await register(updatedAirTableDTO.name, userDTO.publicKey);
+    const registerMintAddress  = await createRegisterMint();
+    scoreAccount = await register(updatedAirTableDTO.name, userDTO.publicKey, registerMintAddress);
     airTableDTO.walletAddress = userDTO.publicKey;
     airTableDTO.tokenAddress = scoreAccount.mint.toBase58();
     await wf.executeChild(updateRecordAirTableWF, {
