@@ -55,7 +55,7 @@ id-token:{{idToken}}
 
 ###
 
-GET {{host}}/api/mint/returnDataFromCheckUserThenCreateNft/user-a-41
+GET {{host}}/api/mint/returnDataFromCheckUserThenCreateNft/user-a-42
 
 ###
 POST  {{host}}/api/mint/getMagicLinkFromAirtable
