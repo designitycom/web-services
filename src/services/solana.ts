@@ -52,18 +52,17 @@ export async function createKeypair(
   return keypairFromSecretKey
 }
 export function getGrowthService() {
-  console.log("path....");
   const c = getConnection();
   const decodedAuthorityKey = new Uint8Array(
     JSON.parse(
-      fs.readFileSync(path.join(__dirname, "../../authority.json")).toString()
+      fs.readFileSync(process.env.AUTHORITY_KEY_ADDRESS as string).toString()
     )
   );
   let authority = Keypair.fromSecretKey(decodedAuthorityKey);
 
   const decodedMintKey = new Uint8Array(
     JSON.parse(
-      fs.readFileSync(path.join(__dirname, "../../mint.json")).toString()
+      fs.readFileSync(process.env.MINT_KEY_ADDRESS as string).toString()
     )
   );
   let mint = Keypair.fromSecretKey(decodedMintKey);
@@ -98,9 +97,8 @@ export function getKeyPair(
   // airdropSolIfNeeded(keypairFromSecretKey, connection)
   return keypairFromSecretKey
 }
-export function getConnection() {
-  const connection = new conn("http://localhost:8899");
-  return connection;
+export function getConnection(cluster = process.env.SOLANA_CLUSTER) {
+  return new conn(cluster as string);
 }
 export function makeMetaplex(privateKey: string) {
   const connection = getConnection();

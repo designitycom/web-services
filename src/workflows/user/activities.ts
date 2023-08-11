@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 import { UserDTO } from "../../models/userDto";
 import * as jose from "jose";
 import { Connection as solanaCon, PublicKey } from "@solana/web3.js";
-import { NETWORK } from "../../utils/globals";
 import {
   getKeyPair,
   makeMetaplex,

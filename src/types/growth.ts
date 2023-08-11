@@ -252,6 +252,72 @@ export type Growth = {
       "args": []
     },
     {
+      "name": "sendScore",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "applicant",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "score",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "score"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Org",
+                "path": "org"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "applicant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "org",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "metadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "submitScore",
       "accounts": [
         {
@@ -348,7 +414,21 @@ export type Growth = {
             }
           },
           {
+            "name": "applicant",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
             "name": "reviewsRecieved",
+            "type": {
+              "vec": "u16"
+            }
+          },
+          {
+            "name": "reviewsSent",
             "type": "u16"
           },
           {
@@ -669,6 +749,72 @@ export const IDL: Growth = {
       "args": []
     },
     {
+      "name": "sendScore",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "applicant",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "score",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "score"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Org",
+                "path": "org"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "applicant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "org",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "metadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "submitScore",
       "accounts": [
         {
@@ -765,7 +911,21 @@ export const IDL: Growth = {
             }
           },
           {
+            "name": "applicant",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
             "name": "reviewsRecieved",
+            "type": {
+              "vec": "u16"
+            }
+          },
+          {
+            "name": "reviewsSent",
             "type": "u16"
           },
           {
