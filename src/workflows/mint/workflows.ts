@@ -64,7 +64,7 @@ export async function checkUserThenCreateNftWF(
       return "not found";
     }
     const registerMintAddress = await createRegisterMint();
-    scoreAccount = await register(airTableDTO.name, userDTO.publicKey, registerMintAddress);
+    scoreAccount = await register(airTableDTO.name, userDTO.publicKey, registerMintAddress, [airTableDTO.level, airTableDTO.role]);
     airTableDTO.walletAddress = userDTO.publicKey;
     airTableDTO.tokenAddress = scoreAccount.mint;
     await wf.executeChild(updateRecordAirTableWF, {

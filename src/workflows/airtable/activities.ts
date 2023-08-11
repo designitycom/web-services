@@ -58,8 +58,8 @@ export async function findRecordWithEmail(airTableDTO: AirTableDTO): Promise<Air
 
   if (findRecord) {
     airTableDTO.name = findRecord.fields.Name;
-    airTableDTO.role = findRecord.fields.Role;
-    airTableDTO.level = findRecord.fields.Level;
+    airTableDTO.role = Number(findRecord.fields.Role);
+    airTableDTO.level = Number(findRecord.fields.Level);
     airTableDTO.recordId = findRecord.id;
     airTableDTO.tokenAddress = findRecord.fields['Token Address'];
     airTableDTO.walletAddress = findRecord.fields['Wallet Address'];

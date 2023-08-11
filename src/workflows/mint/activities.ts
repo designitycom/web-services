@@ -43,12 +43,12 @@ export async function getScoreAccount(applicant: string) {
   return null;
 }
 
-export async function register(name: string, applicant: string, mint: string) {
+export async function register(name: string, applicant: string, mint: string, levels: number[]) {
   const growth = getGrowthService();
 
   let scoreAccount = await getScoreAccount(applicant);
   if (!scoreAccount) {
-    const storeAccount2 = await growth.register(name, new PublicKey(applicant), new PublicKey(mint));
+    const storeAccount2 = await growth.register(name, new PublicKey(applicant), new PublicKey(mint), levels);
     scoreAccount = await scoreAccountDTO(storeAccount2);
   }
 

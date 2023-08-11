@@ -125,7 +125,7 @@ export class GrowthService {
         );
     }
 
-    public async register(name: string, applicant: PublicKey, mint: PublicKey) {
+    public async register(name: string, applicant: PublicKey, mint: PublicKey, levels: number[]) {
         console.log("ATA");
         // await wait(10000);
         console.log(this.program.provider.connection);
@@ -140,9 +140,8 @@ export class GrowthService {
                 commitment: "confirmed",
             }
         );
-        console.log("ATA", registerMintATA);
         const tx1 = await this.program.methods
-            .register(name)
+            .register(name, Buffer.from(levels))
             .accounts({
                 authority: this.authority.publicKey,
                 applicant: applicant,

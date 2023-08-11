@@ -202,6 +202,10 @@ export type Growth = {
         {
           "name": "name",
           "type": "string"
+        },
+        {
+          "name": "levels",
+          "type": "bytes"
         }
       ]
     },
@@ -699,6 +703,10 @@ export const IDL: Growth = {
         {
           "name": "name",
           "type": "string"
+        },
+        {
+          "name": "levels",
+          "type": "bytes"
         }
       ]
     },
