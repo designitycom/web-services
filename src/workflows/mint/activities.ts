@@ -1,122 +1,48 @@
 
-import { getGrowthService, getKeyPair, makeMetaplex, makeSimpleMetaplex } from "../../services/solana";
-import fs from "fs";
-// import path from "path";
-import {
-  Nft,
-  NftWithToken,
-  PublicKey,
-  Sft,
-  SftWithToken,
-  Metadata,
-  keypairIdentity,
-  toMetaplexFile,
-} from "@metaplex-foundation/js";
+import { getGrowthService, makeMetaplex } from "../../services/solana";
 import { MintDTO } from "../../models/mintDto";
-import { UserDTO } from "../../models/userDto";
 import { BigQuery } from "@google-cloud/bigquery";
-import { getConnectionAirTable } from "../../services/airTable";
-import { FieldSet } from "airtable";
-import { AirTableDTO } from "../../models/airTableDto";
-import { Keypair } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 
-
-export async function uploadImage(mintDto: MintDTO): Promise<string> {
-  const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
-  console.log("In activities  make metaplex");
-  const buffer = fs.readFileSync("uploads/images/" + mintDto.fileName);
-  console.log("In activities  make buffer");
-  const file = toMetaplexFile(buffer, "image.png");
-  console.log("In activities  to metaplex file");
-  const imageUri = await metaplex.storage().upload(file);
-  console.log("In activities  storage upload file");
-  return imageUri;
+export async function getMetaplexNFT(nftAddress: string) {
+  const m = makeMetaplex();
+  try {
+    return m.nfts().findByMint({
+      mintAddress: new PublicKey(nftAddress),
+    });
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
 }
 
-export async function uploadMetaData(
-  mintDto: MintDTO,
-  imageUri: string) {
-  const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
-  const { uri } = await metaplex.nfts().uploadMetadata({
-    name: mintDto.name,
-    description: mintDto.description,
-    image: imageUri,
-    role: mintDto.role,
-  });
-  console.log("In activities , upload meta data====>uri:" + uri);
-  return uri;
-}
-
-export async function createNft(
-  mintDto: MintDTO,
-  uri: string
-): Promise<Nft | Sft | SftWithToken | NftWithToken> {
-  const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
-  const keyPairDesignity = getKeyPair(process.env.DESIGNITY_PRIVATE_KEY!);
-  const designityPK = new PublicKey(process.env.COLLECTION_ADDRESS!);
-  const userPK = new PublicKey(mintDto.publicKey);
-  console.log("In activities userPK", userPK)
-  console.log("In activities  create mint activity PK:", mintDto.publicKey);
-  const { nft } = await metaplex.nfts().create(
-    {
-      uri: uri,
-      name: mintDto.name,
-      sellerFeeBasisPoints: 0,
-      mintAuthority: keyPairDesignity,
-      updateAuthority: keyPairDesignity,
-      tokenOwner: userPK,
-      collection: designityPK,
-    },
-    { commitment: "finalized" }
-  );
-  console.log(
-    `In activities  Token Mint: https://explorer.solana.com/address/${nft.address.toString()}?cluster=devnet`
-  );
-  return nft;
-}
-
-export async function updateNft(mintDto: MintDTO, uri: string): Promise<Nft | Sft | SftWithToken | NftWithToken> {
-  const metaplex = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!);
-  const mintAddress = new PublicKey(mintDto.mintAddress);
-  // fetch NFT data using mint address
-  const nft = await metaplex.nfts().findByMint({ mintAddress });
-
-  // update the NFT metadata
-  const { response } = await metaplex.nfts().update(
-    {
-      nftOrSft: nft,
-      uri: uri,
-    },
-    { commitment: "finalized" }
-  );
-
-  return nft;
-}
-export async function verifyNft(nftAddress: string) {
-
-  const metaplexDesignitty = makeMetaplex(process.env.DESIGNITY_PRIVATE_KEY!)
-  const result = await metaplexDesignitty.nfts().verifyCollection({
-    //this is what verifies our collection as a Certified Collection
-    mintAddress: new PublicKey(nftAddress),
-    collectionMintAddress: new PublicKey(
-      process.env.COLLECTION_ADDRESS!
-    ),
-    isSizedCollection: true,
-  });
-  console.log("In activities  verify result:", result);
-  return result;
+export async function verify(nftAddress: string) {
+  // TODO: verify with growth service
 }
 
 export async function getScoreAccount(applicant: string) {
   const growth = getGrowthService();
 
-  return await growth.getScoreAccount(new PublicKey(applicant));
+  const scoreAccount = await growth.getScoreAccount(new PublicKey(applicant));
+  if (scoreAccount) {
+    return {
+      mint: scoreAccount.mint.toBase58(),
+      applicant: scoreAccount.applicant.toBase58(),
+      name: scoreAccount.name
+    }
+  }
+  return null;
 }
 
 export async function register(name: string, applicant: string, mint: string) {
   const growth = getGrowthService();
 
-  return await growth.register(name, new PublicKey(applicant), new PublicKey(mint));
+  const scoreAccount = await growth.register(name, new PublicKey(applicant), new PublicKey(mint));
+  return {
+    mint: scoreAccount.mint.toBase58(),
+    applicant: scoreAccount.applicant.toBase58(),
+    name: scoreAccount.name
+  }
 }
 
 export async function createRegisterMint() {

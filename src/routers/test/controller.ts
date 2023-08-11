@@ -146,9 +146,7 @@ class TestController extends controller {
       nft: nft,
       uri: uri,
     };
-    const userDesignity = await getKeyPair(
-      process.env.DESIGNITY_PRIVATE_KEY!
-    );
+    const userDesignity = await getKeyPair("AUTHORITY");
     console.log("PublicKey designity:", userDesignity.publicKey.toBase58());
     const metaplexDesignitty = Metaplex.make(connection)
       .use(keypairIdentity(userDesignity))
@@ -231,8 +229,7 @@ class TestController extends controller {
       uri: uri,
     };
 
-    const userDesignity = await getKeyPair(
-      process.env.DESIGNITY_PRIVATE_KEY!
+    const userDesignity = await getKeyPair("AUTHORITY"
     );
     console.log("PublicKey designity:", userDesignity.publicKey.toBase58());
     const metaplexDesignitty = Metaplex.make(connection)
@@ -711,7 +708,7 @@ class TestController extends controller {
     let mint = Keypair.fromSecretKey(decodedMintKey);
 
     const g = getGrowthService();
-    await g.createOrganization("Designity", [1,1,1,1,1,1,1,1,1], [3], [[50], [25, 75]], "https://public.designity.software", 5);
+    await g.createOrganization("Designity", [1, 1, 1, 1, 1, 1, 1, 1, 1], [3], [[50], [25, 75]], "https://public.designity.software", 5);
   }
 }
 

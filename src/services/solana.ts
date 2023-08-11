@@ -59,14 +59,10 @@ export function getGrowthService() {
     )
   );
   let authority = Keypair.fromSecretKey(decodedAuthorityKey);
+  
 
-  const decodedMintKey = new Uint8Array(
-    JSON.parse(
-      fs.readFileSync(process.env.MINT_KEY_ADDRESS as string).toString()
-    )
-  );
-  let mint = Keypair.fromSecretKey(decodedMintKey);
-  return new GrowthService(c, authority, mint);
+
+  return new GrowthService(c, getKeyPair("AUTHORITY"), getKeyPair("MINT"));
 }
 const fromHexString = (hexString: string) =>
   Uint8Array.from(hexString!.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)));
@@ -89,23 +85,21 @@ export function initializeKeypair(
   // airdropSolIfNeeded(keypairFromSecretKey, connection)
   return keypairFromSecretKey
 }
-export function getKeyPair(
-  privateKey: string
-) {
-  const secretKey = Uint8Array.from(fromHexString(privateKey))
-  const keypairFromSecretKey = web3.Keypair.fromSecretKey(secretKey)
-  // airdropSolIfNeeded(keypairFromSecretKey, connection)
-  return keypairFromSecretKey
+export function getKeyPair(keyName: "AUTHORITY" | "MINT") {
+  const decodedMintKey = new Uint8Array(
+    JSON.parse(
+      fs.readFileSync(process.env[`${keyName}_KEY_ADDRESS`] as string).toString()
+    )
+  );
+  return Keypair.fromSecretKey(decodedMintKey);
 }
 export function getConnection(cluster = process.env.SOLANA_CLUSTER) {
   return new conn(cluster as string);
 }
-export function makeMetaplex(privateKey: string) {
+export function makeMetaplex() {
   const connection = getConnection();
-  const user = getKeyPair(privateKey);
-  console.log("PublicKey:", user.publicKey.toBase58());
   const metaplex = Metaplex.make(connection)
-    .use(keypairIdentity(user))
+    .use(keypairIdentity(getKeyPair("AUTHORITY")))
     .use(
       bundlrStorage({
         address: "https://devnet.bundlr.network",

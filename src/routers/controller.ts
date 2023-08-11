@@ -23,7 +23,7 @@ class Controller {
   myResponse = async (
     res: Response,
     status: number,
-    data: Object | Nft | Sft  | SftWithToken | NftWithToken | null,
+    data: any,
     message: string
   ) => {
     res.status(status).send({ data: data, message: message });

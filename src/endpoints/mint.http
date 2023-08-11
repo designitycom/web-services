@@ -50,12 +50,12 @@ content-type: application/json
 id-token:{{idToken}} 
 
 {
-    "wfId": "a-40"
+    "wfId": "a-42"
 }
 
 ###
 
-GET {{host}}/api/mint/returnDataFromCheckUserThenCreateNft/user-a-27
+GET {{host}}/api/mint/returnDataFromCheckUserThenCreateNft/user-a-41
 
 ###
 POST  {{host}}/api/mint/getMagicLinkFromAirtable
