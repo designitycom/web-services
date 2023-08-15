@@ -50,7 +50,7 @@ export async function checkUserThenCreateNftWF(
   wf.setHandler(getUserNftAfterCheck, () => userNFTAfterCheck);
   console.log("checking score account");
   let scoreAccount = await getScoreAccount(userDTO.publicKey);
-  console.log("scoreAccount>>>>",  );
+  console.log("scoreAccount>>>>",scoreAccount  );
   if (scoreAccount == undefined) {
     let airTableDTO = new AirTableDTO();
     airTableDTO.email = userDTO.email;
