@@ -1,6 +1,6 @@
 import controller from "../controller";
 import { Request, Response } from "express";
-import { getAllNFTWFinMint, getCreatedNft, getUserNft, checkUserThenCreateNftWF, getUserNftAfterCheck, getMagicLinkFromAirtableWF, getUserMagicLinkFromAirtable, getUserScore } from "../../workflows/mint/workflows";
+import { getAllNFTWFinMint, getCreatedNft, getUserNft, checkUserThenCreateNftWF, getUserNftAfterCheck, getMagicLinkFromAirtableWF, getUserMagicLinkFromAirtable } from "../../workflows/mint/workflows";
 import { plainToClass } from "class-transformer";
 import { MintDTO } from "../../models/mintDto";
 import { getEmailFromIdToken, getWalletPublicKeyFromIdToken } from "../../services/solana";
@@ -80,11 +80,11 @@ class MintController extends controller {
     const handle = client.workflow.getHandle(workFlowId);
     try {
       const val = await handle.query(getUserNftAfterCheck);
-      const valScore = await handle.query(getUserScore);
+      // const valScore = await handle.query(getUserScore);
       await handle.result();
       console.log("complete");
       console.log(`Workflow Started `);
-      this.myResponse(res, 200, [val,valScore], "set workflow");
+      this.myResponse(res, 200, val, "set workflow");
     } catch (err) {
       this.myResponse(res, 500, err, "return data");
     }
