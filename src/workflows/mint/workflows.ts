@@ -43,14 +43,17 @@ export async function getAllNFTWFinMint(userDTO: UserDTO): Promise<string> {
 export const getUserNftAfterCheck = wf.defineQuery<
   Nft | Sft | SftWithToken | NftWithToken | null
 >("getUserNftAfterCheck");
+export const getUserScore = wf.defineQuery<any>("getUserScore");
 export async function checkUserThenCreateNftWF(
   userDTO: UserDTO
 ): Promise<string> {
+  let userScore:any= null;
   let userNFTAfterCheck: Nft | Sft | SftWithToken | NftWithToken | null = null;
   wf.setHandler(getUserNftAfterCheck, () => userNFTAfterCheck);
+  wf.setHandler(getUserScore, () => userScore);
   console.log("checking score account");
   let scoreAccount = await getScoreAccount(userDTO.publicKey);
-  console.log("scoreAccount>>>>",scoreAccount  );
+  console.log("scoreAccount>>>>>",scoreAccount  );
   if (scoreAccount == undefined) {
     let airTableDTO = new AirTableDTO();
     airTableDTO.email = userDTO.email;
@@ -74,6 +77,7 @@ export async function checkUserThenCreateNftWF(
     });
     console.log("scoreAccount>>>", scoreAccount);
   }
+  userScore=scoreAccount;
   userNFTAfterCheck = await getMetaplexNFT(scoreAccount.mint);
   return "ok";
 }
