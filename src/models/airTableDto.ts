@@ -3,12 +3,11 @@ export class AirTableDTO {
     name!: string;
     notes!: string;
     assignee!: string;
-    status!: string;
+    status!: number;
     recordId!: string;
     email!: string;
     walletAddress!: string;
     tokenAddress!:string;
-    role!:number;
     level!:number;
     magicLink!:string;
   } 

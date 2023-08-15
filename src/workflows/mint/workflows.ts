@@ -16,7 +16,8 @@ const {
   getScoreAccount,
   register,
   createRegisterMint,
-  getMetaplexNFT
+  getMetaplexNFT,
+  verify,
 } = proxyActivities<typeof activities>({
   startToCloseTimeout: "1 minute",
 });
@@ -64,7 +65,8 @@ export async function checkUserThenCreateNftWF(
       return "not found";
     }
     const registerMintAddress = await createRegisterMint();
-    scoreAccount = await register(airTableDTO.name, userDTO.publicKey, registerMintAddress, [airTableDTO.level, airTableDTO.role]);
+    scoreAccount = await register(airTableDTO.name, userDTO.publicKey, registerMintAddress, [airTableDTO.level, airTableDTO.status]);
+    await verify(userDTO.publicKey);
     airTableDTO.walletAddress = userDTO.publicKey;
     airTableDTO.tokenAddress = scoreAccount.mint;
     await wf.executeChild(updateRecordAirTableWF, {

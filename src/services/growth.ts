@@ -173,5 +173,21 @@ export class GrowthService {
         }
     }
 
+    public async verify(applicant: PublicKey){
+        const score =  await this.program.account.score.fetch(this.getScore(this.orgAddress, applicant), "confirmed");
+        return await this.program.methods.verify().accounts({
+                authority: this.authority.publicKey,
+                metadata: this.getMetadata(score.mint),
+                org: this.orgAddress,
+                orgMint: this.orgMint.publicKey,
+                collectionMaster: this.orgMaster,
+                collectionMetadata: this.orgMetadata,
+                tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID
+              }).signers([this.authority]).rpc({
+                skipPreflight: true,
+                commitment: "confirmed",
+              });
+    }
+
     // TODO: verify and score functions
 }
