@@ -84,7 +84,7 @@ class MintController extends controller {
       await handle.result();
       console.log("complete");
       console.log(`Workflow Started `);
-      this.myResponse(res, 200, {val,valScore}, "set workflow");
+      this.myResponse(res, 200, [val,valScore], "set workflow");
     } catch (err) {
       this.myResponse(res, 500, err, "return data");
     }
