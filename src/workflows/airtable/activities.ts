@@ -64,6 +64,8 @@ export async function findRecordWithEmail(airTableDTO: AirTableDTO): Promise<Air
     airTableDTO.tokenAddress = findRecord.fields['Token Address'];
     airTableDTO.walletAddress = findRecord.fields['Wallet Address'];
     airTableDTO.magicLink = findRecord.fields['Magic Link'];
+  }else{
+    airTableDTO.magicLink="Not-Fount";
   }
   return airTableDTO;
 
