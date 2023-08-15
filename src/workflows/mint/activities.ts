@@ -29,7 +29,10 @@ export async function scoreAccountDTO(scoreAccount: any) {
   return {
     mint: scoreAccount.mint.toBase58() as string,
     applicant: scoreAccount.applicant.toBase58() as string,
-    name: scoreAccount.name as string
+    name: scoreAccount.name as string,
+    level:scoreAccount.level as string,
+    scores:scoreAccount.score as string,
+    scores_sum:scoreAccount.scores_sum as string
   }
 }
 
