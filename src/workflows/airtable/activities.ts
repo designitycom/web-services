@@ -192,7 +192,7 @@ export async function getPendingScores() {
     await base("🧑‍🎨 Creatives Scores").select({
       view: "Grid view",
       // fields: ['Creativity_design_sense']
-      filterByFormula: "BLANK(Transaction ID)"
+      filterByFormula: "{Transaction ID} = ''"
     }).eachPage(function page(records, fetchNextPage) {
       records.forEach((record) => {
         // console.log(record.fields);
@@ -207,6 +207,9 @@ export async function getPendingScores() {
   } catch (err) {
     console.error(err);
   }
+
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  console.log("records", allRecords);
 
   return allRecords;
 }
