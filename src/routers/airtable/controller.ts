@@ -10,6 +10,7 @@ import {
   findRecordWithEmailWF,
   getAllAirTableWF,
   getRecordAirTableWF,
+  processPendingScoresWF,
   updateRecordAirTableWF,
 } from "../../workflows/airtable/workflows";
 import { NativeConnection, Worker } from "@temporalio/worker";
@@ -40,6 +41,18 @@ class AirTableController extends controller {
       workflowId: workFlowId,
     });
     console.log(`Workflow Started `);
+    this.myResponse(res, 200, {}, "set workflow");
+  };
+
+  processPendingScores = async (req: Request, res: Response)=>{
+    const airTableDto = plainToClass(AirTableDTO, req.body);
+    const client = await createTemporalClient();
+    const workFlowId = "airtable-" + airTableDto.wfId;
+    client.workflow.start(processPendingScoresWF, {
+      args: [],
+      taskQueue: "airtable",
+      workflowId: workFlowId
+    });
     this.myResponse(res, 200, {}, "set workflow");
   };
 

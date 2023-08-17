@@ -3,7 +3,15 @@ import * as wf from "@temporalio/workflow";
 import type * as activities from "./activities";
 import { AirTableDTO } from "../../models/airTableDto";
 
-const { getAllRecord, getRecord, createRecord, updateRecord, deleteRecord, findRecordWithEmail, childAirtable } = proxyActivities<typeof activities>({
+const { getAllRecord,
+  getRecord,
+  getPendingScores,
+  createRecord,
+  updateRecord,
+  deleteRecord,
+  findRecordWithEmail,
+  childAirtable
+} = proxyActivities<typeof activities>({
   startToCloseTimeout: "1 minute",
 });
 
@@ -101,4 +109,15 @@ export async function childAirTableWF(
   const resultChild = await childAirtable("test airtable child");
 
   return "ok";
+}
+
+export async function processPendingScoresWF(){
+  const pendingScores = await getPendingScores();
+  for(const p in pendingScores) {
+
+  }
+}
+
+export async function submitScoreWF(score: activities.IGrowthMasterAirtable){
+
 }

@@ -2,6 +2,19 @@ import { FieldSet } from "airtable";
 import { AirTableDTO } from "../../models/airTableDto";
 import { getConnectionAirTable } from "../../services/airTable";
 
+export interface IGrowthMasterAirtable{
+  Email: string;
+  'Hard Skill (Calculated)': number;
+  'Creativity_design_sense': number;
+  'Accountability': number;
+  'Attention_to_detail': number;
+  'Communication_presentation': number;
+  'Feedback_listening': number;
+  'Leadership_guidance': number;
+  'Management_organisation': number;
+  'Strategic_thinking': number;
+  'Team_collaboration': number;
+}
 
 
 export async function getAllRecord(airTableDto: AirTableDTO): Promise<string> {
@@ -161,4 +174,23 @@ export async function childAirtable(str: String): Promise<string> {
 
   console.log("call child airtable");
   return "child-airtable:" + str;
+}
+
+export async function getPendingScores() {
+  const base = await getConnectionAirTable();
+  let allRecords: IGrowthMasterAirtable[] = [];
+  base("Growth Master").select({
+    filterByFormula: `Transaction ID=''`
+  }).eachPage(function page(records, fetchNextPage) {
+    records.forEach((record)=>{
+      console.log(record.fields);
+      const rec: IGrowthMasterAirtable = record.fields as any;
+      rec.Email = record.get("Email") as string;
+      allRecords.push(rec);
+    });
+
+    fetchNextPage();
+  });
+
+  return allRecords;
 }

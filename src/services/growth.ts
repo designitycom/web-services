@@ -5,6 +5,7 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, createMint, getAssociate
 import { Growth } from "../types/growth";
 import { } from "@metaplex-foundation/js";
 import { Connection, Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
+import { IGrowthMasterAirtable } from "../workflows/airtable/activities";
 
 const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
     "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
@@ -110,7 +111,7 @@ export class GrowthService {
         return await this.program.account.org.fetch(this.orgAddress, "confirmed");
     }
 
-    public async createRegisterMint(mint: Keypair){
+    public async createRegisterMint(mint: Keypair) {
         console.log(`creating mint by ${this.authority.publicKey.toBase58()}`);
         return await createMint(
             this.program.provider.connection,
@@ -161,7 +162,7 @@ export class GrowthService {
                 skipPreflight: true,
                 commitment: "confirmed"
             });
-            return await this.getScoreAccount(applicant);
+        return await this.getScoreAccount(applicant);
     }
 
     public async getScoreAccount(applicant: PublicKey) {
@@ -173,20 +174,51 @@ export class GrowthService {
         }
     }
 
-    public async verify(applicant: PublicKey){
-        const score =  await this.program.account.score.fetch(this.getScore(this.orgAddress, applicant), "confirmed");
+    public async verify(applicant: PublicKey) {
+        const score = await this.program.account.score.fetch(this.getScore(this.orgAddress, applicant), "confirmed");
         return await this.program.methods.verify().accounts({
+            authority: this.authority.publicKey,
+            metadata: this.getMetadata(score.mint),
+            org: this.orgAddress,
+            orgMint: this.orgMint.publicKey,
+            collectionMaster: this.orgMaster,
+            collectionMetadata: this.orgMetadata,
+            tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID
+        }).signers([this.authority]).rpc({
+            skipPreflight: true,
+            commitment: "confirmed",
+        });
+    }
+
+    public async submit_score(applicant: PublicKey, recieved_score: IGrowthMasterAirtable) {
+        const score = await this.program.account.score.fetch(this.getScore(this.orgAddress, applicant), "confirmed");
+        const smartcontract_score = [
+            Number(recieved_score["Hard Skill (Calculated)"]),
+            Number(recieved_score.Creativity_design_sense),
+            Number(recieved_score.Strategic_thinking),
+            Number(recieved_score.Communication_presentation),
+            Number(recieved_score.Feedback_listening),
+            Number(recieved_score.Accountability),
+            Number(recieved_score.Team_collaboration),
+            Number(recieved_score.Management_organisation),
+            Number(recieved_score.Leadership_guidance),
+            Number(recieved_score.Attention_to_detail)
+        ];
+        await this.program.methods
+            .receiveScore(smartcontract_score)
+            .accounts({
                 authority: this.authority.publicKey,
-                metadata: this.getMetadata(score.mint),
+                applicant: applicant,
                 org: this.orgAddress,
-                orgMint: this.orgMint.publicKey,
-                collectionMaster: this.orgMaster,
-                collectionMetadata: this.orgMetadata,
-                tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID
-              }).signers([this.authority]).rpc({
+                metadata: this.getMetadata(score.mint),
+                systemProgram: SystemProgram.programId,
+                tokenProgram: TOKEN_PROGRAM_ID,
+                tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+            })
+            .signers([this.authority])
+            .rpc({
                 skipPreflight: true,
-                commitment: "confirmed",
-              });
+            });
     }
 
     // TODO: verify and score functions

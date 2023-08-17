@@ -210,6 +210,79 @@ export type Growth = {
       ]
     },
     {
+      "name": "receiveScore",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "applicant",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "score",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "score"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Org",
+                "path": "org"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "applicant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "org",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "metadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "scores",
+          "type": {
+            "vec": "f32"
+          }
+        }
+      ]
+    },
+    {
       "name": "verify",
       "accounts": [
         {
@@ -320,132 +393,9 @@ export type Growth = {
         }
       ],
       "args": []
-    },
-    {
-      "name": "submitScore",
-      "accounts": [
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "applicant",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "score",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "score"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Org",
-                "path": "org"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "applicant"
-              }
-            ]
-          }
-        },
-        {
-          "name": "org",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "metadata",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenMetadataProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "scores",
-          "type": {
-            "vec": "f32"
-          }
-        }
-      ]
     }
   ],
   "accounts": [
-    {
-      "name": "score",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "name": "scores",
-            "type": {
-              "vec": "f32"
-            }
-          },
-          {
-            "name": "scoresSum",
-            "type": {
-              "vec": "f32"
-            }
-          },
-          {
-            "name": "applicant",
-            "type": "publicKey"
-          },
-          {
-            "name": "mint",
-            "type": "publicKey"
-          },
-          {
-            "name": "reviewsRecieved",
-            "type": {
-              "vec": "u16"
-            }
-          },
-          {
-            "name": "reviewsSent",
-            "type": "u16"
-          },
-          {
-            "name": "levels",
-            "type": "bytes"
-          },
-          {
-            "name": "bump",
-            "type": "u8"
-          }
-        ]
-      }
-    },
     {
       "name": "org",
       "type": {
@@ -488,6 +438,56 @@ export type Growth = {
           {
             "name": "domain",
             "type": "string"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "score",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "scores",
+            "type": {
+              "vec": "f32"
+            }
+          },
+          {
+            "name": "scoresSum",
+            "type": {
+              "vec": "f32"
+            }
+          },
+          {
+            "name": "applicant",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "reviewsRecieved",
+            "type": {
+              "vec": "u16"
+            }
+          },
+          {
+            "name": "reviewsSent",
+            "type": "u16"
+          },
+          {
+            "name": "levels",
+            "type": "bytes"
           },
           {
             "name": "bump",
@@ -711,6 +711,79 @@ export const IDL: Growth = {
       ]
     },
     {
+      "name": "receiveScore",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "applicant",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "score",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "score"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Org",
+                "path": "org"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "applicant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "org",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "metadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "scores",
+          "type": {
+            "vec": "f32"
+          }
+        }
+      ]
+    },
+    {
       "name": "verify",
       "accounts": [
         {
@@ -821,132 +894,9 @@ export const IDL: Growth = {
         }
       ],
       "args": []
-    },
-    {
-      "name": "submitScore",
-      "accounts": [
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "applicant",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "score",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "score"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Org",
-                "path": "org"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "applicant"
-              }
-            ]
-          }
-        },
-        {
-          "name": "org",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "metadata",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenMetadataProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "scores",
-          "type": {
-            "vec": "f32"
-          }
-        }
-      ]
     }
   ],
   "accounts": [
-    {
-      "name": "score",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "name": "scores",
-            "type": {
-              "vec": "f32"
-            }
-          },
-          {
-            "name": "scoresSum",
-            "type": {
-              "vec": "f32"
-            }
-          },
-          {
-            "name": "applicant",
-            "type": "publicKey"
-          },
-          {
-            "name": "mint",
-            "type": "publicKey"
-          },
-          {
-            "name": "reviewsRecieved",
-            "type": {
-              "vec": "u16"
-            }
-          },
-          {
-            "name": "reviewsSent",
-            "type": "u16"
-          },
-          {
-            "name": "levels",
-            "type": "bytes"
-          },
-          {
-            "name": "bump",
-            "type": "u8"
-          }
-        ]
-      }
-    },
     {
       "name": "org",
       "type": {
@@ -989,6 +939,56 @@ export const IDL: Growth = {
           {
             "name": "domain",
             "type": "string"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "score",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "scores",
+            "type": {
+              "vec": "f32"
+            }
+          },
+          {
+            "name": "scoresSum",
+            "type": {
+              "vec": "f32"
+            }
+          },
+          {
+            "name": "applicant",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "reviewsRecieved",
+            "type": {
+              "vec": "u16"
+            }
+          },
+          {
+            "name": "reviewsSent",
+            "type": "u16"
+          },
+          {
+            "name": "levels",
+            "type": "bytes"
           },
           {
             "name": "bump",
