@@ -20,28 +20,6 @@ export interface IGrowthMasterAirtable {
 }
 
 
-export async function getAllRecord(airTableDto: AirTableDTO): Promise<string> {
-  const base = (await getConnectionAirTable()).base('appxprwH6zsJbTFyM');
-  base('Creatives Softr Users').select({
-    view: "Grid view"
-  }).eachPage(function page(records, fetchNextPage) {
-    // This function (`page`) will get called for each page of records.
-
-    records.forEach(function (record) {
-      // console.log(record);
-      console.log('Retrieved', record.get('Name'), record.id);
-    });
-
-    // To fetch the next page of records, call `fetchNextPage`.
-    // If there are more records, `page` will get called again.
-    // If there are no more records, `done` will get called.
-    fetchNextPage();
-
-  }, function done(err) {
-    if (err) { console.error(err); return; }
-  });
-  return "";
-}
 
 
 export async function findRecordWithEmail(airTableDTO: AirTableDTO): Promise<AirTableDTO> {
@@ -107,35 +85,6 @@ export async function updateScoreTX(recId: string, tx: string) {
   });
 }
 
-export async function createRecord(airTableDto: AirTableDTO): Promise<string> {
-  const base = (await getConnectionAirTable()).base('appxprwH6zsJbTFyM');
-  base("Creatives Master").create(
-    [
-      {
-        fields: {
-          Name: airTableDto.name,
-          Notes: airTableDto.notes,
-          Assignee: {
-            id: "usrOz3PeABd8QrPH2",
-            email: "mehdidehdar89@gmail.com",
-            name: "mehdi dehdar",
-          },
-          Status: airTableDto.status,
-        },
-      },
-    ],
-    function (err, records) {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      records!.forEach(function (record) {
-        console.log(record.getId());
-      });
-    }
-  );
-  return "";
-}
 
 
 export async function updateRecord(baseId: string, airTableDto: AirTableDTO): Promise<string> {
@@ -164,26 +113,6 @@ export async function updateRecord(baseId: string, airTableDto: AirTableDTO): Pr
 }
 
 
-export async function deleteRecord(airTableDto: AirTableDTO): Promise<string> {
-  const base = (await getConnectionAirTable()).base('appxprwH6zsJbTFyM');
-  base("Creatives Master").destroy(
-    [airTableDto.recordId],
-    function (err, deletedRecords) {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      console.log("Deleted", deletedRecords!.length, "records");
-    }
-  );
-  return "";
-}
-
-export async function childAirtable(str: String): Promise<string> {
-
-  console.log("call child airtable");
-  return "child-airtable:" + str;
-}
 
 export async function getPendingScores() {
   const base = (await getConnectionAirTable()).base('appBwrlSCBQDC9UCV');

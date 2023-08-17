@@ -1,8 +1,7 @@
 import { proxyActivities } from "@temporalio/workflow";
 import * as wf from "@temporalio/workflow";
 import type * as activities from "./activities";
-import { MintDTO } from "../../models/mintDto";
-import { Nft, NftWithToken, PublicKey, Sft, SftWithToken } from "@metaplex-foundation/js";
+import { Nft, NftWithToken, Sft, SftWithToken } from "@metaplex-foundation/js";
 import { UserDTO } from "../../models/userDto";
 import { AirTableDTO } from "../../models/airTableDto";
 import {
@@ -10,7 +9,6 @@ import {
   updateRecordAirTableWF,
 } from "../airtable/workflows";
 
-import { getAllNFTWF } from "../user/workflows";
 import { IGrowthMasterAirtable } from "../airtable/activities";
 
 const {
@@ -24,24 +22,7 @@ const {
   startToCloseTimeout: "1 minute",
 });
 
-// export const getStatus = wf.defineQuery<string>("getStatus");
-export const getCreatedNft = wf.defineQuery<
-  Nft | Sft | SftWithToken | NftWithToken
->("getCreatedNft");
 
-export const getUserNft = wf.defineQuery<
-  Nft | Sft | SftWithToken | NftWithToken
->("getUserNft");
-export async function getAllNFTWFinMint(userDTO: UserDTO): Promise<string> {
-  wf.setHandler(getUserNft, () => userNFT);
-  const userNFT = await wf.executeChild(getAllNFTWF, {
-    args: [userDTO],
-    workflowId: "child-" + userDTO.wfId,
-    taskQueue: "user",
-  });
-
-  return "ok";
-}
 
 export const getUserNftAfterCheck = wf.defineQuery<
   Nft | Sft | SftWithToken | NftWithToken | null
@@ -56,7 +37,6 @@ export async function checkUserThenCreateNftWF(
   wf.setHandler(getUserScore, () => userScore);
   console.log("checking score account");
   let scoreAccount = await getScoreAccount(userDTO.publicKey);
-  console.log("scoreAccount>>>>>",scoreAccount  );
   if (scoreAccount == undefined) {
     let airTableDTO = new AirTableDTO();
     airTableDTO.email = userDTO.email;
