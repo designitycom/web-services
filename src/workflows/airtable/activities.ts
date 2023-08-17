@@ -41,6 +41,7 @@ export async function findRecordWithEmail(airTableDTO: AirTableDTO): Promise<Air
       const emailRecord = record.get('Email');
       console.log(emailRecord, airTableDTO.email);
       if (emailRecord == airTableDTO.email) {
+        console.log(record);
         console.log('find', record.get('Token Wallet ID'), record.id);
         findRecord = record;
         console.log(record);
@@ -58,7 +59,7 @@ export async function findRecordWithEmail(airTableDTO: AirTableDTO): Promise<Air
 
   if (findRecord) {
     airTableDTO.name = findRecord.fields.Name;
-    airTableDTO.status = Number(findRecord.fields.status);
+    airTableDTO.status = Number(findRecord.fields.Status);
     airTableDTO.level = Number(findRecord.fields.Level);
     airTableDTO.recordId = findRecord.id;
     airTableDTO.tokenAddress = findRecord.fields['Token Address'];
