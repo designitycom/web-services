@@ -11,6 +11,7 @@ import {
 } from "../airtable/workflows";
 
 import { getAllNFTWF } from "../user/workflows";
+import { IGrowthMasterAirtable } from "../airtable/activities";
 
 const {
   getScoreAccount,
@@ -18,11 +19,12 @@ const {
   createRegisterMint,
   getMetaplexNFT,
   verify,
+  submitScore
 } = proxyActivities<typeof activities>({
   startToCloseTimeout: "1 minute",
 });
 
-export const getStatus = wf.defineQuery<string>("getStatus");
+// export const getStatus = wf.defineQuery<string>("getStatus");
 export const getCreatedNft = wf.defineQuery<
   Nft | Sft | SftWithToken | NftWithToken
 >("getCreatedNft");
@@ -108,4 +110,9 @@ export async function getMagicLinkFromAirtableWF(
   console.log("MagicLinkFromAirtableWF>>>", logedinUserAiritableMagigLink);
 
   return "ok";
+}
+
+export async function submitScoreWF(applicant: string, score: IGrowthMasterAirtable){
+  console.log("before submitScoreWF", score);
+  return await submitScore(applicant, score);
 }

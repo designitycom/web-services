@@ -2,7 +2,7 @@ import { FieldSet } from "airtable";
 import { AirTableDTO } from "../../models/airTableDto";
 import { getConnectionAirTable } from "../../services/airTable";
 
-export interface IGrowthMasterAirtable{
+export interface IGrowthMasterAirtable {
   Email: string;
   'Hard Skill (Calculated)': number;
   'Creativity_design_sense': number;
@@ -14,11 +14,13 @@ export interface IGrowthMasterAirtable{
   'Management_organisation': number;
   'Strategic_thinking': number;
   'Team_collaboration': number;
+  Creatives: string[];
+  id: string;
 }
 
 
 export async function getAllRecord(airTableDto: AirTableDTO): Promise<string> {
-  const base = await getConnectionAirTable();
+  const base = (await getConnectionAirTable()).base('appxprwH6zsJbTFyM');
   base('Creatives Softr Users').select({
     view: "Grid view"
   }).eachPage(function page(records, fetchNextPage) {
@@ -42,8 +44,8 @@ export async function getAllRecord(airTableDto: AirTableDTO): Promise<string> {
 
 
 export async function findRecordWithEmail(airTableDTO: AirTableDTO): Promise<AirTableDTO> {
-  const base = await getConnectionAirTable();
-  // base("").select().eachPage();
+  const base = (await getConnectionAirTable()).base('appxprwH6zsJbTFyM');
+  // TODO: switch to filter by formula
   let findRecord: any = null;
   await base('Creatives Softr Users').select({
     view: "Grid view",
@@ -52,12 +54,12 @@ export async function findRecordWithEmail(airTableDTO: AirTableDTO): Promise<Air
 
     records.forEach(function (record) {
       const emailRecord = record.get('Email');
-      console.log(emailRecord, airTableDTO.email);
+      // console.log(emailRecord, airTableDTO.email);
       if (emailRecord == airTableDTO.email) {
-        console.log(record);
-        console.log('find', record.get('Token Wallet ID'), record.id);
+        // console.log(record);
+        // console.log('find', record.get('Token Wallet ID'), record.id);
         findRecord = record;
-        console.log(record);
+        // console.log(record);
         return findRecord;
       }
     });
@@ -78,28 +80,34 @@ export async function findRecordWithEmail(airTableDTO: AirTableDTO): Promise<Air
     airTableDTO.tokenAddress = findRecord.fields['Token Address'];
     airTableDTO.walletAddress = findRecord.fields['Wallet Address'];
     airTableDTO.magicLink = findRecord.fields['Magic Link'];
-  }else{
-    airTableDTO.magicLink="Not-Found";
+  } else {
+    airTableDTO.magicLink = "Not-Found";
   }
   return airTableDTO;
 
 }
 
-export async function getRecord(airTableDto: AirTableDTO): Promise<string> {
-  const base = await getConnectionAirTable();
-  console.log("record id:", airTableDto.recordId);
-  base("Creatives Master").find(airTableDto.recordId, function (err, record) {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    console.log("Retrieved", record!.get("Name"));
+export async function getCreativeWallet(airTableDto: AirTableDTO) {
+  const base = (await getConnectionAirTable()).base("appBwrlSCBQDC9UCV");
+  // console.log("record id:", airTableDto.recordId);
+  const result = await base("Creatives").find(airTableDto.recordId);
+  // console.log(result);
+  const airtableDTO = new AirTableDTO();
+  airtableDTO.email = result.get("Personal Email Address") as string;
+  const record = await findRecordWithEmail(airtableDTO);
+  return record.walletAddress;
+}
+
+export async function updateScoreTX(recId: string, tx: string) {
+  const base = (await getConnectionAirTable()).base("appBwrlSCBQDC9UCV");
+
+  await base("🧑‍🎨 Creatives Scores").update(recId, {
+    "Transaction ID": tx,
   });
-  return "";
 }
 
 export async function createRecord(airTableDto: AirTableDTO): Promise<string> {
-  const base = await getConnectionAirTable();
+  const base = (await getConnectionAirTable()).base('appxprwH6zsJbTFyM');
   base("Creatives Master").create(
     [
       {
@@ -129,8 +137,8 @@ export async function createRecord(airTableDto: AirTableDTO): Promise<string> {
 }
 
 
-export async function updateRecord(airTableDto: AirTableDTO): Promise<string> {
-  const base = await getConnectionAirTable();
+export async function updateRecord(baseId: string, airTableDto: AirTableDTO): Promise<string> {
+  const base = (await getConnectionAirTable()).base(baseId);
   base("Creatives Softr Users").update(
     [
       {
@@ -156,7 +164,7 @@ export async function updateRecord(airTableDto: AirTableDTO): Promise<string> {
 
 
 export async function deleteRecord(airTableDto: AirTableDTO): Promise<string> {
-  const base = await getConnectionAirTable();
+  const base = (await getConnectionAirTable()).base('appxprwH6zsJbTFyM');
   base("Creatives Master").destroy(
     [airTableDto.recordId],
     function (err, deletedRecords) {
@@ -177,20 +185,28 @@ export async function childAirtable(str: String): Promise<string> {
 }
 
 export async function getPendingScores() {
-  const base = await getConnectionAirTable();
+  const base = (await getConnectionAirTable()).base('appBwrlSCBQDC9UCV');
   let allRecords: IGrowthMasterAirtable[] = [];
-  base("Growth Master").select({
-    filterByFormula: `Transaction ID=''`
-  }).eachPage(function page(records, fetchNextPage) {
-    records.forEach((record)=>{
-      console.log(record.fields);
-      const rec: IGrowthMasterAirtable = record.fields as any;
-      rec.Email = record.get("Email") as string;
-      allRecords.push(rec);
-    });
+  try {
 
-    fetchNextPage();
-  });
+    await base("🧑‍🎨 Creatives Scores").select({
+      view: "Grid view",
+      // fields: ['Creativity_design_sense']
+      filterByFormula: "BLANK(Transaction ID)"
+    }).eachPage(function page(records, fetchNextPage) {
+      records.forEach((record) => {
+        // console.log(record.fields);
+        const rec: IGrowthMasterAirtable = record.fields as any;
+        rec.id = record.id,
+        rec.Email = record.get("Email") as string;
+        allRecords.push(rec);
+      });
+
+      fetchNextPage();
+    });
+  } catch (err) {
+    console.error(err);
+  }
 
   return allRecords;
 }

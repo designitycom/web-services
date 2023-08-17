@@ -2,15 +2,17 @@ import { proxyActivities } from "@temporalio/workflow";
 import * as wf from "@temporalio/workflow";
 import type * as activities from "./activities";
 import { AirTableDTO } from "../../models/airTableDto";
+import { submitScoreWF } from "../mint/workflows";
 
 const { getAllRecord,
-  getRecord,
+  getCreativeWallet,
   getPendingScores,
   createRecord,
   updateRecord,
   deleteRecord,
   findRecordWithEmail,
-  childAirtable
+  childAirtable,
+  updateScoreTX
 } = proxyActivities<typeof activities>({
   startToCloseTimeout: "1 minute",
 });
@@ -31,19 +33,19 @@ export async function getAllAirTableWF(
   return "ok";
 }
 
-export async function getRecordAirTableWF(
-  airTableDto: AirTableDTO
-): Promise<string> {
-  let status = "start";
-  wf.setHandler(getStatus, () => status);
+// export async function getRecordAirTableWF(
+//   airTableDto: AirTableDTO
+// ): Promise<string> {
+//   let status = "start";
+//   wf.setHandler(getStatus, () => status);
 
-  console.log("start step 1:call getRecord");
-  await getRecord(airTableDto);
-  console.log("end step:end getRecord");
-  status = "end";
+//   console.log("start step 1:call getRecord");
+//   await getRecord(airTableDto);
+//   console.log("end step:end getRecord");
+//   status = "end";
 
-  return "ok";
-}
+//   return "ok";
+// }
 
 
 export async function createRecordAirTableWF(
@@ -66,7 +68,7 @@ export async function updateRecordAirTableWF(
   wf.setHandler(getStatus, () => status);
 
   console.log("start step 1:call updateRecord");
-  await updateRecord(airTableDto);
+  await updateRecord('appxprwH6zsJbTFyM', airTableDto);
   console.log("end step:end updateRecord");
   status = "end";
 
@@ -111,13 +113,24 @@ export async function childAirTableWF(
   return "ok";
 }
 
-export async function processPendingScoresWF(){
+export async function processPendingScoresWF(airtableDTO: AirTableDTO) {
+  console.log("before processPendingScoresWF");
   const pendingScores = await getPendingScores();
-  for(const p in pendingScores) {
-
+  for (const p of pendingScores) {
+    if (!p["Hard Skill (Calculated)"]) {
+      continue;
+    }
+    const airTableDTO = new AirTableDTO();
+    airTableDTO.recordId = p.Creatives[0];
+    const wallet = await getCreativeWallet( airTableDTO);
+    if(wallet && wallet !== ""){
+      const tx = await wf.executeChild(submitScoreWF, {
+        args: [wallet, p],
+        workflowId: `child-submitscore-${airtableDTO.wfId}-${p.id}`,
+        taskQueue: "mint",
+      });
+      console.log("id, tx", p.id, tx);
+      await updateScoreTX(p.id, tx);
+    }
   }
-}
-
-export async function submitScoreWF(score: activities.IGrowthMasterAirtable){
-
 }

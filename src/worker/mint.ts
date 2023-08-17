@@ -10,9 +10,6 @@ async function run() {
     namespace: process.env.TEMPORAL_NAMESPACE || "default",
     workflowsPath: require.resolve("./../workflows/mint/workflows"),
     activities,
-    bundlerOptions: {
-      // ignoreModules: ["path", "crypto", "stream", "events", "zlib", "util", "string_decoder"],
-    },
     taskQueue: "mint",
   });
   await worker.run();

@@ -10,6 +10,6 @@ const airTableRouter = express.Router();
 // airTableRouter.post("/findRecordWithEmail", AirTableController.findRecordWithEmail);
 // airTableRouter.get("/startWorkerAirTable", AirTableController.startWorkerAirTable)
 
-airTableRouter.post("processPendingScores", AirTableController.processPendingScores);
+airTableRouter.post("/processPendingScores", AirTableController.processPendingScores);
 
 export default airTableRouter;
