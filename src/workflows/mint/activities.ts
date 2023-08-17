@@ -21,10 +21,6 @@ export async function getMetaplexNFT(nftAddress: string) {
   }
 }
 
-export async function verify(nftAddress: string) {
-  // TODO: verify with growth service
-}
-
 export async function scoreAccountDTO(scoreAccount: any) {
   return {
     mint: scoreAccount.mint.toBase58() as string,
@@ -51,11 +47,17 @@ export async function register(name: string, applicant: string, mint: string, le
 
   let scoreAccount = await getScoreAccount(applicant);
   if (!scoreAccount) {
-    const storeAccount2 = await growth.register(name, new PublicKey(applicant), new PublicKey(mint), levels);
-    scoreAccount = await scoreAccountDTO(storeAccount2);
+    const scoreAccountLoaded = await growth.register(name, new PublicKey(applicant), new PublicKey(mint), levels);
+    scoreAccount = await scoreAccountDTO(scoreAccountLoaded);
   }
 
   return scoreAccount;
+}
+
+export async function verify(applicant: string){
+  const growth = getGrowthService();
+
+  await growth.verify(new PublicKey(applicant));
 }
 
 export async function createRegisterMint() {
