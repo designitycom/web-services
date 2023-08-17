@@ -64,5 +64,5 @@ POST   {{host}}/api/airtable/processPendingScores
 content-type: application/json
 
 {
-    "wfId": "pps-32"
+    "wfId": "pps-35"
 }

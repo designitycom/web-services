@@ -27,9 +27,9 @@ export async function scoreAccountDTO(scoreAccount: any) {
     mint: scoreAccount.mint.toBase58() as string,
     applicant: scoreAccount.applicant.toBase58() as string,
     name: scoreAccount.name as string,
-    level: scoreAccount.level as string,
-    scores: scoreAccount.score as string,
-    scores_sum: scoreAccount.scores_sum as string
+    level: scoreAccount.levels as Array<string>,
+    scores: scoreAccount.scores as Array<string>,
+    scores_sum: scoreAccount.scoresSum as Array<string>
   }
 }
 
@@ -76,46 +76,7 @@ export async function createRegisterMint() {
 }
 
 
-// ------------------------------------------------>
 
-//end of getAllNFT
-
-export async function getMintDtoFromBigQuery(mintDTO: MintDTO): Promise<any> {
-  const bigquery = new BigQuery({
-    keyFilename: process.env.BIGQUERY_SERVICEACCOUNT || "bigquery-sa.json",
-    projectId: "designitybigquerysandbox",
-    scopes: [
-      "https://www.googleapis.com/auth/cloud-platform",
-      "https://www.googleapis.com/auth/drive",
-      "https://www.googleapis.com/auth/bigquery",
-    ],
-  });
-  // ASH-> define the query
-  const query = `SELECT *
-  FROM \`${process.env.GCP_PROJECT_ID}.${process.env.BIGQUERY_EMAILS_DATASET}.${process.env.BIGQUERY_EMAILS_TABLE}\`
-  LIMIT 100`;
-
-  // console.log(query);
-  const options = {
-    query: query,
-    location: "US",
-  };
-
-  //Run the query
-  const [rows] = await bigquery.query(options);
-
-  const result = rows.find((row) => row.Email == mintDTO.email);
-  if (result != undefined) {
-    mintDTO.role = result.Role;
-    mintDTO.level = result.Level;
-    mintDTO.name = result.Name;
-  } else {
-
-  }
-  console.log("userDTO in activity", mintDTO);
-
-  return mintDTO;
-}
 
 
 

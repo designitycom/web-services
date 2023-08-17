@@ -4,14 +4,11 @@ import type * as activities from "./activities";
 import { AirTableDTO } from "../../models/airTableDto";
 import { submitScoreWF } from "../mint/workflows";
 
-const { getAllRecord,
+const {
+  updateRecord,
   getCreativeWallet,
   getPendingScores,
-  createRecord,
-  updateRecord,
-  deleteRecord,
   findRecordWithEmail,
-  childAirtable,
   updateScoreTX
 } = proxyActivities<typeof activities>({
   startToCloseTimeout: "1 minute",
@@ -19,48 +16,6 @@ const { getAllRecord,
 
 export const getStatus = wf.defineQuery<string>("getStatus");
 
-export async function getAllAirTableWF(
-  airTableDto: AirTableDTO
-): Promise<string> {
-  let status = "start";
-  wf.setHandler(getStatus, () => status);
-
-  console.log("start step 1:call getAllRecord");
-  const airtable = await getAllRecord(airTableDto);
-  console.log("end step:end getAllRecord");
-  status = "end";
-
-  return "ok";
-}
-
-// export async function getRecordAirTableWF(
-//   airTableDto: AirTableDTO
-// ): Promise<string> {
-//   let status = "start";
-//   wf.setHandler(getStatus, () => status);
-
-//   console.log("start step 1:call getRecord");
-//   await getRecord(airTableDto);
-//   console.log("end step:end getRecord");
-//   status = "end";
-
-//   return "ok";
-// }
-
-
-export async function createRecordAirTableWF(
-  airTableDto: AirTableDTO
-): Promise<string> {
-  let status = "start";
-  wf.setHandler(getStatus, () => status);
-
-  console.log("start step 1:call createRecord");
-  await createRecord(airTableDto);
-  console.log("end step:end createRecord");
-  status = "end";
-
-  return "ok";
-}
 export async function updateRecordAirTableWF(
   airTableDto: AirTableDTO
 ): Promise<string> {
@@ -76,19 +31,6 @@ export async function updateRecordAirTableWF(
 }
 
 
-export async function deleteRecordAirTableWF(
-  airTableDto: AirTableDTO
-): Promise<string> {
-  let status = "start";
-  wf.setHandler(getStatus, () => status);
-
-  console.log("start step 1:call deleteRecord");
-  await deleteRecord(airTableDto);
-  console.log("end step:end deleteRecord");
-  status = "end";
-
-  return "ok";
-}
 
 export async function findRecordWithEmailWF(
   airTableDTO: AirTableDTO
@@ -104,14 +46,6 @@ export async function findRecordWithEmailWF(
   return record;
 }
 
-export async function childAirTableWF(
-): Promise<string> {
-
-  console.log('call child airtable wf');
-  const resultChild = await childAirtable("test airtable child");
-
-  return "ok";
-}
 
 export async function processPendingScoresWF(airtableDTO: AirTableDTO) {
   console.log("before processPendingScoresWF");
