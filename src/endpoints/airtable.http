@@ -1,5 +1,5 @@
-@url=http://104.197.47.223
-@port=5001
+@url=http://localhost
+@port=5000
 @host={{url}}:{{port}}
 
 POST  {{host}}/api/airtable/getAllRecord
@@ -58,3 +58,11 @@ content-type: application/json
 ####
 GET   {{host}}/api/airtable/startWorkerAirTable
 content-type: application/json
+
+####
+POST   {{host}}/api/airtable/processPendingScores
+content-type: application/json
+
+{
+    "wfId": "pps-32"
+}

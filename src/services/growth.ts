@@ -75,6 +75,7 @@ export class GrowthService {
         anchor.setProvider(env);
         this.program = anchor.workspace.Growth as Program<Growth>;
         // wtf is programID
+        console.log("mint and auth", this.orgMint.publicKey.toBase58(), this.authority.publicKey.toBase58())
         this.orgAddress = this.getOrg(this.orgMint.publicKey, this.authority.publicKey);
         this.orgMetadata = this.getMetadata(this.orgMint.publicKey);
         this.orgMaster = this.getMasterEdition(this.orgMint.publicKey);
@@ -190,21 +191,22 @@ export class GrowthService {
         });
     }
 
-    public async submit_score(applicant: PublicKey, recieved_score: IGrowthMasterAirtable) {
+    public async submitScore(applicant: PublicKey, recieved_score: IGrowthMasterAirtable) {
         const score = await this.program.account.score.fetch(this.getScore(this.orgAddress, applicant), "confirmed");
         const smartcontract_score = [
-            Number(recieved_score["Hard Skill (Calculated)"]),
-            Number(recieved_score.Creativity_design_sense),
-            Number(recieved_score.Strategic_thinking),
-            Number(recieved_score.Communication_presentation),
-            Number(recieved_score.Feedback_listening),
-            Number(recieved_score.Accountability),
-            Number(recieved_score.Team_collaboration),
-            Number(recieved_score.Management_organisation),
-            Number(recieved_score.Leadership_guidance),
-            Number(recieved_score.Attention_to_detail)
+            Number(recieved_score["Hard Skill (Calculated)"]) || 0,
+            Number(recieved_score.Creativity_design_sense) || 0,
+            Number(recieved_score.Strategic_thinking) || 0,
+            Number(recieved_score.Communication_presentation) || 0,
+            Number(recieved_score.Feedback_listening) || 0,
+            Number(recieved_score.Accountability) || 0,
+            Number(recieved_score.Team_collaboration) || 0,
+            Number(recieved_score.Management_organisation) || 0,
+            Number(recieved_score.Leadership_guidance) || 0,
+            Number(recieved_score.Attention_to_detail) || 0
         ];
-        await this.program.methods
+        console.log(smartcontract_score);
+        return await this.program.methods
             .receiveScore(smartcontract_score)
             .accounts({
                 authority: this.authority.publicKey,

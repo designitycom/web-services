@@ -9,7 +9,7 @@ import {
   deleteRecordAirTableWF,
   findRecordWithEmailWF,
   getAllAirTableWF,
-  getRecordAirTableWF,
+  // getRecordAirTableWF,
   processPendingScoresWF,
   updateRecordAirTableWF,
 } from "../../workflows/airtable/workflows";
@@ -31,25 +31,26 @@ class AirTableController extends controller {
     this.myResponse(res, 200, workFlowId, "set workflow");
   };
 
-  getRecord = async (req: Request, res: Response) => {
-    const airTableDto = await plainToClass(AirTableDTO, req.body);
-    const client = await createTemporalClient();
-    const workFlowId = "airtable-" + airTableDto.wfId;
-    const handle = await client.workflow.start(getRecordAirTableWF, {
-      args: [airTableDto],
-      taskQueue: "airtable",
-      workflowId: workFlowId,
-    });
-    console.log(`Workflow Started `);
-    this.myResponse(res, 200, {}, "set workflow");
-  };
+  // getRecord = async (req: Request, res: Response) => {
+  //   const airTableDto = await plainToClass(AirTableDTO, req.body);
+  //   const client = await createTemporalClient();
+  //   const workFlowId = "airtable-" + airTableDto.wfId;
+  //   const handle = await client.workflow.start(getRecordAirTableWF, {
+  //     args: [airTableDto],
+  //     taskQueue: "airtable",
+  //     workflowId: workFlowId,
+  //   });
+  //   console.log(`Workflow Started `);
+  //   this.myResponse(res, 200, {}, "set workflow");
+  // };
 
   processPendingScores = async (req: Request, res: Response)=>{
     const airTableDto = plainToClass(AirTableDTO, req.body);
+    console.log(`started ${airTableDto.wfId} `);
     const client = await createTemporalClient();
     const workFlowId = "airtable-" + airTableDto.wfId;
     client.workflow.start(processPendingScoresWF, {
-      args: [],
+      args: [airTableDto],
       taskQueue: "airtable",
       workflowId: workFlowId
     });

@@ -3,6 +3,7 @@ import { getGrowthService, makeMetaplex } from "../../services/solana";
 import { MintDTO } from "../../models/mintDto";
 import { BigQuery } from "@google-cloud/bigquery";
 import { Keypair, PublicKey } from "@solana/web3.js";
+import { IGrowthMasterAirtable } from "../airtable/activities";
 
 export async function getMetaplexNFT(nftAddress: string) {
   const m = makeMetaplex();
@@ -26,9 +27,9 @@ export async function scoreAccountDTO(scoreAccount: any) {
     mint: scoreAccount.mint.toBase58() as string,
     applicant: scoreAccount.applicant.toBase58() as string,
     name: scoreAccount.name as string,
-    level:scoreAccount.level as string,
-    scores:scoreAccount.score as string,
-    scores_sum:scoreAccount.scores_sum as string
+    level: scoreAccount.level as string,
+    scores: scoreAccount.score as string,
+    scores_sum: scoreAccount.scores_sum as string
   }
 }
 
@@ -54,7 +55,15 @@ export async function register(name: string, applicant: string, mint: string, le
   return scoreAccount;
 }
 
-export async function verify(applicant: string){
+export async function submitScore(applicant: string, score: IGrowthMasterAirtable) {
+  const growth = getGrowthService();
+
+  console.log("activity", applicant, score);
+
+  return await growth.submitScore(new PublicKey(applicant), score);
+}
+
+export async function verify(applicant: string) {
   const growth = getGrowthService();
 
   await growth.verify(new PublicKey(applicant));
