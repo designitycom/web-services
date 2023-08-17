@@ -14,6 +14,7 @@ export interface IGrowthMasterAirtable {
   'Management_organisation': number;
   'Strategic_thinking': number;
   'Team_collaboration': number;
+  'Creative Director Email': string;
   Creatives: string[];
   id: string;
 }
