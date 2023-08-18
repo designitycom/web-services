@@ -15,11 +15,10 @@ export interface IGrowthMasterAirtable {
   'Strategic_thinking': number;
   'Team_collaboration': number;
   'Creative Director Email': string;
+  'Creative Director Name': string;
   Creatives: string[];
   id: string;
 }
-
-
 
 
 export async function findRecordWithEmail(airTableDTO: AirTableDTO): Promise<AirTableDTO> {
@@ -139,7 +138,7 @@ export async function getPendingScores() {
   }
 
   await new Promise((resolve) => setTimeout(resolve, 2000));
-  console.log("records", allRecords);
+  // console.log("records", allRecords);
 
   return allRecords;
 }
