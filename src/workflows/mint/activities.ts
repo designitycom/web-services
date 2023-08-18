@@ -29,7 +29,9 @@ export async function scoreAccountDTO(scoreAccount: any) {
     name: scoreAccount.name as string,
     level: scoreAccount.levels as Array<string>,
     scores: scoreAccount.scores as Array<string>,
-    scores_sum: scoreAccount.scoresSum as Array<string>
+    scores_sum: scoreAccount.scoresSum as Array<string>,
+    reviews_received: Math.max(...scoreAccount.reviewsRecieved),
+    reviews_sent: scoreAccount.reviewsSent
   }
 }
 
