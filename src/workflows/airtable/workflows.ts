@@ -51,7 +51,7 @@ export async function processPendingScoresWF(airtableDTO: AirTableDTO) {
   console.log("before processPendingScoresWF");
   const pendingScores = await getPendingScores();
   for (const p of pendingScores) {
-    if (!p["Creative Director Email"]) {
+    if (!p["Hard Skill (Calculated)"]) {
       continue;
     }
     const airTableDTO = new AirTableDTO();
