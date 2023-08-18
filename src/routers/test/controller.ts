@@ -69,7 +69,7 @@ class TestController extends controller {
   growth = async (req: Request, res: Response) => {
     const g = getGrowthService();
     try {
-      await g.createOrganization("Designity", [1, 1, 1, 1, 1, 2, 1, 1, 1, 1], [2], [[25, 50, 75], [25, 75]], "https://public.designity.software", 5);
+      await g.createOrganization("Designity", [1, 4, 1, 1, 1, 2, 1, 1, 1, 1], [2], [[25, 50, 75], [25, 75]], "https://public.designity.software", 5);
     } catch (err) {
       console.error(err);
     }
