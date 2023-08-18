@@ -56,15 +56,12 @@ export async function processPendingScoresWF(airtableDTO: AirTableDTO) {
     }
     const airTableDTO = new AirTableDTO();
     airTableDTO.recordId = p.Creatives[0];
-    const wallet = await getCreativeWallet( airTableDTO);
-    if(wallet && wallet !== ""){
-      const tx = await wf.executeChild(submitScoreWF, {
-        args: [wallet, p],
-        workflowId: `child-submitscore-${airtableDTO.wfId}-${p.id}`,
-        taskQueue: "mint",
-      });
-      console.log("id, tx", p.id, tx);
-      await updateScoreTX(p.id, tx);
-    }
+    const tx = await wf.executeChild(submitScoreWF, {
+      args: [p["Wallet Address"], p],
+      workflowId: `child-submitscore-${airtableDTO.wfId}-${p.id}`,
+      taskQueue: "mint",
+    });
+    console.log("id, tx", p.id, tx);
+    await updateScoreTX(p.id, tx);
   }
 }

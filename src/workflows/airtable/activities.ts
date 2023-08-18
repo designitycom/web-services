@@ -16,17 +16,20 @@ export interface IGrowthMasterAirtable {
   'Team_collaboration': number;
   'Creative Director Email': string;
   'Creative Director Name': string;
+  'Wallet Address': string;
   Creatives: string[];
   id: string;
 }
 
 
 export async function findRecordWithEmail(airTableDTO: AirTableDTO): Promise<AirTableDTO> {
+  console.log("find by email");
   const base = (await getConnectionAirTable()).base('appxprwH6zsJbTFyM');
   // TODO: switch to filter by formula
   let findRecord: any = null;
   await base('Creatives Softr Users').select({
     view: "Grid view",
+    // filterByFormula: `{Email} = '${airTableDTO.email}'`
   }).eachPage(function page(records, fetchNextPage) {
     // This function (`page`) will get called for each page of records.
 
@@ -49,7 +52,7 @@ export async function findRecordWithEmail(airTableDTO: AirTableDTO): Promise<Air
   });
 
   await new Promise((resolve) => setTimeout(resolve, 2000));
-
+  console.log("aa", findRecord);
   if (findRecord) {
     airTableDTO.name = findRecord.fields.Name;
     airTableDTO.status = Number(findRecord.fields.Status);
@@ -121,7 +124,7 @@ export async function getPendingScores() {
     await base("🧑‍🎨 Creatives Scores").select({
       view: "Grid view",
       // fields: ['Creativity_design_sense']
-      filterByFormula: "{Transaction ID} = ''"
+      filterByFormula: "AND({Transaction ID} = '', {Wallet Address})"
     }).eachPage(function page(records, fetchNextPage) {
       records.forEach((record) => {
         // console.log(record.fields);
@@ -138,7 +141,7 @@ export async function getPendingScores() {
   }
 
   await new Promise((resolve) => setTimeout(resolve, 2000));
-  // console.log("records", allRecords);
-
+  console.log("processing ", allRecords.length);
+  // allRecords = [];
   return allRecords;
 }
