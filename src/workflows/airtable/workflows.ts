@@ -57,7 +57,7 @@ export async function processPendingScoresWF(airtableDTO: AirTableDTO) {
     const airTableDTO = new AirTableDTO();
     airTableDTO.recordId = p.Creatives[0];
     const tx = await wf.executeChild(submitScoreWF, {
-      args: [p["Wallet Address"], p],
+      args: [p["Wallet Address"][0], p],
       workflowId: `child-submitscore-${airtableDTO.wfId}-${p.id}`,
       taskQueue: "mint",
     });

@@ -16,7 +16,7 @@ export interface IGrowthMasterAirtable {
   'Team_collaboration': number;
   'Creative Director Email': string;
   'Creative Director Name': string;
-  'Wallet Address': string;
+  'Wallet Address': string[];
   Creatives: string[];
   id: string;
 }
