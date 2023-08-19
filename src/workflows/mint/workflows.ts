@@ -32,13 +32,12 @@ export const getUserScore = wf.defineQuery<any>("getUserScore");
 export async function checkUserThenCreateNftWF(
   userDTO: UserDTO
 ): Promise<string> {
-  let userScore: any = null;
+  let scoreAccount: any;
   let userNFTAfterCheck: Nft | Sft | SftWithToken | NftWithToken | null = null;
   wf.setHandler(getUserNftAfterCheck, () => userNFTAfterCheck);
-  wf.setHandler(getUserScore, () => userScore);
-  console.log("checking score account");
-  let scoreAccount = await getScoreAccount(userDTO.publicKey);
-  if (scoreAccount == undefined) {
+  wf.setHandler(getUserScore, () => scoreAccount);
+  scoreAccount = await getScoreAccount(userDTO.publicKey);
+  while (scoreAccount === undefined) {
     let record = await wf.executeChild(findRecordWithEmailWF, {
       args: [userDTO.email],
       workflowId: "child-checkuser-" + userDTO.wfId,
@@ -49,17 +48,22 @@ export async function checkUserThenCreateNftWF(
     }
     record.fields["Wallet Address"] = userDTO.publicKey;
     const registerMintAddress = await createRegisterMint();
-    scoreAccount = await register(record, registerMintAddress);
-    record.fields["Token Address"] = registerMintAddress;
-    await verify(record.fields["Wallet Address"]);
-    await wf.executeChild(updateSoftrCreativeUsersWF, {
-      args: [record],
-      workflowId: "child-updateuser-" + userDTO.wfId,
-      taskQueue: "airtable",
-    });
-    console.log("scoreAccount>>>", scoreAccount);
+    try{
+      const txSig = await register(record.fields, registerMintAddress);
+      if (txSig) {
+        record.fields["Token Address"] = registerMintAddress;
+        await verify(record.fields["Wallet Address"]);
+        await wf.executeChild(updateSoftrCreativeUsersWF, {
+          args: [record.id, record.fields],
+          workflowId: "child-updateuser-" + userDTO.wfId,
+          taskQueue: "airtable",
+        });
+        scoreAccount = await getScoreAccount(userDTO.publicKey);
+      }
+    }catch(err){
+      console.log(err);
+    }
   }
-  userScore = scoreAccount;
   userNFTAfterCheck = await getMetaplexNFT(scoreAccount.mint!);
   return "ok";
 }
@@ -86,6 +90,6 @@ export async function getMagicLinkFromAirtableWF(
   return "ok";
 }
 
-export async function submitScoreWF(score: Record<ICreativesScoresAirtable>) {
-  return await submitScore(score.fields);
+export async function submitScoreWF(fields: ICreativesScoresAirtable) {
+  return await submitScore(fields);
 }

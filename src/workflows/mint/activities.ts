@@ -1,9 +1,12 @@
 
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { Record } from "airtable";
 
 import { getGrowthService, makeMetaplex } from "../../services/solana";
 import { ICreativesScoresAirtable, ISoftrCreativesUser } from "../airtable/activities";
+
+function wait(seconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+}
 
 export async function getMetaplexNFT(nftAddress: string) {
   const m = makeMetaplex();
@@ -25,30 +28,32 @@ export async function getMetaplexNFT(nftAddress: string) {
 export async function getScoreAccount(applicant: string) {
   const growth = getGrowthService();
 
-  const scoreAccount = await growth.getScoreAccount(new PublicKey(applicant));
-  return {
-    scores: scoreAccount?.scores,
-    reviews_sent: scoreAccount?.reviewsSent,
-    reviews_recieved: scoreAccount?.reviewsRecieved,
-    name: scoreAccount?.name,
-    mint: scoreAccount?.mint.toBase58(),
-    applicant: scoreAccount?.applicant.toBase58(),
-    levels: scoreAccount?.levels,
-    last_update: scoreAccount?.lastUpdate,
+  try {
+    const scoreAccount = await growth.getScoreAccount(new PublicKey(applicant));
+    return {
+      scores: scoreAccount?.scores,
+      reviews_sent: scoreAccount?.reviewsSent,
+      reviews_recieved: scoreAccount?.reviewsRecieved,
+      name: scoreAccount?.name,
+      mint: scoreAccount?.mint.toBase58(),
+      applicant: scoreAccount?.applicant.toBase58(),
+      levels: [...scoreAccount?.levels],
+      last_update: scoreAccount?.lastUpdate.toNumber(),
+    }
+  } catch (err) {
+    console.log(err);
+    return undefined;
   }
 }
 
-export async function register(record: Record<ISoftrCreativesUser>, mint: string) {
+export async function register(fields: ISoftrCreativesUser, mint: string) {
   const growth = getGrowthService();
-  const applicant = record.fields["Wallet Address"];
-  let scoreAccount = await getScoreAccount(applicant);
-  if (!scoreAccount) {
-    console.log("register",)
-    await growth.register(record, new PublicKey(mint));
-    scoreAccount = await getScoreAccount(applicant);
+  try {
+    return await growth.register(fields, new PublicKey(mint));
+  } catch (err) {
+    console.log(err);
+    return undefined;
   }
-
-  return scoreAccount;
 }
 
 export async function submitScore(score: ICreativesScoresAirtable) {
@@ -68,6 +73,7 @@ export async function verify(applicant: string) {
 export async function createRegisterMint() {
   const growth = getGrowthService();
   const mint = await growth.createRegisterMint(new Keypair());
+  await wait(1);
   return mint.toBase58();
 }
 

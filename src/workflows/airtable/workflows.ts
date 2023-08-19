@@ -18,13 +18,14 @@ const {
 export const getStatus = wf.defineQuery<string>("getStatus");
 
 export async function updateSoftrCreativeUsersWF(
-  record: Record<activities.ISoftrCreativesUser>
+  recordId: string,
+  record: activities.ISoftrCreativesUser
 ): Promise<string> {
   let status = "start";
   wf.setHandler(getStatus, () => status);
 
   console.log("start step 1:call updateRecord");
-  await updateSoftrCreativeUsers(record);
+  await updateSoftrCreativeUsers(recordId, record);
   console.log("end step:end updateRecord");
   status = "end";
 
@@ -53,7 +54,7 @@ export async function processPendingScoresWF(airtableDTO: AirTableDTO) {
   const pendingScores = await getPendingScores();
   for (const p of pendingScores) {
     const tx = await wf.executeChild(submitScoreWF, {
-      args: [p],
+      args: [p.fields],
       workflowId: `child-submitscore-${airtableDTO.wfId}-${p.id}`,
       taskQueue: "mint",
     });

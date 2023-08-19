@@ -88,9 +88,9 @@ export class GrowthService {
         console.log("Growth constructed");
     }
 
-    public async createOrganization(name: string, weights: number[], ranges: number[], levels: Array<Array<number>>, domain: string, min_reviews: number) {
+    public async createOrganization(name: string, weights: number[], ranges: number[], levels: Array<Array<number>>, domain: string, min_reviews: number, level_wait: number) {
         const tx = await this.program.methods
-            .createOrganization(weights, Buffer.from(ranges), levels, name, min_reviews, domain, 7890000)
+            .createOrganization(weights, Buffer.from(ranges), levels, name, min_reviews, domain, level_wait)
             .accounts({
                 org: this.orgAddress,
                 orgMint: this.orgMint.publicKey,
@@ -128,10 +128,8 @@ export class GrowthService {
         );
     }
 
-    public async register(record: Record<ISoftrCreativesUser>, mint: PublicKey) {
-        console.log("ATA");
-        console.log(this.program.provider.connection);
-        const applicant = new PublicKey(record.fields["Wallet Address"]);
+    public async register(fields: ISoftrCreativesUser, mint: PublicKey) {
+        const applicant = new PublicKey(fields["Wallet Address"]);
         let registerMintATA = await getOrCreateAssociatedTokenAccount(
             this.program.provider.connection,
             this.authority,
@@ -143,37 +141,37 @@ export class GrowthService {
                 commitment: "confirmed",
             }
         );
-        const startDate = new Date(record.fields["Start Date"]);
-        const tx1 = await this.program.methods
-            .register(record.fields.Name, Buffer.from([record.fields.Level, record.fields.Status]), toBigNumber(startDate.getTime() / 1000))
-            .accounts({
-                authority: this.authority.publicKey,
-                applicant: applicant,
-                org: this.orgAddress,
-                collectionMaster: this.orgMaster,
-                score: this.getScore(this.orgAddress, applicant),
-                registerMint: mint,
-                metadata: this.getMetadata(mint),
-                tokenAccount: registerMintATA.address,
-                systemProgram: SystemProgram.programId,
-                tokenProgram: TOKEN_PROGRAM_ID,
-                tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
-                rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-            })
-            .signers([this.authority])
-            .rpc({
-                skipPreflight: true,
-                commitment: "confirmed"
-            });
-        return;
+        const startDate = new Date(fields["Start Date"]![0]);
+        // console.log(fields, startDate, startDate.getTime() / 1000);
+        return await this.program.methods
+            .register(fields.Name, Buffer.from([fields.Level, fields.Status]), new anchor.BN(startDate.getTime()).div(new anchor.BN(1000)))
+                .accounts({
+                    authority: this.authority.publicKey,
+                    applicant: applicant,
+                    org: this.orgAddress,
+                    collectionMaster: this.orgMaster,
+                    score: this.getScore(this.orgAddress, applicant),
+                    registerMint: mint,
+                    metadata: this.getMetadata(mint),
+                    tokenAccount: registerMintATA.address,
+                    systemProgram: SystemProgram.programId,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+                    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+                })
+                .signers([this.authority])
+                .rpc({
+                    skipPreflight: true,
+                    commitment: "confirmed"
+                });
     }
 
     public async getScoreAccount(applicant: PublicKey) {
         try {
             return await this.program.account.score.fetch(this.getScore(this.orgAddress, applicant), "confirmed");
         } catch (err) {
-            console.error(err);
-            return null;
+            console.error("Fetch score account", err);
+            throw err;
         }
     }
 
@@ -214,7 +212,7 @@ export class GrowthService {
         console.log(smartcontract_score);
         const submission = new Date(recieved_score["Submitted On"]);
         return await this.program.methods
-            .receiveScore(smartcontract_score, toBigNumber(submission.getTime() / 1000))
+            .receiveScore(smartcontract_score, new anchor.BN(submission.getTime() / 1000))
             .accounts({
                 authority: this.authority.publicKey,
                 applicant,

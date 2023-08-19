@@ -26,7 +26,7 @@ export interface ISoftrCreativesUser extends FieldSet {
   'Token Address': string;
   'Wallet Address': string;
   'Magic Link': string;
-  'Start Date': string;
+  'Start Date'?: string[];
   'Name': string;
   'Status': number;
   'Level': number;
@@ -69,13 +69,14 @@ export async function updateScoreTX(recId: string, tx: string) {
 
 
 
-export async function updateSoftrCreativeUsers(record: Record<ISoftrCreativesUser>) {
+export async function updateSoftrCreativeUsers(recordId: string, record: ISoftrCreativesUser) {
   const base = (await getConnectionAirTable()).base('appxprwH6zsJbTFyM');
+  delete record["Start Date"];
   return await base("Creatives Softr Users").update(
     [
       {
-        id: record.id,
-        fields: record.fields,
+        id: recordId,
+        fields: record,
       },
     ],);
 }
