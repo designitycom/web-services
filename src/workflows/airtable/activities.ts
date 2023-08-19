@@ -1,5 +1,4 @@
 import { FieldSet, Record } from "airtable";
-import { AirTableDTO } from "../../models/airTableDto";
 import { getConnectionAirTable } from "../../services/airTable";
 
 export interface ICreativesScoresAirtable extends FieldSet {
@@ -19,6 +18,7 @@ export interface ICreativesScoresAirtable extends FieldSet {
   'Wallet Address': string[];
   'Creatives': string[];
   'Submitted On': string;
+  'Score Eligible?': string[];
 }
 
 export interface ISoftrCreativesUser extends FieldSet {
