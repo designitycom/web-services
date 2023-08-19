@@ -1,11 +1,12 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program, Wallet } from "@coral-xyz/anchor";
+import { Record } from "airtable";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, createMint, getAssociatedTokenAddressSync, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
 
 import { Growth } from "../types/growth";
-import { } from "@metaplex-foundation/js";
+import { toBigNumber } from "@metaplex-foundation/js";
 import { Connection, Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
-import { IGrowthMasterAirtable } from "../workflows/airtable/activities";
+import { ICreativesScoresAirtable, ISoftrCreativesUser } from "../workflows/airtable/activities";
 
 const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
     "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
@@ -89,7 +90,7 @@ export class GrowthService {
 
     public async createOrganization(name: string, weights: number[], ranges: number[], levels: Array<Array<number>>, domain: string, min_reviews: number) {
         const tx = await this.program.methods
-            .createOrganization(weights, Buffer.from(ranges), levels, name, min_reviews, domain)
+            .createOrganization(weights, Buffer.from(ranges), levels, name, min_reviews, domain, 7890000)
             .accounts({
                 org: this.orgAddress,
                 orgMint: this.orgMint.publicKey,
@@ -127,10 +128,10 @@ export class GrowthService {
         );
     }
 
-    public async register(name: string, applicant: PublicKey, mint: PublicKey, levels: number[]) {
+    public async register(record: Record<ISoftrCreativesUser>, mint: PublicKey) {
         console.log("ATA");
-        // await wait(10000);
         console.log(this.program.provider.connection);
+        const applicant = new PublicKey(record.fields["Wallet Address"]);
         let registerMintATA = await getOrCreateAssociatedTokenAccount(
             this.program.provider.connection,
             this.authority,
@@ -142,8 +143,9 @@ export class GrowthService {
                 commitment: "confirmed",
             }
         );
+        const startDate = new Date(record.fields["Start Date"]);
         const tx1 = await this.program.methods
-            .register(name, Buffer.from(levels))
+            .register(record.fields.Name, Buffer.from([record.fields.Level, record.fields.Status]), toBigNumber(startDate.getTime() / 1000))
             .accounts({
                 authority: this.authority.publicKey,
                 applicant: applicant,
@@ -163,7 +165,7 @@ export class GrowthService {
                 skipPreflight: true,
                 commitment: "confirmed"
             });
-        return await this.getScoreAccount(applicant);
+        return;
     }
 
     public async getScoreAccount(applicant: PublicKey) {
@@ -191,7 +193,8 @@ export class GrowthService {
         });
     }
 
-    public async submitScore(applicant: PublicKey, recieved_score: IGrowthMasterAirtable) {
+    public async submitScore(recieved_score: ICreativesScoresAirtable) {
+        const applicant = new PublicKey(recieved_score["Wallet Address"]);
         const score = await this.program.account.score.fetch(this.getScore(this.orgAddress, applicant), "confirmed");
         let smartcontract_score = [
             Number(recieved_score["Hard Skill (Calculated)"]),
@@ -209,11 +212,12 @@ export class GrowthService {
             return isFinite(e) ? e : 0;
         })
         console.log(smartcontract_score);
+        const submission = new Date(recieved_score["Submitted On"]);
         return await this.program.methods
-            .receiveScore(smartcontract_score)
+            .receiveScore(smartcontract_score, toBigNumber(submission.getTime() / 1000))
             .accounts({
                 authority: this.authority.publicKey,
-                applicant: applicant,
+                applicant,
                 org: this.orgAddress,
                 metadata: this.getMetadata(score.mint),
                 systemProgram: SystemProgram.programId,
