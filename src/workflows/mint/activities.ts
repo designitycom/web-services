@@ -1,9 +1,12 @@
 
-import { getGrowthService, makeMetaplex } from "../../services/solana";
-import { MintDTO } from "../../models/mintDto";
-import { BigQuery } from "@google-cloud/bigquery";
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { IGrowthMasterAirtable } from "../airtable/activities";
+
+import { getGrowthService, makeMetaplex } from "../../services/solana";
+import { ICreativesScoresAirtable, ISoftrCreativesUser } from "../airtable/activities";
+
+function wait(seconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+}
 
 export async function getMetaplexNFT(nftAddress: string) {
   const m = makeMetaplex();
@@ -22,47 +25,43 @@ export async function getMetaplexNFT(nftAddress: string) {
   }
 }
 
-export async function scoreAccountDTO(scoreAccount: any) {
-  return {
-    mint: scoreAccount.mint.toBase58() as string,
-    applicant: scoreAccount.applicant.toBase58() as string,
-    name: scoreAccount.name as string,
-    level: scoreAccount.levels as Array<string>,
-    scores: scoreAccount.scores as Array<string>,
-    scores_sum: scoreAccount.scoresSum as Array<string>,
-    reviews_received: scoreAccount.reviewsRecieved,
-    reviews_sent: scoreAccount.reviewsSent
-  }
-}
-
 export async function getScoreAccount(applicant: string) {
   const growth = getGrowthService();
 
-  const scoreAccount = await growth.getScoreAccount(new PublicKey(applicant));
-  if (scoreAccount) {
-    return scoreAccountDTO(scoreAccount);
+  try {
+    const scoreAccount = await growth.getScoreAccount(new PublicKey(applicant));
+    return {
+      scores: scoreAccount?.scores,
+      reviews_sent: scoreAccount?.reviewsSent,
+      reviews_recieved: scoreAccount?.reviewsRecieved,
+      name: scoreAccount?.name,
+      mint: scoreAccount?.mint.toBase58(),
+      applicant: scoreAccount?.applicant.toBase58(),
+      levels: [...scoreAccount?.levels],
+      last_update: scoreAccount?.lastUpdate.toNumber(),
+    }
+  } catch (err) {
+    console.log(err);
+    return undefined;
   }
-  return null;
 }
 
-export async function register(name: string, applicant: string, mint: string, levels: number[]) {
+export async function register(fields: ISoftrCreativesUser, mint: string) {
   const growth = getGrowthService();
-
-  let scoreAccount = await getScoreAccount(applicant);
-  if (!scoreAccount) {
-    const scoreAccountLoaded = await growth.register(name, new PublicKey(applicant), new PublicKey(mint), levels);
-    scoreAccount = await scoreAccountDTO(scoreAccountLoaded);
+  try {
+    return await growth.register(fields, new PublicKey(mint));
+  } catch (err) {
+    console.log(err);
+    return undefined;
   }
-
-  return scoreAccount;
 }
 
-export async function submitScore(applicant: string, score: IGrowthMasterAirtable) {
+export async function submitScore(score: ICreativesScoresAirtable) {
   const growth = getGrowthService();
 
-  console.log("activity", applicant, score);
+  console.log("submit score", score.id, score);
 
-  return await growth.submitScore(new PublicKey(applicant), score);
+  return await growth.submitScore(score);
 }
 
 export async function verify(applicant: string) {
@@ -74,6 +73,7 @@ export async function verify(applicant: string) {
 export async function createRegisterMint() {
   const growth = getGrowthService();
   const mint = await growth.createRegisterMint(new Keypair());
+  await wait(1);
   return mint.toBase58();
 }
 

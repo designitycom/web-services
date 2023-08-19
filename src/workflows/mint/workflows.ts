@@ -1,15 +1,16 @@
 import { proxyActivities } from "@temporalio/workflow";
 import * as wf from "@temporalio/workflow";
+import { Record } from "airtable";
+
 import type * as activities from "./activities";
 import { Nft, NftWithToken, Sft, SftWithToken } from "@metaplex-foundation/js";
 import { UserDTO } from "../../models/userDto";
-import { AirTableDTO } from "../../models/airTableDto";
 import {
   findRecordWithEmailWF,
-  updateRecordAirTableWF,
+  updateSoftrCreativeUsersWF,
 } from "../airtable/workflows";
 
-import { IGrowthMasterAirtable } from "../airtable/activities";
+import { ICreativesScoresAirtable } from "../airtable/activities";
 
 const {
   getScoreAccount,
@@ -31,38 +32,39 @@ export const getUserScore = wf.defineQuery<any>("getUserScore");
 export async function checkUserThenCreateNftWF(
   userDTO: UserDTO
 ): Promise<string> {
-  let userScore:any= null;
+  let scoreAccount: any;
   let userNFTAfterCheck: Nft | Sft | SftWithToken | NftWithToken | null = null;
   wf.setHandler(getUserNftAfterCheck, () => userNFTAfterCheck);
-  wf.setHandler(getUserScore, () => userScore);
-  console.log("checking score account");
-  let scoreAccount = await getScoreAccount(userDTO.publicKey);
-  if (scoreAccount == undefined) {
-    let airTableDTO = new AirTableDTO();
-    airTableDTO.email = userDTO.email;
-    airTableDTO.wfId  = userDTO.wfId;
-    airTableDTO = await wf.executeChild(findRecordWithEmailWF, {
-      args: [airTableDTO],
+  wf.setHandler(getUserScore, () => scoreAccount);
+  scoreAccount = await getScoreAccount(userDTO.publicKey);
+  while (scoreAccount === undefined) {
+    let record = await wf.executeChild(findRecordWithEmailWF, {
+      args: [userDTO.email],
       workflowId: "child-checkuser-" + userDTO.wfId,
       taskQueue: "airtable",
     });
-    if (!airTableDTO.name) {
+    if (!record) {
       return "not found";
     }
+    record.fields["Wallet Address"] = userDTO.publicKey;
     const registerMintAddress = await createRegisterMint();
-    scoreAccount = await register(airTableDTO.name, userDTO.publicKey, registerMintAddress, [airTableDTO.level, airTableDTO.status]);
-    await verify(userDTO.publicKey);
-    airTableDTO.walletAddress = userDTO.publicKey;
-    airTableDTO.tokenAddress = scoreAccount.mint;
-    await wf.executeChild(updateRecordAirTableWF, {
-      args: [airTableDTO],
-      workflowId: "child-updateuser-" + airTableDTO.wfId,
-      taskQueue: "airtable",
-    });
-    console.log("scoreAccount>>>", scoreAccount);
+    try{
+      const txSig = await register(record.fields, registerMintAddress);
+      if (txSig) {
+        record.fields["Token Address"] = registerMintAddress;
+        await verify(record.fields["Wallet Address"]);
+        await wf.executeChild(updateSoftrCreativeUsersWF, {
+          args: [record.id, record.fields],
+          workflowId: "child-updateuser-" + userDTO.wfId,
+          taskQueue: "airtable",
+        });
+        scoreAccount = await getScoreAccount(userDTO.publicKey);
+      }
+    }catch(err){
+      console.log(err);
+    }
   }
-  userScore=scoreAccount;
-  userNFTAfterCheck = await getMetaplexNFT(scoreAccount.mint);
+  userNFTAfterCheck = await getMetaplexNFT(scoreAccount.mint!);
   return "ok";
 }
 
@@ -77,22 +79,17 @@ export async function getMagicLinkFromAirtableWF(
     getUserMagicLinkFromAirtable,
     () => logedinUserAiritableMagigLink
   );
-  //--    
-  const airTableDTO = new AirTableDTO();
-  airTableDTO.email = userDTO.email;
-  const updatedAirTableDTO = await wf.executeChild(findRecordWithEmailWF, {
-    args: [airTableDTO],
+  const record = await wf.executeChild(findRecordWithEmailWF, {
+    args: [userDTO.email],
     workflowId: "child-magiclink-" + userDTO.wfId,
     taskQueue: "airtable",
   });
-  //--
-  logedinUserAiritableMagigLink = updatedAirTableDTO.magicLink;
-  console.log("MagicLinkFromAirtableWF>>>", logedinUserAiritableMagigLink);
+
+  logedinUserAiritableMagigLink = String(record?.fields["Magic Link"]);
 
   return "ok";
 }
 
-export async function submitScoreWF(applicant: string, score: IGrowthMasterAirtable){
-  console.log("before submitScoreWF", score);
-  return await submitScore(applicant, score);
+export async function submitScoreWF(fields: ICreativesScoresAirtable) {
+  return await submitScore(fields);
 }

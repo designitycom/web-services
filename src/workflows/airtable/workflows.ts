@@ -1,11 +1,12 @@
 import { proxyActivities } from "@temporalio/workflow";
 import * as wf from "@temporalio/workflow";
+import { Record } from "airtable";
 import type * as activities from "./activities";
 import { AirTableDTO } from "../../models/airTableDto";
 import { submitScoreWF } from "../mint/workflows";
 
 const {
-  updateRecord,
+  updateSoftrCreativeUsers,
   getCreativeWallet,
   getPendingScores,
   findRecordWithEmail,
@@ -16,14 +17,15 @@ const {
 
 export const getStatus = wf.defineQuery<string>("getStatus");
 
-export async function updateRecordAirTableWF(
-  airTableDto: AirTableDTO
+export async function updateSoftrCreativeUsersWF(
+  recordId: string,
+  record: activities.ISoftrCreativesUser
 ): Promise<string> {
   let status = "start";
   wf.setHandler(getStatus, () => status);
 
   console.log("start step 1:call updateRecord");
-  await updateRecord('appxprwH6zsJbTFyM', airTableDto);
+  await updateSoftrCreativeUsers(recordId, record);
   console.log("end step:end updateRecord");
   status = "end";
 
@@ -33,12 +35,12 @@ export async function updateRecordAirTableWF(
 
 
 export async function findRecordWithEmailWF(
-  airTableDTO: AirTableDTO
-): Promise<AirTableDTO> {
+  email: string
+): Promise<Record<activities.ISoftrCreativesUser> | undefined> {
   let status = "start";
   wf.setHandler(getStatus, () => status);
   console.log("start step 1:call find record with email");
-  const record = await findRecordWithEmail(airTableDTO);
+  const record = await findRecordWithEmail(email);
   console.log("end step:end find record with email");
   // console.log("workflow result:",record);
   status = "end";
@@ -51,13 +53,11 @@ export async function processPendingScoresWF(airtableDTO: AirTableDTO) {
   console.log("before processPendingScoresWF");
   const pendingScores = await getPendingScores();
   for (const p of pendingScores) {
-    if (!p["Hard Skill (Calculated)"]) {
+    if (p.fields["Score Eligible?"][0] !== "Yes") {
       continue;
     }
-    const airTableDTO = new AirTableDTO();
-    airTableDTO.recordId = p.Creatives[0];
     const tx = await wf.executeChild(submitScoreWF, {
-      args: [p["Wallet Address"][0], p],
+      args: [p.fields],
       workflowId: `child-submitscore-${airtableDTO.wfId}-${p.id}`,
       taskQueue: "mint",
     });
