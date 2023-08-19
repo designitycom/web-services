@@ -111,6 +111,10 @@
         {
           "name": "domain",
           "type": "string"
+        },
+        {
+          "name": "levelWait",
+          "type": "i32"
         }
       ]
     },
@@ -206,6 +210,10 @@
         {
           "name": "levels",
           "type": "bytes"
+        },
+        {
+          "name": "lastUpdate",
+          "type": "i64"
         }
       ]
     },
@@ -279,6 +287,10 @@
           "type": {
             "vec": "f32"
           }
+        },
+        {
+          "name": "submissionTs",
+          "type": "i64"
         }
       ]
     },
@@ -393,6 +405,97 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "updateScores",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "applicant",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "score",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "score"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Org",
+                "path": "org"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "applicant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "org",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "metadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "scoresSum",
+          "type": {
+            "vec": "f32"
+          }
+        },
+        {
+          "name": "reviewsRecieved",
+          "type": {
+            "vec": "u16"
+          }
+        },
+        {
+          "name": "lastUpdate",
+          "type": "i64"
+        },
+        {
+          "name": "levels",
+          "type": "bytes"
+        },
+        {
+          "name": "overrideLevels",
+          "type": "bool"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -442,6 +545,10 @@
           {
             "name": "bump",
             "type": "u8"
+          },
+          {
+            "name": "levelWait",
+            "type": "i32"
           }
         ]
       }
@@ -490,14 +597,15 @@
             "type": "bytes"
           },
           {
+            "name": "lastUpdate",
+            "type": "i64"
+          },
+          {
             "name": "bump",
             "type": "u8"
           }
         ]
       }
     }
-  ],
-  "metadata": {
-    "address": "97d8t22JenPAwR85PZEXvc4gkvtAMZR9Ct7xuY11a2X8"
-  }
+  ]
 }

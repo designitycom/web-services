@@ -111,6 +111,10 @@ export type Growth = {
         {
           "name": "domain",
           "type": "string"
+        },
+        {
+          "name": "levelWait",
+          "type": "i32"
         }
       ]
     },
@@ -206,6 +210,10 @@ export type Growth = {
         {
           "name": "levels",
           "type": "bytes"
+        },
+        {
+          "name": "lastUpdate",
+          "type": "i64"
         }
       ]
     },
@@ -279,6 +287,10 @@ export type Growth = {
           "type": {
             "vec": "f32"
           }
+        },
+        {
+          "name": "submissionTs",
+          "type": "i64"
         }
       ]
     },
@@ -393,6 +405,97 @@ export type Growth = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "updateScores",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "applicant",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "score",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "score"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Org",
+                "path": "org"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "applicant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "org",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "metadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "scoresSum",
+          "type": {
+            "vec": "f32"
+          }
+        },
+        {
+          "name": "reviewsRecieved",
+          "type": {
+            "vec": "u16"
+          }
+        },
+        {
+          "name": "lastUpdate",
+          "type": "i64"
+        },
+        {
+          "name": "levels",
+          "type": "bytes"
+        },
+        {
+          "name": "overrideLevels",
+          "type": "bool"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -442,6 +545,10 @@ export type Growth = {
           {
             "name": "bump",
             "type": "u8"
+          },
+          {
+            "name": "levelWait",
+            "type": "i32"
           }
         ]
       }
@@ -488,6 +595,10 @@ export type Growth = {
           {
             "name": "levels",
             "type": "bytes"
+          },
+          {
+            "name": "lastUpdate",
+            "type": "i64"
           },
           {
             "name": "bump",
@@ -612,6 +723,10 @@ export const IDL: Growth = {
         {
           "name": "domain",
           "type": "string"
+        },
+        {
+          "name": "levelWait",
+          "type": "i32"
         }
       ]
     },
@@ -707,6 +822,10 @@ export const IDL: Growth = {
         {
           "name": "levels",
           "type": "bytes"
+        },
+        {
+          "name": "lastUpdate",
+          "type": "i64"
         }
       ]
     },
@@ -780,6 +899,10 @@ export const IDL: Growth = {
           "type": {
             "vec": "f32"
           }
+        },
+        {
+          "name": "submissionTs",
+          "type": "i64"
         }
       ]
     },
@@ -894,6 +1017,97 @@ export const IDL: Growth = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "updateScores",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "applicant",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "score",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "score"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Org",
+                "path": "org"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "applicant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "org",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "metadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "scoresSum",
+          "type": {
+            "vec": "f32"
+          }
+        },
+        {
+          "name": "reviewsRecieved",
+          "type": {
+            "vec": "u16"
+          }
+        },
+        {
+          "name": "lastUpdate",
+          "type": "i64"
+        },
+        {
+          "name": "levels",
+          "type": "bytes"
+        },
+        {
+          "name": "overrideLevels",
+          "type": "bool"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -943,6 +1157,10 @@ export const IDL: Growth = {
           {
             "name": "bump",
             "type": "u8"
+          },
+          {
+            "name": "levelWait",
+            "type": "i32"
           }
         ]
       }
@@ -989,6 +1207,10 @@ export const IDL: Growth = {
           {
             "name": "levels",
             "type": "bytes"
+          },
+          {
+            "name": "lastUpdate",
+            "type": "i64"
           },
           {
             "name": "bump",
