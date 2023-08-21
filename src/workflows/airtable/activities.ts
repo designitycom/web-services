@@ -30,6 +30,8 @@ export interface ISoftrCreativesUser extends FieldSet {
   'Name': string;
   'Status': number;
   'Level': number;
+  'Profile image'?: string[];
+  'Dashboard - Backend iFrame'?: string[];
 }
 
 export interface ICreativesMaster extends FieldSet {
@@ -72,6 +74,8 @@ export async function updateScoreTX(recId: string, tx: string) {
 export async function updateSoftrCreativeUsers(recordId: string, record: ISoftrCreativesUser) {
   const base = (await getConnectionAirTable()).base('appxprwH6zsJbTFyM');
   delete record["Start Date"];
+  delete record["Profile image"];
+  delete record["Dashboard - Backend iFrame"];
   return await base("Creatives Softr Users").update(
     [
       {
