@@ -37,3 +37,6 @@ temporal_tls_key.key
 # Contract Keys
 mint.json
 authority.json
+
+#target
+/target

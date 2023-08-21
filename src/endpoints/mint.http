@@ -1,7 +1,7 @@
 @url=http://localhost
 @port=5000
 @host={{url}}:{{port}}
-@idToken=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlRZT2dnXy01RU9FYmxhWS1WVlJZcVZhREFncHRuZktWNDUzNU1aUEMwdzAifQ.eyJpYXQiOjE2OTI0Mjk3OTcsImF1ZCI6IkJOX09sM3V5U3psZV9nSzdBWENjVzA1aXFkYUt5ZFVUbjNTUXJDRmt6NTJFNlpXZGFfWG45WUVzbjRuUktqR2pyd05YYzkxQWJiR3RNcVNHOUx0Nlp0NCIsIm5vbmNlIjoiMDM2ZjNkNjZhY2IxZjQ1MGFlNDQ5ZGE1Y2FkYmYxNDM3ZjA1NzMxNTA5MmE4ZGY1ZWM2ODg5YzYyNjQzMzk5YTk3IiwiaXNzIjoiaHR0cHM6Ly9hcGkub3BlbmxvZ2luLmNvbSIsIndhbGxldHMiOlt7InB1YmxpY19rZXkiOiJiM2M5NzQzZjQzNDRkZDk1NTNjYmEyMWM4MmRkNjgwZjYzMzE3MzcxZjIyNjJjZjI2NGRmZTMwZWM0NDdlN2UyIiwidHlwZSI6IndlYjNhdXRoX2FwcF9rZXkiLCJjdXJ2ZSI6ImVkMjU1MTkifV0sImVtYWlsIjoic2FiZXI3QG1haWxkcm9wLmNjIiwibmFtZSI6InNhYmVyN0BtYWlsZHJvcC5jYyIsInZlcmlmaWVyIjoidG9ydXMiLCJ2ZXJpZmllcklkIjoic2FiZXI3QG1haWxkcm9wLmNjIiwiYWdncmVnYXRlVmVyaWZpZXIiOiJ0a2V5LWF1dGgwLWVtYWlsLXBhc3N3b3JkbGVzcy1scmMiLCJleHAiOjE2OTI1MTYxOTd9.R5WEjADQnV4ymIx5qBFrC5mR3J4mHNqrTTjDtUUCPuecklLAN30xw9TUaWTEeAhKdaPHKUF6MkrzY3LN6iI3Jw
+@idToken=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlRZT2dnXy01RU9FYmxhWS1WVlJZcVZhREFncHRuZktWNDUzNU1aUEMwdzAifQ.eyJpYXQiOjE2OTI2MzUxOTEsImF1ZCI6IkJPMjV6SjE5QTJ1WmpDY0d6SzluMzZpdmJ1VTRWbmp2T2dLUU9PcWtSQVBac1lPUGt1ZFVmUlFoT1QyRWRyTUZ4VWp4blNoYWQwNGNJWVk0aXBJaUFmQSIsIm5vbmNlIjoiMDNkYmVjMjc3NDhlMjgxZTQ4MmRkYzFlNGNiOWNjOGNmMDQ1NTliMDMxNmE5ODY4YTJlMzkwYzYxMGVjMzExNTgxIiwiaXNzIjoiaHR0cHM6Ly9hcGkub3BlbmxvZ2luLmNvbSIsIndhbGxldHMiOlt7InB1YmxpY19rZXkiOiJkNDYyNzhlYTYzNjNhNDMyYzcyM2ZiMGNhNmRjZTYwYTJlODYzOTNhZGU1NzFmZWQ3NWY5MDVhYmM3MDUzNDQyIiwidHlwZSI6IndlYjNhdXRoX2FwcF9rZXkiLCJjdXJ2ZSI6ImVkMjU1MTkifV0sImVtYWlsIjoibWVoZGlkZWhkYXI4OUBnbWFpbC5jb20iLCJuYW1lIjoibWVoZGlkZWhkYXI4OUBnbWFpbC5jb20iLCJ2ZXJpZmllciI6InRvcnVzIiwidmVyaWZpZXJJZCI6Im1laGRpZGVoZGFyODlAZ21haWwuY29tIiwiYWdncmVnYXRlVmVyaWZpZXIiOiJ0a2V5LWF1dGgwLWVtYWlsLXBhc3N3b3JkbGVzcy1jeWFuIiwiZXhwIjoxNjkyNzIxNTkxfQ.ZgCxC1LCVqzqDiUKYeSyiEn9Om3Dn3OVnHyRi8bUVOplJeZLbnuHwoziQ-x6oYrdt2QI__RmrabtRf-t-9gbVA
 POST {{host}}/api/mint/createMint
 content-type: application/json
 id-token: {{idToken}}
@@ -50,12 +50,13 @@ content-type: application/json
 id-token:{{idToken}} 
 
 {
-    "wfId": "a-141"
 }
 
 ###
 
-GET {{host}}/api/mint/returnDataFromCheckUserThenCreateNft/user-a-108
+GET {{host}}/api/mint/returnDataFromCheckUserThenCreateNft
+content-type: application/json
+id-token:{{idToken}} 
 
 ###
 POST  {{host}}/api/mint/getMagicLinkFromAirtable
@@ -63,8 +64,9 @@ content-type: application/json
 id-token:{{idToken}} 
 
 {
-    "wfId": "a-28"
 }
 
 ###
-GET {{host}}/api/mint/returnLogedinUserAiritableMagigLink/user-a-27
+GET {{host}}/api/mint/returnLogedinUserAiritableMagigLink
+content-type: application/json
+id-token:{{idToken}} 

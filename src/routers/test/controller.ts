@@ -1,47 +1,11 @@
 import controller from "../controller";
 import { Request, Response } from "express";
-import * as path from "path";
+
 import {
-  Metaplex,
-  keypairIdentity,
-  bundlrStorage,
-  toMetaplexFile,
-  Metadata,
-} from "@metaplex-foundation/js";
-import {
-  Connection as conn,
-  clusterApiUrl,
-  Keypair,
-  PublicKey,
-} from "@solana/web3.js";
-import {
-  airdrop,
-  createKeypair,
-  getBalance,
-  getConnection,
   getGrowthService,
-  getKeyPair,
-  initializeKeypair,
 } from "../../services/solana";
-import * as web3 from "@solana/web3.js";
-import * as jose from "jose";
 import fs from "fs";
-import { Connection, Client, ConnectionOptions } from "@temporalio/client";
-import {
-  getStatus,
-  isBlockedQuery,
-  mint,
-  signals,
-  unblockSignal,
-  updateMint,
-} from "./workflow/workflows";
-import { NativeConnection, Worker } from "@temporalio/worker";
-import * as activities from "./workflow/activities";
-import { nanoid } from "nanoid";
-import { cli } from "winston/lib/winston/config";
-import { BigQuery } from "@google-cloud/bigquery";
-import { validationResult } from "express-validator";
-import { GrowthService } from "../../services/growth";
+import {  ConnectionOptions } from "@temporalio/client";
 
 let temporalConnConfig: ConnectionOptions;
 
