@@ -11,6 +11,7 @@ class AirTableController extends controller {
   processPendingScores = async (req: Request, res: Response) => {
     const airTableDto = plainToClass(AirTableDTO, req.body);
     console.log(`started ${airTableDto.wfId} `);
+    try {
     const client = await createTemporalClient();
     const workFlowId = "airtable-" + airTableDto.wfId;
     client.workflow.start(processPendingScoresWF, {
@@ -18,6 +19,9 @@ class AirTableController extends controller {
       taskQueue: "airtable",
       workflowId: workFlowId
     });
+    } catch (err) {
+	    console.log(err);
+    }
     this.myResponse(res, 200, {}, "set workflow");
   };
 
