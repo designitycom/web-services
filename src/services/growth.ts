@@ -192,7 +192,7 @@ export class GrowthService {
     }
 
     public async submitScore(recieved_score: ICreativesScoresAirtable) {
-        const applicant = new PublicKey(recieved_score["Wallet Address"]);
+        const applicant = new PublicKey(recieved_score["Wallet Address"][0]);
         const score = await this.program.account.score.fetch(this.getScore(this.orgAddress, applicant), "confirmed");
         let smartcontract_score = [
             Number(recieved_score["Hard Skill (Calculated)"]),

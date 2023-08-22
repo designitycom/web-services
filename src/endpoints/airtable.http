@@ -60,9 +60,9 @@ GET   {{host}}/api/airtable/startWorkerAirTable
 content-type: application/json
 
 ####
-POST  https://api.designity.software/api/airtable/processPendingScores
+POST  http://localhost:5000/api/airtable/processPendingScores
 content-type: application/json
 
 {
-    "wfId": "pps-52"
+    "wfId": "pps-53"
 }

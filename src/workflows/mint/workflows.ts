@@ -18,12 +18,10 @@ const {
   createRegisterMint,
   getMetaplexNFT,
   verify,
-  submitScore
+  submitScore,
 } = proxyActivities<typeof activities>({
   startToCloseTimeout: "1 minute",
 });
-
-
 
 export const getUserNftAfterCheck = wf.defineQuery<
   Nft | Sft | SftWithToken | NftWithToken | null
@@ -48,7 +46,7 @@ export async function checkUserThenCreateNftWF(
     }
     record.fields["Wallet Address"] = userDTO.publicKey;
     const registerMintAddress = await createRegisterMint();
-    try{
+    try {
       const txSig = await register(record.fields, registerMintAddress);
       if (txSig) {
         record.fields["Token Address"] = registerMintAddress;
@@ -60,7 +58,7 @@ export async function checkUserThenCreateNftWF(
         });
         scoreAccount = await getScoreAccount(userDTO.publicKey);
       }
-    }catch(err){
+    } catch (err) {
       console.log(err);
     }
   }
@@ -91,5 +89,10 @@ export async function getMagicLinkFromAirtableWF(
 }
 
 export async function submitScoreWF(fields: ICreativesScoresAirtable) {
-  return await submitScore(fields);
+  try {
+    return await submitScore(fields);
+  } catch (err) {
+    console.error(err);
+  }
+  return null;
 }

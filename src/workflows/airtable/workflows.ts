@@ -61,7 +61,8 @@ export async function processPendingScoresWF(airtableDTO: AirTableDTO) {
       workflowId: `child-submitscore-${airtableDTO.wfId}-${p.id}`,
       taskQueue: "mint",
     });
-    console.log("id, tx", p.id, tx);
-    await updateScoreTX(p.id, tx);
+    if(tx){
+      await updateScoreTX(p.id, tx);
+    }
   }
 }
