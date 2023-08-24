@@ -21,6 +21,9 @@ const {
   submitScore
 } = proxyActivities<typeof activities>({
   startToCloseTimeout: "1 minute",
+  retry:{
+    maximumAttempts:4
+  }
 });
 
 
