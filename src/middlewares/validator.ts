@@ -1,33 +1,13 @@
 import { NextFunction } from "express";
-import {
-  ValidationChain,
-  body,
-  validationResult,
-} from "express-validator";
-import multer from "multer";
 import * as jose from "jose";
 import { Request, Response } from "express";
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/images/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
-const upload = multer({ storage: storage });
-export const mintParamValidator = () => [
-  body("name").notEmpty(),
-  body("description").notEmpty(),
-];
-export const ruleUser = [body("name", "name is not email").isEmail()];
-export const validateUser = async () => {
-  const result = validate([body("name", "name is not email").isEmail()]);
-  console.log;
-};
+import { publicKeyFromBn } from "../services/solana";
+export interface CustomRequest extends Request {
+  email?: string;
+  publicKey?: string;
+}
 export const validateIdToken = async (
-  req: Request,
+  req: CustomRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -39,22 +19,12 @@ export const validateIdToken = async (
     const jwtDecoded = await jose.jwtVerify(idToken.toString(), jwks, {
       algorithms: ["ES256"],
     });
+    req.publicKey = publicKeyFromBn(
+      (jwtDecoded.payload as any).wallets[0].public_key
+    ).toBase58();
+    req.email = (jwtDecoded.payload as any).email;
   } catch (e) {
     return res.status(403).send({ data: {}, message: "Authorization failed" });
   }
   next();
-};
-export const validate = (validations: ValidationChain[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    for (let validation of validations) {
-      const result = await validation.run(req);
-    }
-
-    const errors = validationResult(req);
-    if (errors.isEmpty()) {
-      return next();
-    }
-
-    res.status(400).json({ errors: errors.array() });
-  };
 };

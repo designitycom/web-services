@@ -1,5 +1,5 @@
 import controller from "../controller";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import {
   checkUserThenCreateNftWF,
   getUserNftAfterCheck,
@@ -7,33 +7,20 @@ import {
   getUserMagicLinkFromAirtable,
   getUserScore,
 } from "../../workflows/mint/workflows";
-import { plainToClass } from "class-transformer";
-import { MintDTO } from "../../models/mintDto";
-import {
-  getEmailFromIdToken,
-  getWalletPublicKeyFromIdToken,
-} from "../../services/solana";
 import { createTemporalClient } from "../../services/temporal";
 import { UserDTO } from "../../models/userDto";
-import {
-  WorkflowExecutionAlreadyStartedError,
-  WorkflowIdReusePolicy,
-} from "@temporalio/client";
-import { nextTick } from "process";
+import { CustomRequest } from "../../middlewares/validator";
 
 class MintController extends controller {
   checkUserThenCreateNft = async (
-    req: Request,
+    req: CustomRequest,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const idToken = req.headers["id-token"]!;
       const userDTO = new UserDTO();
-      userDTO.publicKey = await getWalletPublicKeyFromIdToken(
-        idToken.toString()
-      );
-      userDTO.email = await getEmailFromIdToken(idToken.toString());
+      userDTO.publicKey = req.publicKey!;
+      userDTO.email = req.email!;
       const client = await createTemporalClient();
       const workFlowId = "user-create-nft-" + userDTO.publicKey;
       userDTO.wfId = workFlowId;
@@ -49,13 +36,12 @@ class MintController extends controller {
   };
 
   returnDataFromCheckUserThenCreateNft = async (
-    req: Request,
+    req: CustomRequest,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const idToken = req.headers["id-token"]!;
-      const publicKey = await getWalletPublicKeyFromIdToken(idToken.toString());
+      const publicKey = req.publicKey!;
       const workFlowId = "user-create-nft-" + publicKey;
       const client = await createTemporalClient();
       const handle = client.workflow.getHandle(workFlowId);
@@ -73,17 +59,14 @@ class MintController extends controller {
   };
 
   getMagicLinkFromAirtable = async (
-    req: Request,
+    req: CustomRequest,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const idToken = req.headers["id-token"]!;
       const userDTO = new UserDTO();
-      userDTO.publicKey = await getWalletPublicKeyFromIdToken(
-        idToken.toString()
-      );
-      userDTO.email = await getEmailFromIdToken(idToken.toString());
+      userDTO.publicKey = req.publicKey!;
+      userDTO.email = req.email!;
       const client = await createTemporalClient();
       const workFlowId = "user-magic-link-" + userDTO.publicKey;
       userDTO.wfId = workFlowId;
@@ -99,13 +82,12 @@ class MintController extends controller {
   };
 
   returnLogedinUserAiritableMagigLink = async (
-    req: Request,
+    req: CustomRequest,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const idToken = req.headers["id-token"]!;
-      const publicKey = await getWalletPublicKeyFromIdToken(idToken.toString());
+      const publicKey = req.publicKey!;
       const workFlowId = "user-magic-link-" + publicKey;
       const client = await createTemporalClient();
       const handle = client.workflow.getHandle(workFlowId);
