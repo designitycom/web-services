@@ -32,6 +32,7 @@ export async function getScoreAccount(applicant: string) {
     const scoreAccount = await growth.getScoreAccount(new PublicKey(applicant));
     return {
       scores: scoreAccount?.scores,
+      scores_sum: scoreAccount?.scoresSum,
       reviews_sent: scoreAccount?.reviewsSent,
       reviews_recieved: scoreAccount?.reviewsRecieved,
       name: scoreAccount?.name,
