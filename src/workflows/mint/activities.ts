@@ -1,8 +1,10 @@
-
 import { Keypair, PublicKey } from "@solana/web3.js";
 
 import { getGrowthService, makeMetaplex } from "../../services/solana";
-import { ICreativesScoresAirtable, ISoftrCreativesUser } from "../airtable/activities";
+import {
+  ICreativesScoresAirtable,
+  ISoftrCreativesUser,
+} from "../airtable/activities";
 
 function wait(seconds: number) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
@@ -11,14 +13,17 @@ function wait(seconds: number) {
 export async function getMetaplexNFT(nftAddress: string) {
   const m = makeMetaplex();
   try {
-    return m.nfts().findByMint({
-      mintAddress: new PublicKey(nftAddress),
-    }, {
-      commitment: "confirmed",
-      confirmOptions: {
-        commitment: "confirmed"
+    return m.nfts().findByMint(
+      {
+        mintAddress: new PublicKey(nftAddress),
+      },
+      {
+        commitment: "confirmed",
+        confirmOptions: {
+          commitment: "confirmed",
+        },
       }
-    });
+    );
   } catch (err) {
     console.error(err);
     return null;
@@ -40,7 +45,7 @@ export async function getScoreAccount(applicant: string) {
       applicant: scoreAccount?.applicant.toBase58(),
       levels: [...scoreAccount?.levels],
       last_update: scoreAccount?.lastUpdate.toNumber(),
-    }
+    };
   } catch (err) {
     console.log(err);
     return undefined;
@@ -60,9 +65,13 @@ export async function register(fields: ISoftrCreativesUser, mint: string) {
 export async function submitScore(score: ICreativesScoresAirtable) {
   const growth = getGrowthService();
 
-  console.log("submit score", score.id, score);
+  console.log(`submitting score`);
+  console.log(score);
 
-  return await growth.submitScore(score);
+  const tx = await growth.submitScore(score);
+  const scoreAccount = await getScoreAccount(score["Wallet Address"][0]);
+  console.log(`score account`);
+  console.log(scoreAccount);
 }
 
 export async function verify(applicant: string) {
@@ -77,10 +86,3 @@ export async function createRegisterMint() {
   await wait(1);
   return mint.toBase58();
 }
-
-
-
-
-
-
-
