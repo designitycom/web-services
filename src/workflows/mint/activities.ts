@@ -66,12 +66,12 @@ export async function submitScore(score: ICreativesScoresAirtable) {
   const growth = getGrowthService();
 
   console.log(`submitting score`);
-  console.log(score);
+  console.log(JSON.stringify(score));
 
   const tx = await growth.submitScore(score);
   const scoreAccount = await getScoreAccount(score["Wallet Address"][0]);
   console.log(`score account`);
-  console.log(scoreAccount);
+  console.log(JSON.stringify(scoreAccount));
   return tx;
 }
 
