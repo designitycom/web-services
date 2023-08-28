@@ -72,6 +72,7 @@ export async function submitScore(score: ICreativesScoresAirtable) {
   const scoreAccount = await getScoreAccount(score["Wallet Address"][0]);
   console.log(`score account`);
   console.log(scoreAccount);
+  return tx;
 }
 
 export async function verify(applicant: string) {
