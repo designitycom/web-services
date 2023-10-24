@@ -76,6 +76,7 @@ export async function updateSoftrCreativeUsers(recordId: string, record: ISoftrC
   delete record["Start Date"];
   delete record["Profile image"];
   delete record["Dashboard - Backend iFrame"];
+  delete record["ACTIVE?"];
   return await base("Creatives Softr Users").update(
     [
       {
