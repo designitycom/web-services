@@ -21,6 +21,9 @@ const {
   submitScore,
 } = proxyActivities<typeof activities>({
   startToCloseTimeout: "1 minute",
+  retry:{
+    maximumAttempts:4
+  }
 });
 
 export const getUserNftAfterCheck = wf.defineQuery<
@@ -38,7 +41,7 @@ export async function checkUserThenCreateNftWF(
   while (scoreAccount === undefined) {
     let record = await wf.executeChild(findRecordWithEmailWF, {
       args: [userDTO.email],
-      workflowId: "child-checkuser-" + userDTO.wfId,
+      workflowId: "child-check-" + userDTO.wfId,
       taskQueue: "airtable",
     });
     if (!record) {
@@ -53,7 +56,7 @@ export async function checkUserThenCreateNftWF(
         await verify(record.fields["Wallet Address"]);
         await wf.executeChild(updateSoftrCreativeUsersWF, {
           args: [record.id, record.fields],
-          workflowId: "child-updateuser-" + userDTO.wfId,
+          workflowId: "child-update-" + userDTO.wfId,
           taskQueue: "airtable",
         });
         scoreAccount = await getScoreAccount(userDTO.publicKey);
@@ -79,7 +82,7 @@ export async function getMagicLinkFromAirtableWF(
   );
   const record = await wf.executeChild(findRecordWithEmailWF, {
     args: [userDTO.email],
-    workflowId: "child-magiclink-" + userDTO.wfId,
+    workflowId: "child-" + userDTO.wfId,
     taskQueue: "airtable",
   });
 
