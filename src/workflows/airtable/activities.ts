@@ -42,7 +42,7 @@ export interface ICreativesMaster extends FieldSet {
 export async function findRecordWithEmail(email: string): Promise<Record<ISoftrCreativesUser> | undefined> {
   console.log("find by email");
   const base = (await getConnectionAirTable()).base('appxprwH6zsJbTFyM');
-  const findRecords = await base<ISoftrCreativesUser>('Creatives Softr Users').select({
+  const findRecords = await base<ISoftrCreativesUser>('Users').select({
     view: "Softr / Smart Contract Users",
     filterByFormula: `{Email} = '${email}'`,
   }).all();
