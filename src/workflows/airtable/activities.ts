@@ -43,7 +43,7 @@ export async function findRecordWithEmail(email: string): Promise<Record<ISoftrC
   console.log("find by email");
   const base = (await getConnectionAirTable()).base('appxprwH6zsJbTFyM');
   const findRecords = await base<ISoftrCreativesUser>('Users').select({
-    view: "Softr / Smart Contract Users",
+    view: "Softr / Smart Contract Users for Growth Master",
     filterByFormula: `{Email} = '${email}'`,
   }).all();
 
