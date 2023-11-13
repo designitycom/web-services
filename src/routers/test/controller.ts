@@ -1,11 +1,9 @@
 import controller from "../controller";
 import { Request, Response } from "express";
 
-import {
-  getGrowthService,
-} from "../../services/solana";
+import { getGrowthService } from "../../services/solana";
 import fs from "fs";
-import {  ConnectionOptions } from "@temporalio/client";
+import { ConnectionOptions } from "@temporalio/client";
 
 let temporalConnConfig: ConnectionOptions;
 
@@ -29,15 +27,25 @@ if (
 }
 
 class TestController extends controller {
-
   growth = async (req: Request, res: Response) => {
     const g = getGrowthService();
     try {
-      await g.createOrganization("Designity", [4, 1, 1, 1, 1, 2, 1, 1, 1, 1], [2], [[25, 50, 75], [25, 75]], "https://public.designity.software", 15, 10520000);
+      await g.createOrganization(
+        "Designity",
+        [4, 1, 1, 1, 1, 2, 1, 1, 1, 1],
+        [2],
+        [
+          [25, 50, 75],
+          [25, 75],
+        ],
+        "https://public.designity.software",
+        15,
+        10520000
+      );
     } catch (err) {
       console.error(err);
     }
-  }
+  };
 }
 
 export default new TestController();
