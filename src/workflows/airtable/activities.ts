@@ -93,7 +93,7 @@ export async function getPendingScores() {
   try {
     return await base<ICreativesScoresAirtable>("🧑‍🎨 Creatives Scores").select({
       view: "Grid view",
-      filterByFormula: "AND({Transaction ID} = '', {Wallet Address}, {Submitted On})",
+      filterByFormula: "AND({Transaction ID} = '', {Wallet Address}, {Submitted On}, NOT({Count Reviews Provided}))",
       sort: [ {field: "Submitted On", direction: "asc"}]
     }).all();
   } catch (err) {
