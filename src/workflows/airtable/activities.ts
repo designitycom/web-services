@@ -46,9 +46,9 @@ export async function findRecordWithEmail(
   const base = (await getConnectionAirTable()).base(
     `${process.env.AIRTABLE_BASE}`
   );
-  const findRecords = await base<ISoftrCreativesUser>("Creatives Softr Users")
+  const findRecords = await base<ISoftrCreativesUser>("tblgyaptbsvIQPBh8")
     .select({
-      view: "Softr / Smart Contract Users",
+      view: "viwc4OzRvlM26WLt6",
       filterByFormula: `{Email} = '${email}'`,
     })
     .all();
@@ -108,14 +108,11 @@ export async function updateSoftrCreativeUsers(
 export async function getPendingScores() {
   const base = (await getConnectionAirTable()).base("appBwrlSCBQDC9UCV");
   try {
-    return await base<ICreativesScoresAirtable>("🧑‍🎨 Creatives Scores")
-      .select({
-        view: "Grid view",
-        filterByFormula:
-          "AND({Transaction ID} = '', {Wallet Address}, {Submitted On})",
-        sort: [{ field: "Submitted On", direction: "asc" }],
-      })
-      .all();
+    return await base<ICreativesScoresAirtable>("🧑‍🎨 Creatives Scores").select({
+      view: "Grid view",
+      filterByFormula: "AND({Transaction ID} = '', {Wallet Address}, {Submitted On}, NOT({Count Reviews Provided}))",
+      sort: [ {field: "Submitted On", direction: "asc"}]
+    }).all();
   } catch (err) {
     throw err;
   }
