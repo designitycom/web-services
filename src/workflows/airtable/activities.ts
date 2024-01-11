@@ -44,7 +44,7 @@ export async function findRecordWithEmail(
   console.log("find by email");
   // const base = (await getConnectionAirTable()).base("appxprwH6zsJbTFyM");
   const base = (await getConnectionAirTable()).base(
-    `${process.env.AIRTABLE_BASE}`
+    `${process.env.CREATIVE_MASTER_AIRTABLE_BASE}`
   );
   const findRecords = await base<ISoftrCreativesUser>("tblgyaptbsvIQPBh8")
     .select({
@@ -63,7 +63,7 @@ export async function findRecordWithEmail(
 export async function getCreativeWallet(recId: string) {
   // const base = (await getConnectionAirTable()).base("appBwrlSCBQDC9UCV");
   const base = (await getConnectionAirTable()).base(
-    `${process.env.AIRTABLE_BASE}`
+    `${process.env.GROWTH_MASTER_AIRTABLE_BASE}`
   );
 
   const result = await base<ICreativesMaster>("Creatives").find(recId);
@@ -76,7 +76,7 @@ export async function getCreativeWallet(recId: string) {
 export async function updateScoreTX(recId: string, tx: string) {
   // const base = (await getConnectionAirTable()).base("appBwrlSCBQDC9UCV");
   const base = (await getConnectionAirTable()).base(
-    `${process.env.AIRTABLE_BASE}`
+    `${process.env.GROWTH_MASTER_AIRTABLE_BASE}`
   );
 
   await base("🧑‍🎨 Creatives Scores").update(recId, {
@@ -90,14 +90,15 @@ export async function updateSoftrCreativeUsers(
 ) {
   // const base = (await getConnectionAirTable()).base("appxprwH6zsJbTFyM");
   const base = (await getConnectionAirTable()).base(
-    `${process.env.AIRTABLE_BASE}`
+    `${process.env.CREATIVE_MASTER_AIRTABLE_BASE}`
   );
 
   delete record["Start Date"];
   delete record["Profile image"];
   delete record["Dashboard - Backend iFrame"];
   delete record["ACTIVE?"];
-  return await base("Creatives Softr Users").update([
+  return await base("Users").update([
+  //return await base("Creatives Softr Users").update([
     {
       id: recordId,
       fields: record,
