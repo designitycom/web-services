@@ -15,11 +15,11 @@ mintRouter.get(
 );
 mintRouter.post(
   "/getMagicLinkFromAirtable",
-  validateIdToken,
+  // validateIdToken,
   MintController.getMagicLinkFromAirtable
 );
 mintRouter.get(
-  "/returnLogedinUserAiritableMagigLink",
+  "/returnLogedinUserAiritableMagigLink", //FIXME: refactor typo
   validateIdToken,
   MintController.returnLogedinUserAiritableMagigLink
 );

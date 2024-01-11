@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import "dotenv/config";
 import { Connection, Client, ConnectionOptions } from "@temporalio/client";
 import { NativeConnection } from "@temporalio/worker";
 import fs from "fs";
@@ -45,5 +45,5 @@ export async function createTemporalWorkerCon() {
       },
     },
   });
-  return connection
+  return connection;
 }
