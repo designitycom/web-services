@@ -56,7 +56,7 @@ export async function findRecordWithEmail(
   if (findRecords.length < 1) {
     return undefined;
   }
-  console.log(`records with email ${email}`, findRecords);
+  console.log(`records with emailsd ${email}`, findRecords);
   return findRecords[0];
 }
 
