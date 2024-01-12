@@ -42,13 +42,13 @@ export async function findRecordWithEmail(
   email: string
 ): Promise<Record<ISoftrCreativesUser> | undefined> {
   console.log("find by email");
-  // const base = (await getConnectionAirTable()).base("appxprwH6zsJbTFyM");
-  const base = (await getConnectionAirTable()).base(
+  const base = (await getConnectionAirTable()).base("appxprwH6zsJbTFyM");
+  /*const base = (await getConnectionAirTable()).base(
     `${process.env.CREATIVE_MASTER_AIRTABLE_BASE}`
-  );
-  const findRecords = await base<ISoftrCreativesUser>("tblgyaptbsvIQPBh8")
+  );*/
+  const findRecords = await base<ISoftrCreativesUser>("Users")
     .select({
-      view: "viwc4OzRvlM26WLt6",
+      view: "Softr / Smart Contract Users for Growth Master",
       filterByFormula: `{Email} = '${email}'`,
     })
     .all();
@@ -61,10 +61,10 @@ export async function findRecordWithEmail(
 }
 
 export async function getCreativeWallet(recId: string) {
-  // const base = (await getConnectionAirTable()).base("appBwrlSCBQDC9UCV");
-  const base = (await getConnectionAirTable()).base(
+  const base = (await getConnectionAirTable()).base("appBwrlSCBQDC9UCV");
+  /*const base = (await getConnectionAirTable()).base(
     `${process.env.GROWTH_MASTER_AIRTABLE_BASE}`
-  );
+  );*/
 
   const result = await base<ICreativesMaster>("Creatives").find(recId);
   const record = await findRecordWithEmail(
@@ -74,10 +74,10 @@ export async function getCreativeWallet(recId: string) {
 }
 
 export async function updateScoreTX(recId: string, tx: string) {
-  // const base = (await getConnectionAirTable()).base("appBwrlSCBQDC9UCV");
-  const base = (await getConnectionAirTable()).base(
+  const base = (await getConnectionAirTable()).base("appBwrlSCBQDC9UCV");
+  /*const base = (await getConnectionAirTable()).base(
     `${process.env.GROWTH_MASTER_AIRTABLE_BASE}`
-  );
+  );*/
 
   await base("🧑‍🎨 Creatives Scores").update(recId, {
     "Transaction ID": tx,
@@ -88,10 +88,10 @@ export async function updateSoftrCreativeUsers(
   recordId: string,
   record: ISoftrCreativesUser
 ) {
-  // const base = (await getConnectionAirTable()).base("appxprwH6zsJbTFyM");
-  const base = (await getConnectionAirTable()).base(
+  const base = (await getConnectionAirTable()).base("appxprwH6zsJbTFyM");
+  /*const base = (await getConnectionAirTable()).base(
     `${process.env.CREATIVE_MASTER_AIRTABLE_BASE}`
-  );
+  );*/
 
   delete record["Start Date"];
   delete record["Profile image"];
