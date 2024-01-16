@@ -15,7 +15,7 @@ mintRouter.get(
 );
 mintRouter.post(
   "/getMagicLinkFromAirtable",
-  // validateIdToken,
+  validateIdToken,
   MintController.getMagicLinkFromAirtable
 );
 mintRouter.get(
