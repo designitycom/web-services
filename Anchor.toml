@@ -4,7 +4,7 @@ skip-lint = false
 [programs.localnet]
 growth = "A4DzHwqsxB3BbaPXWYMdQzqwigZGysTyw4HFuk3mHgts"
 [programs.devnet]
-growth = "97d8t22JenPAwR85PZEXvc4gkvtAMZR9Ct7xuY11a2X8"
+growth = "A4DzHwqsxB3BbaPXWYMdQzqwigZGysTyw4HFuk3mHgts"
 [programs.mainnet]
 growth = "97d8t22JenPAwR85PZEXvc4gkvtAMZR9Ct7xuY11a2X8"
 
