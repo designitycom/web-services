@@ -77,7 +77,7 @@ export class GrowthService {
   constructor(connection: Connection, authority: Keypair, mint: Keypair) {
     this.authority = authority;
     this.orgMint = mint;
-
+console.log();
     let w = new Wallet(this.authority);
     const env = new anchor.AnchorProvider(connection, w, {
       commitment: "confirmed",

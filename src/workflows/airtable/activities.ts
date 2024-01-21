@@ -98,15 +98,18 @@ export async function updateSoftrCreativeUsers(
   record: ISoftrCreativesUser
 ) {
   const base = (await getConnectionAirTable()).base(process.env.SMART_CONTRACT_AIRTABLE_BASE!);
+
   //const base = (await getConnectionAirTable()).base("appxprwH6zsJbTFyM");
   /*const base = (await getConnectionAirTable()).base(
     `${process.env.CREATIVE_MASTER_AIRTABLE_BASE}`
   );*/
-
+console.log("Record",record);
+console.log("Record id",recordId);
   delete record["Start Date"];
   //delete record["Profile image"];
   //delete record["Dashboard - Backend iFrame"];
-  delete record["ACTIVE?"];
+  delete record["ACTIVE? (from Creatives Master)"];
+  console.log("After delete Record",record);
   return await base("Creatives Users").update([
   //return await base("Creatives Softr Users").update([
     {
