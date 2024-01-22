@@ -12,7 +12,7 @@ growth = "97d8t22JenPAwR85PZEXvc4gkvtAMZR9Ct7xuY11a2X8"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
+cluster = "mainnet"
 wallet = "/Users/air/.config/solana/devnet.json"
 
 [scripts]
