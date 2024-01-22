@@ -75,7 +75,7 @@ export async function checkUserThenCreateNftWF(
   userNFTAfterCheck = await getMetaplexNFT(scoreAccount.mint!);
   return "ok";
   ////////////////////Test code///////////////////////////
-  /*let record = await wf.executeChild(findRecordWithEmailWF, {
+/*let record = await wf.executeChild(findRecordWithEmailWF, {
     args: [userDTO.email],
     workflowId: "child-check-" + userDTO.wfId,
     taskQueue: "airtable",
@@ -90,7 +90,8 @@ export async function checkUserThenCreateNftWF(
     workflowId: "child-update-" + userDTO.wfId,
     taskQueue: "airtable",
   });
-    console.log("Before Register Mint");*/
+  console.log("Before Register Mint");
+  return "ok";*/
 ////////////////////////////////////////////////////////////
 }
 

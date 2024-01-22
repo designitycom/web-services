@@ -177,7 +177,7 @@ console.log();
     // console.log(fields, startDate, startDate.getTime() / 1000);
     return await this.program.methods
       .register(
-        fields.Name,
+        fields.Name!,
         Buffer.from([fields.Level, fields.Status]),
         new anchor.BN(startDate.getTime()).div(new anchor.BN(1000))
       )

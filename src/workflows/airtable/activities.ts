@@ -22,12 +22,12 @@ export interface ICreativesScoresAirtable extends FieldSet {
 }
 
 export interface ISoftrCreativesUser extends FieldSet {
-  Email: string;
+  Email?: string;
   "Token Address": string;
   "Wallet Address": string;
-  "Magic Link": string;
+  "Magic Link"?: string;
   "Start Date"?: string[];
-  Name: string;
+  Name?: string;
   Status: number;
   Level: number;
   //"Profile image"?: string[];
@@ -103,12 +103,16 @@ export async function updateSoftrCreativeUsers(
   /*const base = (await getConnectionAirTable()).base(
     `${process.env.CREATIVE_MASTER_AIRTABLE_BASE}`
   );*/
-console.log("Record",record);
-console.log("Record id",recordId);
+//console.log("Record",record);
+//console.log("Record id",recordId);
   delete record["Start Date"];
-  //delete record["Profile image"];
   //delete record["Dashboard - Backend iFrame"];
   delete record["ACTIVE? (from Creatives Master)"];
+  delete record["Name"];
+  delete record["Email"];
+  delete record["Magic Link"];
+  //delete record["'Token Address'"];
+  //delete record["'Wallet Address'"];
   console.log("After delete Record",record);
   return await base("Creatives Users").update([
   //return await base("Creatives Softr Users").update([
