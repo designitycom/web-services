@@ -74,25 +74,7 @@ export async function checkUserThenCreateNftWF(
   }
   userNFTAfterCheck = await getMetaplexNFT(scoreAccount.mint!);
   return "ok";
-  ////////////////////Test code///////////////////////////
-/*let record = await wf.executeChild(findRecordWithEmailWF, {
-    args: [userDTO.email],
-    workflowId: "child-check-" + userDTO.wfId,
-    taskQueue: "airtable",
-  });
-  if (!record) {
-    console.log("No record found");
-    return "not found";
-  }
-  record.fields["Wallet Address"] = userDTO.publicKey;
-  await wf.executeChild(updateSoftrCreativeUsersWF, {
-    args: [record.id, record.fields],
-    workflowId: "child-update-" + userDTO.wfId,
-    taskQueue: "airtable",
-  });
-  console.log("Before Register Mint");
-  return "ok";*/
-////////////////////////////////////////////////////////////
+
 }
 
 export const getUserMagicLinkFromAirtable = wf.defineQuery<string>(
