@@ -21,8 +21,8 @@ const {
   submitScore,
 } = proxyActivities<typeof activities>({
   startToCloseTimeout: "1 minute",
-  retry:{
-    maximumAttempts:4
+  retry: {
+    maximumAttempts: 4
   }
 });
 
@@ -60,7 +60,7 @@ export async function checkUserThenCreateNftWF(
         console.log("After Register");
         record.fields["Token Address"] = registerMintAddress;
         await verify(record.fields["Wallet Address"]);
-        console.log("Verify Wallet",record.fields["Wallet Address"]);
+        console.log("Verify Wallet", record.fields["Wallet Address"]);
         await wf.executeChild(updateSoftrCreativeUsersWF, {
           args: [record.id, record.fields],
           workflowId: "child-update-" + userDTO.wfId,

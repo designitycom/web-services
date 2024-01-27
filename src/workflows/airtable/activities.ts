@@ -41,24 +41,8 @@ export async function findRecordWithEmail(
   email: string
 ): Promise<Record<ISoftrCreativesUser> | undefined> {
   console.log("find by email");
-  //const base = (await getConnectionAirTable()).base("appxprwH6zsJbTFyM");
   const base = (await getConnectionAirTable()).base(process.env.SMART_CONTRACT_AIRTABLE_BASE!);
-  /*const base = (await getConnectionAirTable()).base(
-    `${process.env.CREATIVE_MASTER_AIRTABLE_BASE}`
-  );*/
-  /*const findRecords = await base<ISoftrCreativesUser>("Users")
-    .select({
-      view: "Softr / Smart Contract Users for Growth Master",
-      filterByFormula: `{Email} = '${email}'`,
-    })
-    .all();*/
-    /*const findRecords = await base<ISoftrCreativesUser>("Creatives Users")
-    .select({
-      view: "Creatives",
-      filterByFormula: `{Email} = '${email}'`,
-    })
-    .all();*/
-    const findRecords = await base<ISoftrCreativesUser>(process.env.CREATIVE_USER_TABLE!)
+  const findRecords = await base<ISoftrCreativesUser>(process.env.CREATIVE_USER_TABLE!)
     .select({
       view: process.env.CREATIVE_USER_VIEW!,
       filterByFormula: `{Email} = '${email}'`,
@@ -72,13 +56,7 @@ export async function findRecordWithEmail(
 }
 
 export async function getCreativeWallet(recId: string) {
-  //const base = (await getConnectionAirTable()).base("appBwrlSCBQDC9UCV");
   const base = (await getConnectionAirTable()).base(process.env.SMART_CONTRACT_AIRTABLE_BASE!);
-  /*const base = (await getConnectionAirTable()).base(
-    `${process.env.GROWTH_MASTER_AIRTABLE_BASE}`
-  );*/
-
-  //const result = await base<ICreativesMaster>("Creatives Growth Master").find(recId);
   const result = await base<ICreativesMaster>(process.env.CREATIVE_GROWTH_TABLE!).find(recId);
   const record = await findRecordWithEmail(
     result.fields["Personal Email Address"]
@@ -88,14 +66,6 @@ export async function getCreativeWallet(recId: string) {
 
 export async function updateScoreTX(recId: string, tx: string) {
   const base = (await getConnectionAirTable()).base(process.env.SMART_CONTRACT_AIRTABLE_BASE!);
-  //const base = (await getConnectionAirTable()).base("appBwrlSCBQDC9UCV");
-  /*const base = (await getConnectionAirTable()).base(
-    `${process.env.GROWTH_MASTER_AIRTABLE_BASE}`
-  );*/
-
-  /*await base("Creatives Scores").update(recId, {
-    "Transaction ID": tx,
-  });*/
   await base(process.env.CREATIVE_SCORES_TABLE!).update(recId, {
     "Transaction ID": tx,
   });
@@ -106,49 +76,27 @@ export async function updateSoftrCreativeUsers(
   record: ISoftrCreativesUser
 ) {
   const base = (await getConnectionAirTable()).base(process.env.SMART_CONTRACT_AIRTABLE_BASE!);
-
-  //const base = (await getConnectionAirTable()).base("appxprwH6zsJbTFyM");
-  /*const base = (await getConnectionAirTable()).base(
-    `${process.env.CREATIVE_MASTER_AIRTABLE_BASE}`
-  );*/
-//console.log("Record",record);
-//console.log("Record id",recordId);
   delete record["Start Date"];
-  //delete record["Dashboard - Backend iFrame"];
   delete record["ACTIVE? (from Creatives Master)"];
   delete record["Name"];
   delete record["Email"];
   delete record["Magic Link"];
-  //delete record["'Token Address'"];
-  //delete record["'Wallet Address'"];
-  console.log("After delete Record",record);
+  console.log("After delete Record", record);
   return await base(process.env.CREATIVE_USER_VIEW!).update([
-      {
-        id: recordId,
-        fields: record,
-      },
-    ]);
-  /*return await base("Creatives Users").update([
     {
       id: recordId,
       fields: record,
     },
-  ]);*/
+  ]);
 }
 
 export async function getPendingScores() {
-  //const base = (await getConnectionAirTable()).base("appBwrlSCBQDC9UCV");
   const base = (await getConnectionAirTable()).base(process.env.SMART_CONTRACT_AIRTABLE_BASE!);
   try {
-    /*return await base<ICreativesScoresAirtable>("Creatives Scores").select({
-      view: "Grid view",
-      filterByFormula: "AND({Transaction ID} = '', {Wallet Address}, {Submitted On}, NOT({Count Reviews Provided}))",
-      sort: [ {field: "Submitted On", direction: "asc"}]
-    }).all();*/
     return await base<ICreativesScoresAirtable>(process.env.CREATIVE_SCORES_TABLE!).select({
       view: process.env.CREATIVE_SCORES_VIEW!,
       filterByFormula: "AND({Transaction ID} = '', {Wallet Address}, {Submitted On}, NOT({Count Reviews Provided}))",
-      sort: [ {field: "Submitted On", direction: "asc"}]
+      sort: [{ field: "Submitted On", direction: "asc" }]
     }).all();
   } catch (err) {
     throw err;

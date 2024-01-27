@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 class Controller {
-  constructor() {}
+  constructor() { }
 
   myResponse = async (
     res: Response,
