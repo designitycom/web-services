@@ -82,7 +82,7 @@ export async function updateSoftrCreativeUsers(
   delete record["Email"];
   delete record["Magic Link"];
   console.log("After delete Record", record);
-  return await base(process.env.CREATIVE_USER_VIEW!).update([
+  return await base(process.env.CREATIVE_USER_TABLE!).update([
     {
       id: recordId,
       fields: record,
