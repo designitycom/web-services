@@ -21,8 +21,8 @@ const {
   submitScore,
 } = proxyActivities<typeof activities>({
   startToCloseTimeout: "1 minute",
-  retry:{
-    maximumAttempts:4
+  retry: {
+    maximumAttempts: 4
   }
 });
 
@@ -33,11 +33,13 @@ export const getUserScore = wf.defineQuery<any>("getUserScore");
 export async function checkUserThenCreateNftWF(
   userDTO: UserDTO
 ): Promise<string> {
+  console.log("Inside Check User Work Flow");
   let scoreAccount: any;
   let userNFTAfterCheck: Nft | Sft | SftWithToken | NftWithToken | null = null;
   wf.setHandler(getUserNftAfterCheck, () => userNFTAfterCheck);
   wf.setHandler(getUserScore, () => scoreAccount);
   scoreAccount = await getScoreAccount(userDTO.publicKey);
+
   while (scoreAccount === undefined) {
     let record = await wf.executeChild(findRecordWithEmailWF, {
       args: [userDTO.email],
@@ -45,15 +47,20 @@ export async function checkUserThenCreateNftWF(
       taskQueue: "airtable",
     });
     if (!record) {
+      console.log("No record found");
       return "not found";
     }
     record.fields["Wallet Address"] = userDTO.publicKey;
+    console.log("Before Register Mint");
     const registerMintAddress = await createRegisterMint();
     try {
+      console.log("After Register Mint");
       const txSig = await register(record.fields, registerMintAddress);
       if (txSig) {
+        console.log("After Register");
         record.fields["Token Address"] = registerMintAddress;
         await verify(record.fields["Wallet Address"]);
+        console.log("Verify Wallet", record.fields["Wallet Address"]);
         await wf.executeChild(updateSoftrCreativeUsersWF, {
           args: [record.id, record.fields],
           workflowId: "child-update-" + userDTO.wfId,
@@ -67,6 +74,7 @@ export async function checkUserThenCreateNftWF(
   }
   userNFTAfterCheck = await getMetaplexNFT(scoreAccount.mint!);
   return "ok";
+
 }
 
 export const getUserMagicLinkFromAirtable = wf.defineQuery<string>(

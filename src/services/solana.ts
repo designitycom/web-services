@@ -97,15 +97,7 @@ export function getConnection(cluster = process.env.SOLANA_CLUSTER) {
 export function makeMetaplex() {
   const connection = getConnection();
   const metaplex = Metaplex.make(connection)
-    .use(keypairIdentity(getKeyPair("AUTHORITY")))
-    .use(
-      bundlrStorage({
-        address: "https://devnet.bundlr.network",
-        providerUrl: "https://api.devnet.solana.com",
-        timeout: 60000,
-      })
-    );
-
+    .use(keypairIdentity(getKeyPair("AUTHORITY")));
   return metaplex;
 }
 

@@ -77,7 +77,6 @@ export class GrowthService {
   constructor(connection: Connection, authority: Keypair, mint: Keypair) {
     this.authority = authority;
     this.orgMint = mint;
-
     let w = new Wallet(this.authority);
     const env = new anchor.AnchorProvider(connection, w, {
       commitment: "confirmed",
@@ -177,7 +176,7 @@ export class GrowthService {
     // console.log(fields, startDate, startDate.getTime() / 1000);
     return await this.program.methods
       .register(
-        fields.Name,
+        fields.Name!,
         Buffer.from([fields.Level, fields.Status]),
         new anchor.BN(startDate.getTime()).div(new anchor.BN(1000))
       )

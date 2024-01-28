@@ -42,9 +42,7 @@ export async function findRecordWithEmailWF(
   console.log("start step 1:call find record with email");
   const record = await findRecordWithEmail(email);
   console.log("end step:end find record with email");
-  // console.log("workflow result:",record);
   status = "end";
-
   return record;
 }
 
@@ -61,7 +59,7 @@ export async function processPendingScoresWF(airtableDTO: AirTableDTO) {
       workflowId: `child-submitscore-${airtableDTO.wfId}-${p.id}`,
       taskQueue: "mint",
     });
-    if(tx){
+    if (tx) {
       await updateScoreTX(p.id, tx);
     }
   }

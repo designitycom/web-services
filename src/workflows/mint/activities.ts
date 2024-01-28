@@ -82,7 +82,9 @@ export async function verify(applicant: string) {
 }
 
 export async function createRegisterMint() {
+  console.log("Inside Register Mint");
   const growth = getGrowthService();
+  console.log("Inside Register Mint");
   const mint = await growth.createRegisterMint(new Keypair());
   await wait(1);
   return mint.toBase58();

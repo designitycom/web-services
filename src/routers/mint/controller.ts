@@ -23,6 +23,7 @@ class MintController extends controller {
       userDTO.email = req.email!;
       const client = await createTemporalClient();
       const workFlowId = "user-create-nft-" + userDTO.publicKey;
+      console.log("Before Check User Work Flow");
       userDTO.wfId = workFlowId;
       const handle = await client.workflow.start(checkUserThenCreateNftWF, {
         args: [userDTO],
@@ -46,6 +47,7 @@ class MintController extends controller {
       const client = await createTemporalClient();
       const handle = client.workflow.getHandle(workFlowId);
       const val = await handle.query(getUserNftAfterCheck);
+
       const valScore = await handle.query(getUserScore);
       await handle.result();
       let result = {
@@ -64,6 +66,9 @@ class MintController extends controller {
     next: NextFunction
   ) => {
     try {
+      console.log("SMART_CONTRACT_AIRTABLE_BASE",process.env.SMART_CONTRACT_AIRTABLE_BASE);
+      console.log("REQUEST Public Key",req.publicKey!);
+      console.log("REQUEST Email",req.email!);
       const userDTO = new UserDTO();
       userDTO.publicKey = req.publicKey!;
       userDTO.email = req.email!;
@@ -87,6 +92,7 @@ class MintController extends controller {
     next: NextFunction
   ) => {
     try {
+      console.log("SMART_CONTRACT_AIRTABLE_BASE",process.env.SMART_CONTRACT_AIRTABLE_BASE);
       const publicKey = req.publicKey!;
       const workFlowId = "user-magic-link-" + publicKey;
       const client = await createTemporalClient();
