@@ -53,7 +53,6 @@ export async function checkUserThenCreateNftWF(
     }
     record.fields["Wallet Address"] = userDTO.publicKey;
     console.log("Before Register Mint");
-    //console.log("Record",record);
     const registerMintAddress = await createRegisterMint();
     try {
       console.log("After Register Mint");

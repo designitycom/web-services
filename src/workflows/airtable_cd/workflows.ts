@@ -52,19 +52,4 @@ export async function processPendingScoresWF(airtableDTO: AirTableDTO) {
   console.log("before processPendingScoresWF");
   const pendingScores = await getPendingScores();
   console.log("pending score",pendingScores);
-  /*for (const p of pendingScores) {
-    if (p.fields["Score Eligible"] !== "Yes") {
-    //if (p.fields["Score Eligible?"] !== "Yes") {
-      continue;
-    }
-    console.log("came");
-    const tx = await wf.executeChild(submitScoreWF, {
-      args: [p.fields],
-      workflowId: `child-submitscore-${airtableDTO.wfId}-${p.id}`,
-      taskQueue: "mint",
-    });
-    if (tx) {
-      await updateScoreTX(p.id, tx);
-    }
-  }*/
 }

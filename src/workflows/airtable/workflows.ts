@@ -50,10 +50,7 @@ export async function findRecordWithEmailWF(
 
 export async function processPendingScoresWF(airtableDTO: AirTableDTO) {
   const pendingScores = await getPendingScores();
-  //console.log("pending score length",pendingScores.length);
   if(pendingScores.length>0){
-    //console.log("pending scores",pendingScores[0]);
-      //console.log("pending scores fields",pendingScores[0].fields["Score Eligible?"]);
     for (const p of pendingScores) {
       
       if (p.fields["Score Eligible?"] !== "Yes") {
@@ -69,20 +66,4 @@ export async function processPendingScoresWF(airtableDTO: AirTableDTO) {
       }
     }
   }
-  //console.log("score eligible?",pendingScores[0].fields["Score Eligible?"]);
-  //console.log("score eligible",pendingScores[0].fields["Score_Eligible"]);
-  /*for (const p of pendingScores) {
-    if (p.fields["Score Eligible"] !== "Yes") {
-    //if (p.fields["Score Eligible?"] !== "Yes") {
-      continue;
-    }
-    const tx = await wf.executeChild(submitScoreWF, {
-      args: [p.fields],
-      workflowId: `child-submitscore-${airtableDTO.wfId}-${p.id}`,
-      taskQueue: "mint",
-    });
-    if (tx) {
-      await updateScoreTX(p.id, tx);
-    }
-  }*/
 }
