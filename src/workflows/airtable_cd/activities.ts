@@ -78,9 +78,6 @@ export async function updateScoreTX(recId: string, tx: string) {
   await base(process.env.CREATIVE_SCORES_TABLE!).update(recId, {
     "Transaction ID": tx,
   });
-  /*await base(process.env.CREATIVE_SCORES_TABLE!).update(recId, {
-    "Transaction Id New": tx,"Score Eligible":"No"
-  });*/
 }
 
 export async function updateSoftrCreativeUsers(
@@ -109,7 +106,6 @@ export async function getPendingScores() {
     return await base<ICreativesDirectorScoresAirtable>(process.env.CREATIVE_SCORES_TABLE!).select({
       view: process.env.CREATIVE_SCORES_VIEW!,
       filterByFormula: "AND({Transaction ID} = '', {Wallet Address}, {Submitted On}, NOT({Count Reviews Provided}))",
-      //filterByFormula: "AND({Transaction Id New} = '', {Creatives}='dev@designity.com', {Wallet Address}, {Submitted On}, NOT({Count Reviews Provided}))",
       sort: [{ field: "Submitted On", direction: "asc" }]
     }).all();
   } catch (err) {
