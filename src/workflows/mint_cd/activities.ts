@@ -1,10 +1,9 @@
 import { Keypair, PublicKey } from "@solana/web3.js";
-
 import { getGrowthService, makeMetaplex } from "../../services/solana";
 import {
-  ICreativesScoresAirtable,
-  ISoftrCreativesUser,
-} from "../airtable/activities";
+  ICreativesDirectorScoresAirtable,
+  ISoftrCreativesCD,
+} from "../airtable_cd/activities";
 
 function wait(seconds: number) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
@@ -30,10 +29,9 @@ export async function getMetaplexNFT(nftAddress: string) {
   }
 }
 
-export async function getScoreAccount(applicant: string) {
-  console.log("applicant initial",applicant);
+export async function getScoreAccountcd(applicant: string) {
   const growth = getGrowthService();
-console.log("applicant",applicant);
+
   try {
     const scoreAccount = await growth.getScoreAccount(new PublicKey(applicant));
     return {
@@ -53,7 +51,7 @@ console.log("applicant",applicant);
   }
 }
 
-export async function register(fields: ISoftrCreativesUser, mint: string) {
+export async function register(fields: ISoftrCreativesCD, mint: string) {
   const growth = getGrowthService();
   try {
     return await growth.register(fields, new PublicKey(mint));
@@ -63,7 +61,7 @@ export async function register(fields: ISoftrCreativesUser, mint: string) {
   }
 }
 
-export async function submitScore(score: ICreativesScoresAirtable) {
+export async function submitScore(score: ICreativesDirectorScoresAirtable) {
   const growth = getGrowthService();
 
   console.log(`submitting score`);
@@ -71,8 +69,7 @@ export async function submitScore(score: ICreativesScoresAirtable) {
 
   const tx = await growth.submitScore(score);
   //const scoreAccount = await getScoreAccount(score["Wallet Address"][0]);
-  console.log("submit score public key",score["Wallet Address"]);
-  const scoreAccount = await getScoreAccount(score["Wallet Address"]);
+  const scoreAccount = await getScoreAccountcd(score["Wallet Address"]);
   //const scoreAccount = await getScoreAccount("HKgZsQq4HrGSF4iMrBzuqmZ8AhzcYuhESJTGQhZrPhk5");
   console.log(`score account`);
   console.log(JSON.stringify(scoreAccount));

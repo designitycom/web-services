@@ -2,7 +2,7 @@ import { proxyActivities } from "@temporalio/workflow";
 import * as wf from "@temporalio/workflow";
 import { Record } from "airtable";
 import type * as activities from "./activities";
-import { AirTableDTO } from "../../models/airTableDto";
+import { AirTableDTO } from "../../models/airTableCdDto";
 import { submitScoreWF } from "../mint/workflows";
 
 const {
@@ -19,7 +19,7 @@ export const getStatus = wf.defineQuery<string>("getStatus");
 
 export async function updateSoftrCreativeUsersWF(
   recordId: string,
-  record: activities.ISoftrCreativesUser
+  record: activities.ISoftrCreativesCD
 ): Promise<string> {
   let status = "start";
   wf.setHandler(getStatus, () => status);
@@ -36,7 +36,7 @@ export async function updateSoftrCreativeUsersWF(
 
 export async function findRecordWithEmailWF(
   email: string
-): Promise<Record<activities.ISoftrCreativesUser> | undefined> {
+): Promise<Record<activities.ISoftrCreativesCD> | undefined> {
   let status = "start";
   console.log("Came in find record with email");
   wf.setHandler(getStatus, () => status);
@@ -49,33 +49,15 @@ export async function findRecordWithEmailWF(
 
 
 export async function processPendingScoresWF(airtableDTO: AirTableDTO) {
+  console.log("before processPendingScoresWF");
   const pendingScores = await getPendingScores();
-  //console.log("pending score length",pendingScores.length);
-  if(pendingScores.length>0){
-    //console.log("pending scores",pendingScores[0]);
-      //console.log("pending scores fields",pendingScores[0].fields["Score Eligible?"]);
-    for (const p of pendingScores) {
-      
-      if (p.fields["Score Eligible?"] !== "Yes") {
-        continue;
-      }
-      const tx = await wf.executeChild(submitScoreWF, {
-        args: [p.fields],
-        workflowId: `child-submitscore-${airtableDTO.wfId}-${p.id}`,
-        taskQueue: "mint",
-      });
-      if (tx) {
-        await updateScoreTX(p.id, tx);
-      }
-    }
-  }
-  //console.log("score eligible?",pendingScores[0].fields["Score Eligible?"]);
-  //console.log("score eligible",pendingScores[0].fields["Score_Eligible"]);
+  console.log("pending score",pendingScores);
   /*for (const p of pendingScores) {
     if (p.fields["Score Eligible"] !== "Yes") {
     //if (p.fields["Score Eligible?"] !== "Yes") {
       continue;
     }
+    console.log("came");
     const tx = await wf.executeChild(submitScoreWF, {
       args: [p.fields],
       workflowId: `child-submitscore-${airtableDTO.wfId}-${p.id}`,

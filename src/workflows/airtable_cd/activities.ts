@@ -1,7 +1,7 @@
 import { FieldSet, Record } from "airtable";
 import { getConnectionAirTable } from "../../services/airTable";
 
-export interface ICreativesScoresAirtable extends FieldSet {
+export interface ICreativesDirectorScoresAirtable extends FieldSet {
   Email: string;
   "Hard Skill (Calculated)": number;
   Creativity_design_sense: number;
@@ -19,9 +19,10 @@ export interface ICreativesScoresAirtable extends FieldSet {
   Creatives: string[];
   "Submitted On": string;
   "Score Eligible?": string;
+  "Processed": string;
 }
 
-export interface ISoftrCreativesUser extends FieldSet {
+export interface ISoftrCreativesCD extends FieldSet {
   Email?: string;
   "Token Address": string;
   "Wallet Address": string;
@@ -39,7 +40,7 @@ export interface ICreativesMaster extends FieldSet {
 
 export async function findRecordWithEmail(
   email: string
-): Promise<Record<ISoftrCreativesUser> | undefined> {
+): Promise<Record<ISoftrCreativesCD> | undefined> {
   console.log("find by email");
  
   //const connection_obj=(await getConnectionAirTable());
@@ -48,7 +49,7 @@ export async function findRecordWithEmail(
   //const base = connection_obj.base(process.env.SMART_CONTRACT_AIRTABLE_BASE!);
   const base = (await getConnectionAirTable()).base(process.env.SMART_CONTRACT_AIRTABLE_BASE!);
   console.log("connection base",base);
-  const findRecords = await base<ISoftrCreativesUser>(process.env.CREATIVE_USER_TABLE!)
+  const findRecords = await base<ISoftrCreativesCD>(process.env.CREATIVE_USER_TABLE!)
     .select({
       view: process.env.CREATIVE_USER_VIEW!,
       filterByFormula: `{Email} = '${email}'`,
@@ -74,17 +75,17 @@ export async function updateScoreTX(recId: string, tx: string) {
   console.log("transaction id",recId);
   console.log("transaction",tx);
   const base = (await getConnectionAirTable()).base(process.env.SMART_CONTRACT_AIRTABLE_BASE!);
-  /*await base(process.env.CREATIVE_SCORES_TABLE!).update(recId, {
-    "Transaction ID": tx,
-  });*/
   await base(process.env.CREATIVE_SCORES_TABLE!).update(recId, {
-    "Transaction Id New": tx,"Processed":"Yes"
+    "Transaction ID": tx,
   });
+  /*await base(process.env.CREATIVE_SCORES_TABLE!).update(recId, {
+    "Transaction Id New": tx,"Score Eligible":"No"
+  });*/
 }
 
 export async function updateSoftrCreativeUsers(
   recordId: string,
-  record: ISoftrCreativesUser
+  record: ISoftrCreativesCD
 ) {
   const base = (await getConnectionAirTable()).base(process.env.SMART_CONTRACT_AIRTABLE_BASE!);
   delete record["Start Date"];
@@ -104,12 +105,11 @@ export async function updateSoftrCreativeUsers(
 export async function getPendingScores() {
   const base = (await getConnectionAirTable()).base(process.env.SMART_CONTRACT_AIRTABLE_BASE!);
   try {
-    console.log("inside get pending scores1");
-    return await base<ICreativesScoresAirtable>(process.env.CREATIVE_SCORES_TABLE!).select({
+    console.log("inside get pending scores");
+    return await base<ICreativesDirectorScoresAirtable>(process.env.CREATIVE_SCORES_TABLE!).select({
       view: process.env.CREATIVE_SCORES_VIEW!,
-      //filterByFormula: "AND({Transaction ID} = '', {Creatives}='dev@designity.com',{Wallet Address}, {Submitted On}, NOT({Count Reviews Provided}))",
-      filterByFormula: "AND({Transaction Id New} = '', {Wallet Address}, {Submitted On}, NOT({Count Reviews Provided}))",
-      //filterByFormula: "AND({Transaction Id New} = '',{Processed} = 'No', {Wallet Address}, {Submitted On}, NOT({Count Reviews Provided}))",
+      filterByFormula: "AND({Transaction ID} = '', {Wallet Address}, {Submitted On}, NOT({Count Reviews Provided}))",
+      //filterByFormula: "AND({Transaction Id New} = '', {Creatives}='dev@designity.com', {Wallet Address}, {Submitted On}, NOT({Count Reviews Provided}))",
       sort: [{ field: "Submitted On", direction: "asc" }]
     }).all();
   } catch (err) {

@@ -9,10 +9,14 @@
     "worker-mint": "nodemon ./src/worker/mint.ts",
     "worker-user": "nodemon ./src/worker/user.ts",
     "worker-airtable": "nodemon ./src/worker/airtable.ts",
+    "worker-airtable-cd": "nodemon ./src/worker/airtable_cd.ts",
+    "worker-mint-cd": "nodemon ./src/worker/mint_cd.ts",
     "start": "node ./dist/index.js",
     "start:worker-mint": "node ./dist/worker/mint.js",
     "start:worker-user": " node ./dist/worker/user.js",
-    "start:worker-airtable": "node ./dist/worker/airtable.js"
+    "start:worker-airtable": "node ./dist/worker/airtable.js",
+    "start:worker-airtable-cd": "node ./dist/worker/airtable_cd.js",
+    "start:worker-mint-cd": "node ./dist/worker/mint_cd.js"
   },
   "author": "",
   "license": "ISC",

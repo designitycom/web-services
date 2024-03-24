@@ -4,16 +4,16 @@ import { Record } from "airtable";
 
 import type * as activities from "./activities";
 import { Nft, NftWithToken, Sft, SftWithToken } from "@metaplex-foundation/js";
-import { UserDTO } from "../../models/userDto";
+import { UserDTO } from "../../models/userCdDto";
 import {
   findRecordWithEmailWF,
   updateSoftrCreativeUsersWF,
-} from "../airtable/workflows";
+} from "../airtable_cd/workflows";
 
-import { ICreativesScoresAirtable } from "../airtable/activities";
+import { ICreativesDirectorScoresAirtable } from "../airtable_cd/activities";
 
 const {
-  getScoreAccount,
+  getScoreAccountcd,
   register,
   createRegisterMint,
   getMetaplexNFT,
@@ -33,17 +33,14 @@ export const getUserScore = wf.defineQuery<any>("getUserScore");
 export async function checkUserThenCreateNftWF(
   userDTO: UserDTO
 ): Promise<string> {
-  console.log("Inside Check User Work Flow");
+  console.log("Inside Check CD Work Flow",);
   let scoreAccount: any;
   let userNFTAfterCheck: Nft | Sft | SftWithToken | NftWithToken | null = null;
   wf.setHandler(getUserNftAfterCheck, () => userNFTAfterCheck);
   wf.setHandler(getUserScore, () => scoreAccount);
-  console.log("Just here");
-  console.log("before score account",scoreAccount);
-  scoreAccount = await getScoreAccount(userDTO.publicKey);
-  console.log("after score account",scoreAccount);
+  scoreAccount = await getScoreAccountcd(userDTO.publicKey);
   console.log("public key",userDTO.publicKey);
-  
+  console.log("score account",scoreAccount);
   while (scoreAccount === undefined) {
     let record = await wf.executeChild(findRecordWithEmailWF, {
       args: [userDTO.email],
@@ -71,7 +68,7 @@ export async function checkUserThenCreateNftWF(
           workflowId: "child-update-" + userDTO.wfId,
           taskQueue: "airtable",
         });
-        scoreAccount = await getScoreAccount(userDTO.publicKey);
+        scoreAccount = await getScoreAccountcd(userDTO.publicKey);
       }
     } catch (err) {
       console.log(err);
@@ -105,7 +102,7 @@ export async function getMagicLinkFromAirtableWF(
   return "ok";
 }
 
-export async function submitScoreWF(fields: ICreativesScoresAirtable) {
+export async function submitScoreWF(fields: ICreativesDirectorScoresAirtable) {
   try {
     return await submitScore(fields);
   } catch (err) {

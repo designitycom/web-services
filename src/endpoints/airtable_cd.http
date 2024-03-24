@@ -1,0 +1,34 @@
+@url=http://localhost
+@port=5000
+@host={{url}}:{{port}}
+
+####
+POST  {{host}}/api/airtablecd/updateRecord
+content-type: application/json
+
+{
+    "wfId": "15",
+    "name":"ash updated",
+    "notes":"notes ash updated",
+    "status":"Todo",
+    "recordId":"recrP2pwewxSbgRmw"
+}    
+
+####
+
+POST  {{host}}/api/airtablecd/findRecordWithEmail
+content-type: application/json
+
+{
+    "wfId": "4",
+    "recordId":"receXaVmSygdSkA2c",
+    "email":"mooreaaliyah0119@gmail.com"
+}  
+
+####
+POST  http://localhost:5000/api/airtablecd/processPendingScores
+content-type: application/json
+
+{
+    "wfId": "pps-53"
+}
