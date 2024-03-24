@@ -6,12 +6,12 @@ import {
   getMagicLinkFromAirtableWF,
   getUserMagicLinkFromAirtable,
   getUserScore,
-} from "../../workflows/mint/workflows";
+} from "../../workflows/mint_cd/workflows";
 import { createTemporalClient } from "../../services/temporal";
-import { UserDTO } from "../../models/userDto";
+import { UserDTO } from "../../models/userCdDto";
 import { CustomRequest } from "../../middlewares/validator";
 
-class MintController extends controller {
+class MintCDController extends controller {
   checkUserThenCreateNft = async (
     req: CustomRequest,
     res: Response,
@@ -22,7 +22,8 @@ class MintController extends controller {
       userDTO.publicKey = req.publicKey!;
       userDTO.email = req.email!;
       const client = await createTemporalClient();
-      const workFlowId = "user-create-nft-" + userDTO.publicKey;
+      const workFlowId = "cd-create-nft-" + userDTO.publicKey;
+      console.log("Before Check User Work Flow");
       userDTO.wfId = workFlowId;
       const handle = await client.workflow.start(checkUserThenCreateNftWF, {
         args: [userDTO],
@@ -41,19 +42,16 @@ class MintController extends controller {
     next: NextFunction
   ) => {
     try {
-  //console.log("came in return data");
       const publicKey = req.publicKey!;
-      console.log("public key",publicKey);
-      const workFlowId = "user-create-nft-" + publicKey;
+      const workFlowId = "cd-create-nft-" + publicKey;
       const client = await createTemporalClient();
       const handle = client.workflow.getHandle(workFlowId);
-      console.log("handle",handle);
       const val = await handle.query(getUserNftAfterCheck);
 
       const valScore = await handle.query(getUserScore);
       await handle.result();
       let result = {
-       myNFT: val,
+        myNFT: val,
         scores: valScore,
       };
       this.myResponse(res, 200, result, "");
@@ -72,7 +70,7 @@ class MintController extends controller {
       userDTO.publicKey = req.publicKey!;
       userDTO.email = req.email!;
       const client = await createTemporalClient();
-      const workFlowId = "user-magic-link-" + userDTO.publicKey;
+      const workFlowId = "cd-magic-link-" + userDTO.publicKey;
       userDTO.wfId = workFlowId;
       const handle = await client.workflow.start(getMagicLinkFromAirtableWF, {
         args: [userDTO],
@@ -91,8 +89,9 @@ class MintController extends controller {
     next: NextFunction
   ) => {
     try {
+      console.log("SMART_CONTRACT_AIRTABLE_BASE",process.env.SMART_CONTRACT_AIRTABLE_BASE);
       const publicKey = req.publicKey!;
-      const workFlowId = "user-magic-link-" + publicKey;
+      const workFlowId = "cd-magic-link-" + publicKey;
       const client = await createTemporalClient();
       const handle = client.workflow.getHandle(workFlowId);
       await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -105,4 +104,4 @@ class MintController extends controller {
   };
 } // end of MintController
 
-export default new MintController();
+export default new MintCDController();

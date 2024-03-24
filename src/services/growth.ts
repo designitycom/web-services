@@ -68,6 +68,7 @@ export class GrowthService {
   }
 
   private getScore(orgAddress: PublicKey, applicant: PublicKey) {
+    console.log();
     return PublicKey.findProgramAddressSync(
       [Buffer.from("score"), orgAddress.toBuffer(), applicant.toBuffer()],
       this.program.programId
@@ -173,6 +174,7 @@ export class GrowthService {
       }
     );
     const startDate = new Date(fields["Start Date"]![0]);
+    console.log("register fields",fields);
     // console.log(fields, startDate, startDate.getTime() / 1000);
     return await this.program.methods
       .register(
@@ -237,7 +239,10 @@ export class GrowthService {
   }
 
   public async submitScore(recieved_score: ICreativesScoresAirtable) {
-    const applicant = new PublicKey(recieved_score["Wallet Address"][0]);
+    //const applicant = new PublicKey(recieved_score["Wallet Address"][0]);
+    //below line should be used because i have changed it in its structure
+    const applicant = new PublicKey(recieved_score["Wallet Address"]);
+    //const applicant = new PublicKey("HKgZsQq4HrGSF4iMrBzuqmZ8AhzcYuhESJTGQhZrPhk5");
     try {
       const score = await this.program.account.score.fetch(
         this.getScore(this.orgAddress, applicant),
