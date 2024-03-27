@@ -57,7 +57,6 @@ export function getGrowthService() {
     )
   );
   let authority = Keypair.fromSecretKey(decodedAuthorityKey);
-
   return new GrowthService(c, getKeyPair("AUTHORITY"), getKeyPair("MINT"));
 }
 const fromHexString = (hexString: string) =>

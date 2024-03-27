@@ -38,7 +38,6 @@ export async function findRecordWithEmailWF(
   email: string
 ): Promise<Record<activities.ISoftrCreativesUser> | undefined> {
   let status = "start";
-  console.log("Came in find record with email");
   wf.setHandler(getStatus, () => status);
   console.log("start step 1:call find record with email");
   const record = await findRecordWithEmail(email);
@@ -50,6 +49,7 @@ export async function findRecordWithEmailWF(
 
 export async function processPendingScoresWF(airtableDTO: AirTableDTO) {
   const pendingScores = await getPendingScores();
+  //console.log(pendingScores);
   if(pendingScores.length>0){
     for (const p of pendingScores) {
       

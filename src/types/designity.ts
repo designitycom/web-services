@@ -1,6 +1,6 @@
-export type Growth = {
+export type Designity = {
   "version": "0.1.0",
-  "name": "growth",
+  "name": "designity",
   "instructions": [
     {
       "name": "createOrganization",
@@ -610,9 +610,9 @@ export type Growth = {
   ]
 };
 
-export const IDL: Growth = {
+export const IDL: Designity = {
   "version": "0.1.0",
-  "name": "growth",
+  "name": "designity",
   "instructions": [
     {
       "name": "createOrganization",
