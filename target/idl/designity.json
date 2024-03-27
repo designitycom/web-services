@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "name": "growth",
+  "name": "designity",
   "instructions": [
     {
       "name": "createOrganization",
@@ -609,6 +609,6 @@
     }
   ],
   "metadata": {
-    "address": "97d8t22JenPAwR85PZEXvc4gkvtAMZR9Ct7xuY11a2X8"
+    "address": "86kpZGxTEDUF3VShNZfykKM8ow1TEeuHEzJ3tduLFyQY"
   }
 }

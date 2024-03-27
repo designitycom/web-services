@@ -35,8 +35,8 @@ class TestController extends controller {
         [4, 1, 1, 1, 1, 2, 1, 1, 1, 1],
         [2],
         [
-          [25, 50, 75],
-          [25, 75],
+          [26, 51, 76],
+          [51, 76],
         ],
         "https://public.designity.software",
         15,

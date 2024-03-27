@@ -41,7 +41,6 @@ class MintController extends controller {
     next: NextFunction
   ) => {
     try {
-  //console.log("came in return data");
       const publicKey = req.publicKey!;
       console.log("public key",publicKey);
       const workFlowId = "user-create-nft-" + publicKey;

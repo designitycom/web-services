@@ -2,11 +2,11 @@
 seeds = true
 skip-lint = false
 [programs.localnet]
-growth = "A4DzHwqsxB3BbaPXWYMdQzqwigZGysTyw4HFuk3mHgts"
+growth = "86kpZGxTEDUF3VShNZfykKM8ow1TEeuHEzJ3tduLFyQY"
 [programs.devnet]
-growth = "A4DzHwqsxB3BbaPXWYMdQzqwigZGysTyw4HFuk3mHgts"
+growth = "86kpZGxTEDUF3VShNZfykKM8ow1TEeuHEzJ3tduLFyQY"
 [programs.mainnet]
-growth = "97d8t22JenPAwR85PZEXvc4gkvtAMZR9Ct7xuY11a2X8"
+growth = "86kpZGxTEDUF3VShNZfykKM8ow1TEeuHEzJ3tduLFyQY"
 
 [registry]
 url = "https://api.apr.dev"

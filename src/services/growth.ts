@@ -9,7 +9,8 @@ import {
   getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 
-import { Growth } from "../types/growth";
+//import { Growth } from "../types/growth";
+import { Designity } from "../types/designity";
 import { toBigNumber } from "@metaplex-foundation/js";
 import { Connection, Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import {
@@ -28,7 +29,7 @@ const wait = (timeout: number) => {
 };
 
 export class GrowthService {
-  private program: Program<Growth>;
+  private program: Program<Designity>;
   private authority: Keypair;
   private orgMint: Keypair;
 
@@ -83,7 +84,16 @@ export class GrowthService {
       commitment: "confirmed",
     });
     anchor.setProvider(env);
-    this.program = anchor.workspace.Growth as Program<Growth>;
+    // Read the generated IDL.
+const idl = JSON.parse(
+  require("fs").readFileSync("./target/idl/designity.json", "utf8")
+);
+
+//Address of the deployed program
+const programId = new anchor.web3.PublicKey("86kpZGxTEDUF3VShNZfykKM8ow1TEeuHEzJ3tduLFyQY");
+this.program = new anchor.Program(idl, programId);
+    //this.program = anchor.workspace.Designity as Program<Designity>;
+    //console.log(this.program.idl);
     // wtf is programID
     console.log(
       "mint and auth",
