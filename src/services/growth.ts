@@ -258,6 +258,8 @@ this.program = new anchor.Program(idl, programId);
         this.getScore(this.orgAddress, applicant),
         "confirmed"
       );
+      console.log("score",score);
+      if(score!=undefined&&score.mint!=undefined&&score.mint!=null){
       let smartcontract_score = [
         Number(recieved_score["Hard Skill (Calculated)"]),
         Number(recieved_score.Creativity_design_sense),
@@ -293,6 +295,9 @@ this.program = new anchor.Program(idl, programId);
         .rpc({
           skipPreflight: true,
         });
+      }else{
+        return null;
+      }
     } catch (err) {
       console.error(err);
       return null;
