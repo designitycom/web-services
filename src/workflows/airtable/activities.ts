@@ -106,7 +106,7 @@ export async function getPendingScores() {
   try {
     return await base<ICreativesScoresAirtable>(process.env.CREATIVE_SCORES_TABLE!).select({
       view: process.env.CREATIVE_SCORES_VIEW!,
-      filterByFormula: "AND({Transaction Id New} = '',{Wallet Address}, {Submitted On}, NOT({Count Reviews Provided}))",
+      filterByFormula: "AND({Transaction Id New} = '',{Creatives}='dev@designity.com',{Wallet Address}, {Submitted On}, NOT({Count Reviews Provided}))",
       sort: [{ field: "Submitted On", direction: "asc" }]
     }).all();
   } catch (err) {
