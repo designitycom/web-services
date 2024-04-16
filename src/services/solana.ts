@@ -57,7 +57,9 @@ export function getGrowthService() {
     )
   );
   let authority = Keypair.fromSecretKey(decodedAuthorityKey);
-  return new GrowthService(c, getKeyPair("AUTHORITY"), getKeyPair("MINT"));
+  //return new GrowthService(c, getKeyPair("AUTHORITY"), getKeyPair("MINT"));
+  return new GrowthService(c, getKeyPair("AUTHORITY"), getKeyPairMint());
+  
 }
 const fromHexString = (hexString: string) =>
   Uint8Array.from(
@@ -88,6 +90,15 @@ export function getKeyPair(keyName: "AUTHORITY" | "MINT") {
         .toString()
     )
   );
+  return Keypair.fromSecretKey(decodedMintKey);
+}
+export function getKeyPairMint() {
+  const decodedMintKey = new Uint8Array(
+    JSON.parse(
+      process.env.MINT_PK!
+    )
+  );
+  //console.log("decodedMintKey",decodedMintKey);
   return Keypair.fromSecretKey(decodedMintKey);
 }
 export function getConnection(cluster = process.env.SOLANA_CLUSTER) {
